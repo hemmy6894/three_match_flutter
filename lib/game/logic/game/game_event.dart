@@ -19,3 +19,12 @@ class GameMatchCharacterStateEvent extends GameEvent{
   final bool match;
   GameMatchCharacterStateEvent({required this.match});
 }
+
+class GameCatchHelperEvent extends GameEvent{
+  final CharacterType helper;
+  GameCatchHelperEvent({required this.helper});
+}
+
+class GameIsCapturedEvent extends GameEvent{
+  GameIsCapturedEvent();
+}

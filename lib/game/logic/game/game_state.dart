@@ -2,6 +2,7 @@ part of 'game_bloc.dart';
 
 class GameState extends Equatable {
   final Map<int, Map<int, CharacterType>> gameBoards;
+  final Map<int, Map<int, bool>> carpets;
   final Map<int, int> firstClicked;
   final Map<int, int> secondClicked;
   final Map<int, int> tempClicked;
@@ -13,6 +14,7 @@ class GameState extends Equatable {
   final List<Map<int, int>> superBombs;
   final List<Map<int, int>> previousPosition;
   final List<Map<int, int>> currentPosition;
+  final CharacterType? selectedHelper;
   final int col;
   final int row;
   final bool match;
@@ -23,6 +25,7 @@ class GameState extends Equatable {
 
   const GameState(
       {required this.gameBoards,
+      required this.carpets,
       required this.firstClicked,
       required this.tempClicked,
       required this.tempSecClicked,
@@ -39,11 +42,13 @@ class GameState extends Equatable {
       required this.reversed,
       required this.dropDown,
       required this.matchAll,
+      required this.selectedHelper,
       required this.bombTouched,
       required this.secondClicked});
 
   factory GameState.empty() => const GameState(
       gameBoards: {},
+      carpets: {},
       firstClicked: {},
       toBreak: [],
       planes: [],
@@ -55,16 +60,18 @@ class GameState extends Equatable {
       secondClicked: {},
       tempClicked: {},
       tempSecClicked: {},
-      col: 6,
-      row: 7,
+      col: 10,
+      row: 11,
       match: false,
       reversed: false,
       matchAll: false,
+      selectedHelper: null,
       bombTouched: true,
       dropDown: false);
 
   GameState copyWith({
     Map<int, Map<int, CharacterType>>? gameBoards,
+    Map<int, Map<int, bool>>? carpets,
     Map<int, int>? firstClicked,
     Map<int, int>? secondClicked,
     Map<int, int>? tempClicked,
@@ -83,9 +90,11 @@ class GameState extends Equatable {
     bool? dropDown,
     bool? matchAll,
     bool? bombTouched,
+    CharacterType? selectedHelper,
   }) {
     return GameState(
       gameBoards: gameBoards ?? this.gameBoards,
+      carpets: carpets ?? this.carpets,
       firstClicked: firstClicked ?? this.firstClicked,
       secondClicked: secondClicked ?? this.secondClicked,
       tempClicked: tempClicked ?? this.tempClicked,
@@ -104,6 +113,7 @@ class GameState extends Equatable {
       matchAll: matchAll ?? this.matchAll,
       dropDown: dropDown ?? this.dropDown,
       bombTouched: bombTouched ?? this.bombTouched,
+      selectedHelper: selectedHelper ?? this.selectedHelper,
     );
   }
 
@@ -119,9 +129,16 @@ class GameState extends Equatable {
     return clicked;
   }
 
+  bool hasCarpet({required int row, required int col}) {
+    bool clicked = false;
+    clicked = (carpets[row]??{})[col]??false;
+    return clicked;
+  }
+
   @override
   List<Object?> get props => [
         gameBoards.entries,
+        carpets.entries,
         firstClicked.entries,
         secondClicked.entries,
         col,
@@ -139,6 +156,7 @@ class GameState extends Equatable {
         superBombs,
         dropDown,
         matchAll,
-        bombTouched
+        bombTouched,
+        selectedHelper
       ];
 }

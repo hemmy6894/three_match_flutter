@@ -1,50 +1,5 @@
 part of 'game_bloc.dart';
 
-List<CharacterType> chars = [
-  CharacterType.banana,
-  CharacterType.apple,
-  CharacterType.pear,
-  CharacterType.blueBerry,
-  CharacterType.orange,
-  CharacterType.hole,
-  CharacterType.space,
-  CharacterType.bomb,
-  CharacterType.plane,
-];
-
-startGameLevel1(Emitter<GameState> emit, GameState state) {
-  Map<String,dynamic> level1 = Assets.level1;
-  state = state.copyWith(col: level1["col"], row:  level1["row"]);
-  emit(state);
-  int col = state.col;
-  int row = state.row;
-
-  final Map<int, Map<int, CharacterType>> gameBoards = {};
-  for (int i = 1; i <= row; i++) {
-    Map<int, CharacterType> gameBoard = {};
-    for (int j = 1; j <= col; j++) {
-      CharacterType randCharacter = getUniqueRandomCharacter(gameBoards, i, j);
-      gameBoard.addAll({j: randCharacter});
-      gameBoards.addAll({i: gameBoard});
-    }
-  }
-  emit(state.copyWith(gameBoards: gameBoards));
-}
-
-getUniqueRandomCharacter(gameBoards, row, col) {
-  var rng = Random();
-  CharacterType randCharacter = chars[rng.nextInt(4)];
-  CharacterType twoRowBeforeCharacter =
-      getBoardCharacter(gameBoards, row: (row - 2), col: col);
-  CharacterType twoColBeforeCharacter =
-      getBoardCharacter(gameBoards, row: row, col: (col - 2));
-  if (randCharacter == twoColBeforeCharacter ||
-      randCharacter == twoRowBeforeCharacter) {
-    randCharacter = getUniqueRandomCharacter(gameBoards, row, col);
-  }
-  return randCharacter;
-}
-
 characterClicked(Emitter<GameState> emit, GameState state, int row, int col) {
   CharacterType g = getCharacter(state, row: row, col: col);
   if (g == CharacterType.hole) {
@@ -62,8 +17,12 @@ characterClicked(Emitter<GameState> emit, GameState state, int row, int col) {
   state = state.copyWith(
       secondClicked: {row: col},
       tempSecClicked: {row: col},
-      reversed: false,
+      reversed: Helpers.isHandCaptured(state),
+      selectedHelper: Helpers.isHandCaptured(state)
+          ? CharacterType.hole
+          : state.selectedHelper,
       bombTouched: true);
+
   emit(state);
 }
 
@@ -120,7 +79,7 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
     }
     if (bombing.isNotEmpty) {
       matchCount += bombing.entries.first.key;
-      if(bombing.entries.first.key > 1) {
+      if (bombing.entries.first.key > 1) {
         print("BOOOO 1");
         game = [...game, ...bombing.entries.first.value];
       }
@@ -159,7 +118,7 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
     }
     if (bombing2.isNotEmpty) {
       matchCount2 += bombing2.entries.first.key;
-      if(bombing2.entries.first.key > 1) {
+      if (bombing2.entries.first.key > 1) {
         print("BOOOO");
         game2 = [...game2, ...bombing2.entries.first.value];
       }
@@ -187,6 +146,8 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
   }
 
   total = matchCount2 + matchCount;
+  state = Helpers.isCaptured(emit, state) ?? state;
+  print("Hand reserved ${state.reversed}");
   if (total < 1 && !state.reversed) {
     await Future.delayed(const Duration(seconds: 1));
     emit(
@@ -210,7 +171,7 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
   }
 }
 
-Map<int, List<Map<int,int>>> bombMoves(GameState state, int row, int col) {
+Map<int, List<Map<int, int>>> bombMoves(GameState state, int row, int col) {
   List<Map<int, int>> firstMoves = [];
   List<Map<int, int>> bombMoves = [];
   int matchCount = 0;
@@ -340,17 +301,18 @@ Map<int, List<Map<int, int>>> getConnectedCharacter(
   if (colCount > 2 || rowCount > 2) {
     matchCount = 3;
     firstMoves = [...firstMoves, ...horizontalMoves, ...verticalMoves];
-    List<dynamic> bullet =
-        checkBullets(horizontalMoves, verticalMoves, {row: col});
+    List<dynamic> bullet = SpecialCharacter.checkBullets(
+        horizontalMoves, verticalMoves, {row: col});
     if (bullet.isNotEmpty) {
       bullets.add({row: col});
     }
-    List<dynamic> bomb = checkBombs(horizontalMoves, verticalMoves, {row: col});
+    List<dynamic> bomb =
+        SpecialCharacter.checkBombs(horizontalMoves, verticalMoves, {row: col});
     if (bomb.isNotEmpty) {
       bombs.add({row: col});
     }
-    List<dynamic> superBomb =
-        checkSuperBombs(horizontalMoves, verticalMoves, {row: col});
+    List<dynamic> superBomb = SpecialCharacter.checkSuperBombs(
+        horizontalMoves, verticalMoves, {row: col});
     if (superBomb.isNotEmpty) {
       superBombs.add({row: col});
     }
@@ -360,8 +322,8 @@ Map<int, List<Map<int, int>>> getConnectedCharacter(
   }
 
   if (horizontalMoves.isNotEmpty && verticalMoves.isNotEmpty) {
-    List<dynamic> jet =
-        checkPlane(state, horizontalMoves, verticalMoves, {row: col});
+    List<dynamic> jet = SpecialCharacter.checkPlane(
+        state, horizontalMoves, verticalMoves, {row: col});
     if (jet.length >= 4) {
       planes.add({row: col});
       firstMoves = [...firstMoves, ...jet];
@@ -381,221 +343,6 @@ Map<int, List<Map<int, int>>> getConnectedCharacter(
   };
 }
 
-checkPlane(GameState state, List<Map<int, int>> horizontal,
-    List<Map<int, int>> vertical, Map<int, int> current) {
-  if (horizontal.isNotEmpty && vertical.isNotEmpty) {
-    if (current.isNotEmpty) {
-      int horizontalRow = horizontal[0].entries.first.key;
-      int horizontalCol = horizontal[0].entries.first.value;
-
-      int verticalRow = vertical[0].entries.first.key;
-      int verticalCol = vertical[0].entries.first.value;
-
-      int currentRow = current.entries.first.key;
-      int currentCol = current.entries.first.value;
-
-      int newCol = 0, newRow = 0;
-      if (currentRow == horizontalRow && currentCol == verticalCol) {
-        if (verticalRow - 1 == currentRow) {
-          if (horizontalCol - 1 == currentCol) {
-            newCol = currentCol + 1;
-            newRow = verticalRow;
-          }
-          if (horizontalCol + 1 == currentCol) {
-            newCol = currentCol - 1;
-            newRow = verticalRow;
-          }
-        }
-        if (verticalRow + 1 == currentRow) {
-          if (horizontalCol - 1 == currentCol) {
-            newCol = currentCol + 1;
-            newRow = verticalRow;
-          }
-          if (horizontalCol + 1 == currentCol) {
-            newCol = currentCol - 1;
-            newRow = verticalRow;
-          }
-        }
-      }
-      if (newCol != 0 && newRow != 0) {
-        CharacterType target = getCharacter(state, row: newRow, col: newCol);
-        CharacterType main =
-            getCharacter(state, row: currentRow, col: currentCol);
-        if (main == target) {
-          return [
-            horizontal[0],
-            vertical[0],
-            current,
-            {newRow: newCol}
-          ];
-        }
-      }
-    }
-  }
-  return [];
-}
-
-checkBullets(List<Map<int, int>> horizontal, List<Map<int, int>> vertical,
-    Map<int, int> current) {
-  if (horizontal.length == 3 || vertical.length == 3) {
-    return [current];
-  }
-  return [];
-}
-
-checkBombs(List<Map<int, int>> horizontal, List<Map<int, int>> vertical,
-    Map<int, int> current) {
-  if (horizontal.length == 2 && vertical.length == 2) {
-    return [current];
-  }
-  return [];
-}
-
-checkSuperBombs(List<Map<int, int>> horizontal, List<Map<int, int>> vertical,
-    Map<int, int> current) {
-  if (horizontal.length >= 4 || vertical.length >= 4) {
-    return [current];
-  }
-  return [];
-}
-
-CharacterType getBullet() {
-  var rand = Random();
-  return rand.nextInt(1000) % 2 == 0
-      ? CharacterType.verticalBullet
-      : CharacterType.horizontalBullet;
-}
-
-breakMatch(Emitter<GameState> emit, GameState state) {
-  Map<int, Map<int, CharacterType>> boards = state.gameBoards;
-  boards = replaceCharacterWith(boards, state.planes, CharacterType.plane);
-  boards = replaceCharacterWith(boards, state.bullets, getBullet());
-  boards = replaceCharacterWith(boards, state.bombs, CharacterType.bomb);
-  boards =
-      replaceCharacterWith(boards, state.superBombs, CharacterType.superBomb);
-
-  List<Map<int, int>> remains = [];
-  remains = removeIfMatchForBomb(state.planes, state.toBreak);
-  remains = removeIfMatchForBomb(state.bombs, remains);
-  remains = removeIfMatchForBomb(state.bullets, remains);
-  remains = removeIfMatchForBomb(state.superBombs, remains);
-
-  boards = replaceCharacterWith(boards, remains, CharacterType.hole);
-
-  emit(state.copyWith(
-      gameBoards: boards,
-      dropDown: true,
-      toBreak: [],
-      planes: [],
-      bullets: [],
-      bombs: [],
-      superBombs: []));
-}
-
-Map<int, Map<int, CharacterType>> replaceCharacterWith(
-    Map<int, Map<int, CharacterType>> boards,
-    List<Map<int, int>> replaces,
-    CharacterType character) {
-  Map<int, Map<int, CharacterType>> bds = boards;
-  for (Map<int, int> replace in replaces) {
-    int rowCount = replace.entries.first.key;
-    int colCount = replace.entries.first.value;
-    Map<int, CharacterType> row = bds[rowCount] ?? {};
-    row[colCount] = character;
-    bds[rowCount] = row;
-  }
-  return bds;
-}
-
-List<Map<int, int>> removeIfMatchForBomb(
-    List<Map<int, int>> bombs, List<Map<int, int>> breaks) {
-  List<Map<int, int>> remains = [];
-  if (bombs.isNotEmpty) {
-    bool exist = false;
-    for (Map<int, int> brk in breaks) {
-      exist = false;
-      for (Map<int, int> bom in bombs) {
-        if (mapEquals(brk, bom)) {
-          exist = true;
-        }
-      }
-      if (!exist) {
-        remains.add(brk);
-      }
-    }
-  } else {
-    remains = breaks;
-  }
-  return remains;
-}
-
-dropCharacter(Emitter<GameState> emit, GameState state) async {
-  Map<int, Map<int, CharacterType>> boards = state.gameBoards;
-  final List<Map<int, int>> previousPosition = [];
-  final List<Map<int, int>> currentPosition = [];
-  if (state.dropDown) {
-    int lessBy = 0;
-    // print("DROP");
-    for (int j = 1; j <= state.col; j++) {
-      int colIncrement = 0;
-      List<CharacterType> newLook = [];
-      for (int i = state.row; i >= 1; i--) {
-        // List all character in column which is not hole
-        CharacterType character = boards[i]?[j] ?? CharacterType.hole;
-        if (CharacterType.hole != character) {
-          newLook.add(character);
-        }
-      }
-      if (newLook.length < state.row) {
-        lessBy = state.row - newLook.length;
-        int k = 0;
-        // drop character down
-        for (int i = state.row; i > lessBy; i--) {
-          Map<int, CharacterType> row = boards[i] ?? {};
-          row = {...row, j: newLook[k]};
-          boards[i] = row;
-          k++;
-        }
-        // Replace remain character with new
-        for (int i = lessBy; i >= 1; i--) {
-          Map<int, CharacterType> row = boards[i] ?? {};
-          previousPosition.add({0: j});
-          row = {...row, j: getUniqueRandomCharacter(boards, i, j)};
-          boards[i] = row;
-          currentPosition.add({i: j});
-        }
-      }
-    }
-    emit(state.copyWith(
-        gameBoards: boards, dropDown: false, bombTouched: false, previousPosition: previousPosition));
-  }
-
-  Map<int, List<Map<int, int>>> connected = {};
-  List<Map<int, int>> firstMoves = [];
-  for (int i = 1; i <= state.row; i++) {
-    for (int j = 1; j <= state.col; j++) {
-      CharacterType type = getBoardCharacter(boards, row: i, col: j);
-      connected = getConnectedCharacter(state, i, j, type);
-      if (connected.isNotEmpty) {
-        if (connected.entries.first.key > 1) {
-          firstMoves = [...firstMoves, ...connected.entries.first.value];
-        }
-      }
-    }
-  }
-  if (firstMoves.length > 2) {
-    emit(
-      state.copyWith(
-        toBreak: firstMoves,
-        planes: [],
-        bullets: [],
-        bombs: [],
-        superBombs: [],
-      ),
-    );
-  }
-}
-
 checkTopCharacter(Emitter<GameState> emit, GameState state,
     Map<int, Map<int, CharacterType>> boards, int row, int col) {
   for (int i = row; i >= 1; i--) {
@@ -606,7 +353,7 @@ checkTopCharacter(Emitter<GameState> emit, GameState state,
       return checkTopCharacter(emit, state, boards, (i - 1), col);
     }
   }
-  return getUniqueRandomCharacter(boards, row, col);
+  return CharacterGenerator.getUniqueRandomCharacter(boards, row, col);
 }
 
 changeRow(
