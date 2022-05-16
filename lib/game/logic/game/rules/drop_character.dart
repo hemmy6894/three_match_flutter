@@ -49,7 +49,6 @@ class DropCharacter {
       emit(state.copyWith(
           gameBoards: boards, dropDown: false, bombTouched: false, previousPosition: previousPosition));
     }
-
     Map<int, List<Map<int, int>>> connected = {};
     List<Map<int, int>> firstMoves = [];
     for (int i = 1; i <= state.row; i++) {
@@ -58,17 +57,20 @@ class DropCharacter {
         connected = getConnectedCharacter(state, i, j, type);
         if (connected.isNotEmpty) {
           if (connected.entries.first.key > 1) {
-            firstMoves = [...firstMoves, ...connected.entries.first.value];
+            firstMoves = [...connected.entries.first.value];
           }
         }
       }
     }
     if (firstMoves.length > 2) {
+      // await Future.delayed(const Duration(milliseconds: 300));
+      // print(firstMoves);
       emit(
         state.copyWith(
           toBreak: firstMoves,
           planes: [],
-          bullets: [],
+          bulletVerticals: [],
+          bulletHorizontals: [],
           bombs: [],
           superBombs: [],
         ),

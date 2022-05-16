@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:test_game/game/logic/game/game_bloc.dart';
-import 'package:test_game/game/ui/game.dart';
+import 'package:test_game/game/logic/ui/ui_cubit.dart';
+import 'package:test_game/game/ui/levels/home.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final storage = await HydratedStorage.build(
+      storageDirectory: await getApplicationDocumentsDirectory(),
+  );
+  HydratedBlocOverrides.runZoned(
+          () => runApp(const MyApp()),
+      storage: storage);
 }
 
 class MyApp extends StatelessWidget {
@@ -20,7 +29,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: const GameHome(),
+        home: const HomePage(),
       ),
     );
   }
@@ -40,6 +49,7 @@ class _GameProviderState extends State<GameProvider> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(providers: [
       BlocProvider<GameBlock>(create: (context) => GameBlock()),
+      BlocProvider<UiCubit>(create: (context) => UiCubit()),
     ], child: widget.child);
   }
 }

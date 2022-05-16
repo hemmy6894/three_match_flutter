@@ -3,21 +3,44 @@ part of '../game_bloc.dart';
 class BreakCharacter {
   static breakMatch(Emitter<GameState> emit, GameState state) {
     Map<int, Map<int, CharacterType>> boards = state.gameBoards;
-    Map<int, Map<int, bool>> carpets = state.carpets;
-    boards = replaceCharacterWith(boards, state.planes, CharacterType.plane);
-    boards = replaceCharacterWith(
-        boards, state.bullets, SpecialCharacter.getBullet());
-    boards = replaceCharacterWith(boards, state.bombs, CharacterType.bomb);
-    boards =
-        replaceCharacterWith(boards, state.superBombs, CharacterType.superBomb);
 
+    List<Map<CharacterType,int>> targets = state.targets;
+
+    List<Map<int,int>> targetBreaking = [];
+    for(Map<int,int> replace in state.toBreak) {
+      int rowCount = replace.entries.first.key;
+      int colCount = replace.entries.first.value;
+
+      bool breaking = true;
+      bool first = false;
+      if(targetBreaking.isEmpty){
+        first = true;
+        targetBreaking.add(replace);
+      }
+      for(Map<int,int> rep in targetBreaking){
+        if(mapEquals(rep, replace) && !first){
+          breaking = false;
+        }
+      }
+      if(breaking) {
+        targetBreaking.add(replace);
+        targets = reduceTarget(getBoardCharacter(boards, row: rowCount, col: colCount), targets);
+      }
+    }
+
+    Map<int, Map<int, bool>> carpets = state.carpets;
+    boards = replaceCharacterWith(emit,state,boards, state.planes, CharacterType.plane);
+    boards = replaceCharacterWith(emit,state, boards, state.bulletVerticals, CharacterType.verticalBullet);
+    boards = replaceCharacterWith(emit,state, boards, state.bulletHorizontals, CharacterType.horizontalBullet);
+    boards = replaceCharacterWith(emit,state,boards, state.bombs, CharacterType.bomb);
+    boards = replaceCharacterWith(emit,state,boards, state.superBombs, CharacterType.superBomb);
     List<Map<int, int>> remains = [];
     remains = removeIfMatchForBomb(state.planes, state.toBreak);
     remains = removeIfMatchForBomb(state.bombs, remains);
-    remains = removeIfMatchForBomb(state.bullets, remains);
+    remains = removeIfMatchForBomb(state.bulletVerticals, remains);
+    remains = removeIfMatchForBomb(state.bulletHorizontals, remains);
     remains = removeIfMatchForBomb(state.superBombs, remains);
-
-    boards = replaceCharacterWith(boards, remains, CharacterType.hole);
+    boards  = replaceCharacterWith(emit,state,boards, remains, CharacterType.hole);
 
     bool hasCarpet = false;
     for (Map<int, int> replace in remains) {
@@ -37,12 +60,29 @@ class BreakCharacter {
         dropDown: true,
         toBreak: [],
         planes: [],
-        bullets: [],
+        bulletVerticals: [],
+        bulletHorizontals: [],
+        targets: targets,
         bombs: [],
         superBombs: []));
   }
 
+  static reduceTarget(CharacterType characterType, List<Map<CharacterType,int>> targets){
+    List<Map<CharacterType,int>> trgs = [];
+    for(Map<CharacterType,int> target in targets){
+      if(target.entries.first.key == characterType){
+        int newTargetNum = (target.entries.first.value - 1);
+        trgs.add({characterType : newTargetNum > 0 ? newTargetNum : 0 });
+      }else{
+        trgs.add(target);
+      }
+    }
+    return trgs;
+  }
+
   static Map<int, Map<int, CharacterType>> replaceCharacterWith(
+      Emitter<GameState> emit,
+      GameState state,
       Map<int, Map<int, CharacterType>> boards,
       List<Map<int, int>> replaces,
       CharacterType character) {
@@ -83,8 +123,8 @@ class BreakCharacter {
       int rowCount = replace.entries.first.key;
       int colCount = replace.entries.first.value;
       Map<int, bool> row = bds[rowCount] ?? {};
-      row[colCount] = status;
-      bds[rowCount] = row;
+      row = {...row, colCount: status};
+      bds = {...bds, rowCount: row};
     }
     return bds;
   }
@@ -119,6 +159,23 @@ class BreakCharacter {
       CharacterType.diamondOne,
       CharacterType.diamondTwo,
       CharacterType.diamondThree,
+    ];
+    bool isChar = false;
+    for (CharacterType char in chars) {
+      if (char == characterType) {
+        isChar = true;
+      }
+    }
+    return isChar;
+  }
+
+  static bool isBombCharacter(CharacterType characterType) {
+    List<CharacterType> chars = [
+      CharacterType.bomb,
+      CharacterType.superBomb,
+      CharacterType.verticalBullet,
+      CharacterType.horizontalBullet,
+      CharacterType.plane,
     ];
     bool isChar = false;
     for (CharacterType char in chars) {

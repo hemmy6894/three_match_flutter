@@ -1,4 +1,4 @@
-// import 'dart:html';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
@@ -17,11 +17,12 @@ part 'rules/character_generator.dart';
 part 'rules/break_character.dart';
 part 'rules/drop_character.dart';
 part 'rules/special_character.dart';
+part 'rules/bomb_move.dart';
 
 class GameBlock extends Bloc<GameEvent, GameState> {
   GameBlock() : super(GameState.empty()) {
     on<GameStartEvent>((event, emit) async {
-       GameLevels.startGameLevel1(emit,state);
+       GameLevels.startGame(emit,state, event.levelName);
     });
 
     on<GameClickCharacterEvent>((event, emit) async {

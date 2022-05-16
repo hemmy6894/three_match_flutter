@@ -75,6 +75,16 @@ class _CharacterState extends State<Character> {
               .add(GameCatchHelperEvent(helper: widget.characterType));
         }
       },
+      onDoubleTap: () {
+        if(BreakCharacter.isBombCharacter(widget.characterType)){
+          context
+              .read<GameBlock>()
+              .add(GameClickCharacterEvent(row: widget.row, col: widget.col));
+          context
+              .read<GameBlock>()
+              .add(GameClickCharacterEvent(row: widget.row, col: widget.col));
+        }
+      },
       child: Container(
         decoration: BoxDecoration(
           color: Colors.transparent,
@@ -92,7 +102,7 @@ class _CharacterState extends State<Character> {
                 : null,
           ),
           child: Image.asset(
-            getCharacter(characterType: widget.characterType),
+            Assets.getCharacter(characterType: widget.characterType),
             width: widget.width,
             height: widget.height,
           ),
@@ -101,64 +111,5 @@ class _CharacterState extends State<Character> {
     );
   }
 
-  String getCharacter({required CharacterType characterType}) {
-    if (characterType == CharacterType.banana) {
-      return Assets.banana;
-    }
-    if (characterType == CharacterType.apple) {
-      return Assets.apple;
-    }
-    if (characterType == CharacterType.pear) {
-      return Assets.pear;
-    }
-    if (characterType == CharacterType.blueBerry) {
-      return Assets.blueBerry;
-    }
-    if (characterType == CharacterType.orange) {
-      return Assets.orange;
-    }
-    if (characterType == CharacterType.hole) {
-      return Assets.hole;
-    }
-    if (characterType == CharacterType.bomb) {
-      return Assets.bomb;
-    }
-    if (characterType == CharacterType.plane) {
-      return Assets.plane;
-    }
-    if (characterType == CharacterType.verticalBullet) {
-      return Assets.bulletVertical;
-    }
-    if (characterType == CharacterType.horizontalBullet) {
-      return Assets.bulletHorizontal;
-    }
-    if (characterType == CharacterType.superBomb) {
-      return Assets.superBomb;
-    }
-    if (characterType == CharacterType.hand) {
-      return Assets.hand;
-    }
-    if (characterType == CharacterType.hummer) {
-      return Assets.hummer;
-    }
-    if (characterType == CharacterType.boxOne) {
-      return Assets.boxOne;
-    }
-    if (characterType == CharacterType.boxTwo) {
-      return Assets.boxTwo;
-    }
-    if (characterType == CharacterType.boxThree) {
-      return Assets.boxThree;
-    }
-    if (characterType == CharacterType.diamondOne) {
-      return Assets.diamondOne;
-    }
-    if (characterType == CharacterType.diamondTwo) {
-      return Assets.diamondTwo;
-    }
-    if (characterType == CharacterType.diamondThree) {
-      return Assets.diamondThree;
-    }
-    return Assets.hole;
-  }
+
 }

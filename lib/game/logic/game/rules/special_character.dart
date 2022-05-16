@@ -54,9 +54,17 @@ class SpecialCharacter {
     return [];
   }
 
-  static checkBullets(List<Map<int, int>> horizontal, List<Map<int, int>> vertical,
+  static checkBulletHorizontal(List<Map<int, int>> horizontal, List<Map<int, int>> vertical,
       Map<int, int> current) {
-    if (horizontal.length == 3 || vertical.length == 3) {
+    if (vertical.length == 3) {
+      return [current];
+    }
+    return [];
+  }
+
+  static checkBulletVertical(List<Map<int, int>> horizontal, List<Map<int, int>> vertical,
+      Map<int, int> current) {
+    if (horizontal.length == 3) {
       return [current];
     }
     return [];

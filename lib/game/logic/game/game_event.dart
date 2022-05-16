@@ -1,7 +1,10 @@
 part of 'game_bloc.dart';
 abstract class GameEvent {}
 
-class GameStartEvent extends GameEvent{}
+class GameStartEvent extends GameEvent{
+  final int levelName;
+  GameStartEvent({required this.levelName});
+}
 
 class GameClickCharacterEvent extends GameEvent{
   final int row;

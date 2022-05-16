@@ -6,9 +6,14 @@ import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/logic/game/game_bloc.dart';
 import 'package:test_game/game/ui/game/character.dart';
 import 'package:test_game/game/ui/layouts/app.dart';
+import 'package:test_game/game/ui/levels/widget/game_over.dart';
+import 'package:test_game/game/ui/levels/widget/move.dart';
+import 'package:test_game/game/ui/levels/widget/target.dart';
 
 class GameHome extends StatefulWidget {
-  const GameHome({Key? key}) : super(key: key);
+  final int levelName;
+
+  const GameHome({Key? key, required this.levelName}) : super(key: key);
 
   @override
   State<GameHome> createState() => _GameHomeState();
@@ -20,6 +25,7 @@ class _GameHomeState extends State<GameHome> {
   Map<int, Map<int, bool>> carpets = {};
   int row = 0;
   int col = 0;
+  int moves = 1;
   Map<int, int> clicked = {};
   List<Widget> characters = [];
   CharacterType? selectedCharacter;
@@ -27,7 +33,7 @@ class _GameHomeState extends State<GameHome> {
   @override
   void initState() {
     // TODO: implement initState
-    context.read<GameBlock>().add(GameStartEvent());
+    context.read<GameBlock>().add(GameStartEvent(levelName: widget.levelName));
     row = context.read<GameBlock>().state.row;
     col = context.read<GameBlock>().state.col;
     super.initState();
@@ -56,123 +62,82 @@ class _GameHomeState extends State<GameHome> {
         //   ),
         // ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            MultiBlocListener(
-                listeners: [
-                  BlocListener<GameBlock, GameState>(
-                      listenWhen: (p, c) => p.gameBoards != c.gameBoards,
-                      listener: (context, state) async {
-                        await Future.delayed(
-                            const Duration(milliseconds: 1000));
-                        setState(() {
-                          gBoards = state.gameBoards;
-                          carpets = state.carpets;
-                          col = state.col;
-                          row = state.row;
-                        });
-                      }),
-                  BlocListener<GameBlock, GameState>(
-                      listenWhen: (p, c) => p.match != c.match,
-                      listener: (context, state) {
-                        if (state.match) {
-                          context
-                              .read<GameBlock>()
-                              .add(GameMatchCharacterStateEvent(match: false));
-                          context
-                              .read<GameBlock>()
-                              .add(GameMatchCharacterEvent());
-                        }
-                      }),
-                  BlocListener<GameBlock, GameState>(
-                      listenWhen: (p, c) =>
-                          p.selectedHelper != c.selectedHelper,
-                      listener: (context, state) {
-                        setState(() {
-                          selectedCharacter = state.selectedHelper;
-                        });
-                      }),
-                  BlocListener<GameBlock, GameState>(
-                      listenWhen: (p, c) => p.secondClicked != c.secondClicked,
-                      listener: (context, state) {
-                        if (state.secondClicked.isNotEmpty) {
-                          context
-                              .read<GameBlock>()
-                              .add(GameMoveCharacterEvent());
-                          context
-                              .read<GameBlock>()
-                              .add(GameClearCharacterEvent());
-                        } else {}
-                      }),
-                  BlocListener<GameBlock, GameState>(
-                      listenWhen: (previous, current) =>
-                          previous.toBreak != current.toBreak,
-                      listener: (context, state) {
-                        if (state.toBreak.isNotEmpty) {
-                          context.read<GameBlock>().add(GameBreakMatchEvent());
-                        }
-                      }),
-                  BlocListener<GameBlock, GameState>(
-                      listenWhen: (previous, current) => !mapEquals(
-                          previous.firstClicked, current.firstClicked),
-                      listener: (context, state) {
-                        if (state.firstClicked.isNotEmpty) {
-                          context.read<GameBlock>().add(GameIsCapturedEvent());
-                          setState(() {
-                            clicked = state.firstClicked;
-                          });
-                        } else {
-                          setState(() {
-                            clicked = {};
-                          });
-                        }
-                      }),
-                  BlocListener<GameBlock, GameState>(
-                      listenWhen: (previous, current) =>
-                          previous.dropDown != current.dropDown,
-                      listener: (context, state) {
-                        if (state.dropDown) {
-                          context
-                              .read<GameBlock>()
-                              .add(GameDropCharacterEvent());
-                        }
-                      }),
-                ],
-                child: Stack(
-                  alignment: AlignmentDirectional.center,
-                  children: [
-                    Container(
-                      width: width * (col / row),
-                      height: width,
-                      color: const Color(Assets.boardColor),
-                    ),
-                    for (var boards in gBoards.entries)
-                      for (var board in boards.value.entries)
-                        MojaPositionAnimation(
-                          beginPosition: -2,
-                          endPosition: 1,
-                          position: Position(
-                            left: width / row * (board.key - 1),
-                            top: width /
-                                row *
-                                (boards.key - 1) *
-                                getKeyTop(board.key * boards.key),
-                          ),
-                          duration: 3,
-                          child: Character(
-                            characterType: board.value,
-                            row: boards.key,
-                            active: mapEquals(clicked, {boards.key: board.key}),
-                            col: board.key,
-                            asCarpet: hasCarpet(row: boards.key, col: board.key),
-                            height: width / row,
-                            width: width / row,
+            Container(
+              color: Colors.red.withOpacity(0.95),
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: TargetWidget(),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.3,
+                    height: 90,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Image.asset(Assets.orange),
+                        const Text(
+                          "Give Away",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                  ],
-                )),
+                      ],
+                    ),
+                  ),
+                  const Expanded(
+                    child: MoveWidget(),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            gameListeners(
+              child: Stack(
+                alignment: AlignmentDirectional.center,
+                children: [
+                  Container(
+                    width: width * (col / row),
+                    height: width,
+                    color: const Color(Assets.boardColor),
+                  ),
+                  for (var boards in gBoards.entries)
+                    for (var board in boards.value.entries)
+                      MojaPositionAnimation(
+                        beginPosition: -2,
+                        endPosition: 1,
+                        position: Position(
+                          left: width / row * (board.key - 1),
+                          top: width /
+                              row *
+                              (boards.key - 1) *
+                              getKeyTop(board.key * boards.key),
+                        ),
+                        duration: 3,
+                        child: Character(
+                          characterType: board.value,
+                          row: boards.key,
+                          active: mapEquals(clicked, {boards.key: board.key}),
+                          col: board.key,
+                          asCarpet: hasCarpet(row: boards.key, col: board.key),
+                          height: width / row,
+                          width: width / row,
+                        ),
+                      ),
+                  GameOverWidget(
+                      height: width,
+                      width: width * (col / row),
+                      levelName: widget.levelName),
+                ],
+              ),
+            ),
             SizedBox(
-              height: width * (1 / row),
+              height: width * (0.3 / row),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -187,7 +152,9 @@ class _GameHomeState extends State<GameHome> {
                   height: (width / row),
                   width: (width / row),
                 ),
-                const SizedBox(width: 5,),
+                const SizedBox(
+                  width: 5,
+                ),
                 Character(
                   characterType: CharacterType.hand,
                   row: 100,
@@ -218,11 +185,108 @@ class _GameHomeState extends State<GameHome> {
 
   bool hasCarpet({required int row, required int col}) {
     bool clicked = false;
-    clicked = (carpets[row]??{})[col]??false;
+    clicked = (carpets[row] ?? {})[col] ?? false;
     return clicked;
   }
 
   getKeyTop(int keyTop) {
     return topAnimation[keyTop] ?? 1;
+  }
+
+  Widget gameListeners({required Widget child}) {
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<GameBlock, GameState>(
+          listenWhen: (p, c) => p.gameBoards != c.gameBoards,
+          listener: (context, state) async {
+            await Future.delayed(const Duration(milliseconds: 1000));
+            setState(() {
+              gBoards = state.gameBoards;
+              col = state.col;
+              row = state.row;
+            });
+          },
+        ),
+        BlocListener<GameBlock, GameState>(
+          listenWhen: (p, c) => p.match != c.match,
+          listener: (context, state) {
+            if (state.match) {
+              context
+                  .read<GameBlock>()
+                  .add(GameMatchCharacterStateEvent(match: false));
+              context.read<GameBlock>().add(GameMatchCharacterEvent());
+            }
+          },
+        ),
+        BlocListener<GameBlock, GameState>(
+          listenWhen: (p, c) => p.carpets != c.carpets,
+          listener: (context, state) {
+            setState(() {
+              carpets = state.carpets;
+            });
+          },
+        ),
+        BlocListener<GameBlock, GameState>(
+          listenWhen: (p, c) => p.selectedHelper != c.selectedHelper,
+          listener: (context, state) {
+            setState(() {
+              selectedCharacter = state.selectedHelper;
+            });
+          },
+        ),
+        BlocListener<GameBlock, GameState>(
+          listenWhen: (p, c) => p.secondClicked != c.secondClicked,
+          listener: (context, state) {
+            if (state.secondClicked.isNotEmpty) {
+              context.read<GameBlock>().add(GameMoveCharacterEvent());
+              context.read<GameBlock>().add(GameClearCharacterEvent());
+            } else {}
+          },
+        ),
+        BlocListener<GameBlock, GameState>(
+          listenWhen: (previous, current) =>
+              previous.toBreak != current.toBreak,
+          listener: (context, state) {
+            if (state.toBreak.isNotEmpty) {
+              context.read<GameBlock>().add(GameBreakMatchEvent());
+            }
+          },
+        ),
+        BlocListener<GameBlock, GameState>(
+          listenWhen: (previous, current) => previous.moves != current.moves,
+          listener: (context, state) {
+            setState(() {
+              moves = state.moves;
+            });
+          },
+        ),
+        BlocListener<GameBlock, GameState>(
+          listenWhen: (previous, current) =>
+              !mapEquals(previous.firstClicked, current.firstClicked),
+          listener: (context, state) {
+            if (state.firstClicked.isNotEmpty) {
+              context.read<GameBlock>().add(GameIsCapturedEvent());
+              setState(() {
+                clicked = state.firstClicked;
+              });
+            } else {
+              setState(() {
+                clicked = {};
+              });
+            }
+          },
+        ),
+        BlocListener<GameBlock, GameState>(
+          listenWhen: (previous, current) =>
+              previous.dropDown != current.dropDown,
+          listener: (context, state) {
+            if (state.dropDown) {
+              context.read<GameBlock>().add(GameDropCharacterEvent());
+            }
+          },
+        ),
+      ],
+      child: child,
+    );
   }
 }

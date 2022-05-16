@@ -50,7 +50,8 @@ matchCharacter(Emitter<GameState> emit, GameState state) async {
 checkConnected(Emitter<GameState> emit, GameState state) async {
   List<Map<int, int>> game = [];
   List<Map<int, int>> plane = [];
-  List<Map<int, int>> bullet = [];
+  List<Map<int, int>> bulletH = [];
+  List<Map<int, int>> bulletV = [];
   List<Map<int, int>> bomb = [];
   List<Map<int, int>> superBomb = [];
   Map<int, List<Map<int, int>>> result = {};
@@ -59,7 +60,8 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
 
   List<Map<int, int>> game2 = [];
   List<Map<int, int>> plane2 = [];
-  List<Map<int, int>> bullet2 = [];
+  List<Map<int, int>> bulletH2 = [];
+  List<Map<int, int>> bulletV2 = [];
   List<Map<int, int>> bomb2 = [];
   List<Map<int, int>> superBomb2 = [];
   Map<int, List<Map<int, int>>> result2 = {};
@@ -72,7 +74,7 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
     int col = state.tempClicked.entries.first.value;
     CharacterType type = getCharacter(state, row: row, col: col);
     result = getConnectedCharacter(state, row, col, type);
-    bombing = bombMoves(state, row, col);
+    bombing = BombMove.bombMoves(state, row, col);
     if (result.isNotEmpty) {
       matchCount = result.entries.first.key;
       game = result.entries.first.value;
@@ -90,7 +92,7 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
       print(e);
     }
     try {
-      bullet = result.entries.elementAt(2).value;
+      bulletV = result.entries.elementAt(2).value;
     } catch (e) {
       print(e);
     }
@@ -104,6 +106,11 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
     } catch (e) {
       print(e);
     }
+    try {
+      bulletH = result.entries.elementAt(5).value;
+    } catch (e) {
+      print(e);
+    }
   }
 
   if (state.tempSecClicked.isNotEmpty) {
@@ -111,7 +118,7 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
     int col = state.tempSecClicked.entries.first.value;
     CharacterType type = getCharacter(state, row: row, col: col);
     result2 = getConnectedCharacter(state, row, col, type);
-    bombing2 = bombMoves(state, row, col);
+    bombing2 = BombMove.bombMoves(state, row, col);
     if (result2.isNotEmpty) {
       matchCount2 = result2.entries.first.key;
       game2 = result2.entries.first.value;
@@ -129,7 +136,7 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
       print(e);
     }
     try {
-      bullet2 = result2.entries.elementAt(2).value;
+      bulletV2 = result2.entries.elementAt(2).value;
     } catch (e) {
       print(e);
     }
@@ -143,11 +150,15 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
     } catch (e) {
       print(e);
     }
+    try {
+      bulletH2 = result2.entries.elementAt(5).value;
+    } catch (e) {
+      print(e);
+    }
   }
 
   total = matchCount2 + matchCount;
   state = Helpers.isCaptured(emit, state) ?? state;
-  print("Hand reserved ${state.reversed}");
   if (total < 1 && !state.reversed) {
     await Future.delayed(const Duration(seconds: 1));
     emit(
@@ -161,81 +172,16 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
   } else {
     emit(
       state.copyWith(
+        moves: !state.reversed ? (state.moves - 1) : state.moves, // if has moves and not reverse with all helpers!!
         toBreak: [...game2, ...game],
         planes: [...plane, ...plane2],
-        bullets: [...bullet, ...bullet2],
+        bulletHorizontals: [...bulletH, ...bulletH2],
+        bulletVerticals: [...bulletV, ...bulletV2],
         bombs: [...bomb, ...bomb2],
         superBombs: [...superBomb, ...superBomb2],
       ),
     );
   }
-}
-
-Map<int, List<Map<int, int>>> bombMoves(GameState state, int row, int col) {
-  List<Map<int, int>> firstMoves = [];
-  List<Map<int, int>> bombMoves = [];
-  int matchCount = 0;
-  bool moved = false;
-  CharacterType block = getCharacter(state, row: row, col: col);
-  if (block == CharacterType.horizontalBullet) {
-    moved = false;
-    for (int h = state.row; h >= 1; h--) {
-      bombMoves.add({h: col});
-      moved = true;
-    }
-    if (moved) {
-      firstMoves = [...firstMoves, ...bombMoves];
-      matchCount = 3;
-    }
-  }
-  if (block == CharacterType.verticalBullet) {
-    moved = false;
-    for (int v = state.col; v >= 1; v--) {
-      bombMoves.add({row: v});
-      moved = true;
-    }
-    if (moved) {
-      firstMoves = [...firstMoves, ...bombMoves];
-      matchCount = 3;
-    }
-  }
-
-  if (block == CharacterType.bomb) {
-    moved = false;
-    for (int h = (row + 1);
-        h >= (row - 1) && (row >= 1 && row <= state.row);
-        h--) {
-      for (int v = (col + 1);
-          v >= (col - 1) && (col >= 1 && row <= state.col);
-          v--) {
-        bombMoves.add({h: v});
-        moved = true;
-      }
-    }
-    if (moved) {
-      firstMoves = [...firstMoves, ...bombMoves];
-      matchCount = 3;
-    }
-  }
-
-  if (block == CharacterType.superBomb) {
-    moved = false;
-    for (int h = (row + 2);
-        h >= (row - 2) && (row >= 1 && row <= state.row);
-        h--) {
-      for (int v = (col + 2);
-          v >= (col - 2) && (col >= 1 && row <= state.col);
-          v--) {
-        bombMoves.add({h: v});
-        moved = true;
-      }
-    }
-    if (moved) {
-      firstMoves = [...firstMoves, ...bombMoves];
-      matchCount = 3;
-    }
-  }
-  return {matchCount: firstMoves};
 }
 
 Map<int, List<Map<int, int>>> getConnectedCharacter(
@@ -246,7 +192,8 @@ Map<int, List<Map<int, int>>> getConnectedCharacter(
   int matchCount = 0;
   late CharacterType block;
   List<Map<int, int>> planes = [];
-  List<Map<int, int>> bullets = [];
+  List<Map<int, int>> bulletVerticals = [];
+  List<Map<int, int>> bulletHorizontals = [];
   List<Map<int, int>> bombs = [];
   List<Map<int, int>> superBombs = [];
 
@@ -301,10 +248,15 @@ Map<int, List<Map<int, int>>> getConnectedCharacter(
   if (colCount > 2 || rowCount > 2) {
     matchCount = 3;
     firstMoves = [...firstMoves, ...horizontalMoves, ...verticalMoves];
-    List<dynamic> bullet = SpecialCharacter.checkBullets(
+    List<dynamic> bulletH = SpecialCharacter.checkBulletHorizontal(
         horizontalMoves, verticalMoves, {row: col});
-    if (bullet.isNotEmpty) {
-      bullets.add({row: col});
+    if (bulletH.isNotEmpty) {
+      bulletHorizontals.add({row: col});
+    }
+    List<dynamic> bulletV = SpecialCharacter.checkBulletVertical(
+        horizontalMoves, verticalMoves, {row: col});
+    if (bulletV.isNotEmpty) {
+      bulletVerticals.add({row: col});
     }
     List<dynamic> bomb =
         SpecialCharacter.checkBombs(horizontalMoves, verticalMoves, {row: col});
@@ -337,9 +289,10 @@ Map<int, List<Map<int, int>>> getConnectedCharacter(
   return {
     matchCount: firstMoves,
     1501: planes,
-    1502: bullets,
+    1502: bulletVerticals,
     1503: bombs,
-    1504: superBombs
+    1504: superBombs,
+    1505: bulletHorizontals,
   };
 }
 
@@ -381,12 +334,9 @@ moveCharacter(Emitter<GameState> emit, GameState state) {
     int secondRow = state.secondClicked.entries.first.key;
     int secondCol = state.secondClicked.entries.first.value;
 
-    CharacterType firstCharacter =
-        getCharacter(state, row: firstRow, col: firstCol);
-    CharacterType secondCharacter =
-        getCharacter(state, row: secondRow, col: secondCol);
-    if (firstCharacter != CharacterType.hole &&
-        secondCharacter != CharacterType.hole) {
+    CharacterType firstCharacter = getCharacter(state, row: firstRow, col: firstCol);
+    CharacterType secondCharacter = getCharacter(state, row: secondRow, col: secondCol);
+    if (firstCharacter != CharacterType.hole && secondCharacter != CharacterType.hole) {
       Map<int, Map<int, CharacterType>> gameBoards = state.gameBoards;
       if (firstRow == secondRow) {
         bool check = secondCol == (firstCol + 1) || secondCol == (firstCol - 1);
@@ -402,6 +352,8 @@ moveCharacter(Emitter<GameState> emit, GameState state) {
             gameBoards.update(firstRow, (value) => newRowBoard);
             emit(state.copyWith(gameBoards: {...gameBoards}, match: true));
           }
+        }else if(BreakCharacter.isBombCharacter(firstCharacter)){
+          emit(state.copyWith(match: true));
         }
       }
       if (firstCol == secondCol) {
@@ -420,6 +372,8 @@ moveCharacter(Emitter<GameState> emit, GameState state) {
             gameBoards.update(secondRow, (value) => newSecondRowBoard);
           }
           emit(state.copyWith(gameBoards: {...gameBoards}, match: true));
+        }else if(BreakCharacter.isBombCharacter(firstCharacter)){
+          emit(state.copyWith(match: true));
         }
       }
     }

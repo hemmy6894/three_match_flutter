@@ -36,4 +36,39 @@ class Helpers {
       ));
     }
   }
+
+  static String getTimeInMinutes(int time) {
+    return moreThan60(time);
+  }
+
+  static String moreThan60(int number) {
+    List<int> numbers = [];
+    // int n = number;
+    int rem = number % 60;
+    try {
+      for (int n = number; n >= 60;) {
+        n = (n ~/ 60);
+        if (n > 59) {
+          numbers.add(n % 60);
+        } else {
+          numbers.add(n);
+        }
+      }
+    } catch (e) {
+      print(e);
+    }
+    String re = "";
+    for (int r in numbers.reversed) {
+      re += (isLessThanTen(r).toString() + ":");
+    }
+    re = re + isLessThanTen(rem);
+    return re;
+  }
+
+  static String isLessThanTen(int number) {
+    if (number < 10) {
+      return "0" + number.toString();
+    }
+    return number.toString();
+  }
 }

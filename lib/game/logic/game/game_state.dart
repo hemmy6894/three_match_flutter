@@ -7,15 +7,18 @@ class GameState extends Equatable {
   final Map<int, int> secondClicked;
   final Map<int, int> tempClicked;
   final Map<int, int> tempSecClicked;
+  final List<Map<CharacterType, int>> targets;
   final List<Map<int, int>> toBreak;
   final List<Map<int, int>> planes;
   final List<Map<int, int>> bombs;
-  final List<Map<int, int>> bullets;
+  final List<Map<int, int>> bulletVerticals;
+  final List<Map<int, int>> bulletHorizontals;
   final List<Map<int, int>> superBombs;
   final List<Map<int, int>> previousPosition;
   final List<Map<int, int>> currentPosition;
   final CharacterType? selectedHelper;
   final int col;
+  final int moves;
   final int row;
   final bool match;
   final bool reversed;
@@ -29,15 +32,18 @@ class GameState extends Equatable {
       required this.firstClicked,
       required this.tempClicked,
       required this.tempSecClicked,
+      required this.targets,
       required this.toBreak,
       required this.planes,
       required this.bombs,
-      required this.bullets,
+      required this.bulletVerticals,
+      required this.bulletHorizontals,
       required this.superBombs,
       required this.previousPosition,
       required this.currentPosition,
       required this.row,
       required this.col,
+      required this.moves,
       required this.match,
       required this.reversed,
       required this.dropDown,
@@ -52,7 +58,8 @@ class GameState extends Equatable {
       firstClicked: {},
       toBreak: [],
       planes: [],
-      bullets: [],
+      bulletVerticals: [],
+      bulletHorizontals: [],
       bombs: [],
       superBombs: [],
       previousPosition: [],
@@ -60,6 +67,8 @@ class GameState extends Equatable {
       secondClicked: {},
       tempClicked: {},
       tempSecClicked: {},
+      targets: [],
+      moves: 10,
       col: 10,
       row: 11,
       match: false,
@@ -76,13 +85,16 @@ class GameState extends Equatable {
     Map<int, int>? secondClicked,
     Map<int, int>? tempClicked,
     Map<int, int>? tempSecClicked,
+    List<Map<CharacterType, int>>? targets,
     List<Map<int, int>>? toBreak,
     List<Map<int, int>>? planes,
-    List<Map<int, int>>? bullets,
+    List<Map<int, int>>? bulletHorizontals,
+    List<Map<int, int>>? bulletVerticals,
     List<Map<int, int>>? bombs,
     List<Map<int, int>>? superBombs,
     List<Map<int, int>>? previousPosition,
     List<Map<int, int>>? currentPosition,
+    int? moves,
     int? col,
     int? row,
     bool? match,
@@ -99,13 +111,16 @@ class GameState extends Equatable {
       secondClicked: secondClicked ?? this.secondClicked,
       tempClicked: tempClicked ?? this.tempClicked,
       tempSecClicked: tempSecClicked ?? this.tempSecClicked,
+      targets: targets ?? this.targets,
       toBreak: toBreak ?? this.toBreak,
       planes: planes ?? this.planes,
-      bullets: bullets ?? this.bullets,
+      bulletVerticals: bulletVerticals ?? this.bulletVerticals,
+      bulletHorizontals: bulletHorizontals ?? this.bulletHorizontals,
       bombs: bombs ?? this.bombs,
       superBombs: superBombs ?? this.superBombs,
       previousPosition: previousPosition ?? this.previousPosition,
       currentPosition: currentPosition ?? this.currentPosition,
+      moves: moves ?? this.moves,
       row: row ?? this.row,
       col: col ?? this.col,
       match: match ?? this.match,
@@ -131,8 +146,20 @@ class GameState extends Equatable {
 
   bool hasCarpet({required int row, required int col}) {
     bool clicked = false;
-    clicked = (carpets[row]??{})[col]??false;
+    clicked = (carpets[row] ?? {})[col] ?? false;
     return clicked;
+  }
+
+  bool targetIsOver() {
+    bool target = false;
+    int totalTarget = 0;
+    for (Map<CharacterType, int> trg in targets) {
+      totalTarget += trg.entries.first.value;
+    }
+    if (totalTarget < 1) {
+      target = true;
+    }
+    return target;
   }
 
   @override
@@ -143,6 +170,7 @@ class GameState extends Equatable {
         secondClicked.entries,
         col,
         row,
+        moves,
         match,
         tempClicked.entries,
         tempSecClicked.entries,
@@ -151,12 +179,14 @@ class GameState extends Equatable {
         reversed,
         toBreak,
         planes,
-        bullets,
+        bulletVerticals,
+        bulletHorizontals,
         bombs,
         superBombs,
         dropDown,
         matchAll,
         bombTouched,
-        selectedHelper
+        selectedHelper,
+        targets
       ];
 }
