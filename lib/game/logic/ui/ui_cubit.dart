@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:test_game/game/ui/game/character.dart';
 
 part 'ui_state.dart';
 
@@ -34,6 +36,23 @@ class UiCubit extends Cubit<UiState> with HydratedMixin {
     emit(state.copyWith(
         lastLifeCount: (state.lastLifeCount + 1),
         lastUpdated: DateTime.now().millisecondsSinceEpoch));
+  }
+
+  receiveRewards({required List<Map<CharacterType, int>> rewards}) async{
+    List<Map<CharacterType, int>> rds = [];
+    for(Map<CharacterType,int> reward in rewards){
+      bool exit = false;
+      for(Map<CharacterType,int> sReward in state.rewards){
+        if(mapEquals(reward, sReward)){
+          rds.add({reward.entries.first.key : ( reward.entries.first.value + sReward.entries.first.value)});
+          exit = true;
+        }
+      }
+      if(!exit){
+        rds.add({reward.entries.first.key : reward.entries.first.value});
+      }
+    }
+    emit(state.copyWith(rewards: rds, received: {}));
   }
 
   @override

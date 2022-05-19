@@ -20,6 +20,7 @@ class GameState extends Equatable {
   final int col;
   final int moves;
   final int row;
+  final List<Map<CharacterType, int>> rewards;
   final bool match;
   final bool reversed;
   final bool dropDown;
@@ -33,6 +34,7 @@ class GameState extends Equatable {
       required this.tempClicked,
       required this.tempSecClicked,
       required this.targets,
+      required this.rewards,
       required this.toBreak,
       required this.planes,
       required this.bombs,
@@ -68,6 +70,7 @@ class GameState extends Equatable {
       tempClicked: {},
       tempSecClicked: {},
       targets: [],
+      rewards: [],
       moves: 10,
       col: 10,
       row: 11,
@@ -86,6 +89,7 @@ class GameState extends Equatable {
     Map<int, int>? tempClicked,
     Map<int, int>? tempSecClicked,
     List<Map<CharacterType, int>>? targets,
+    List<Map<CharacterType, int>>? rewards,
     List<Map<int, int>>? toBreak,
     List<Map<int, int>>? planes,
     List<Map<int, int>>? bulletHorizontals,
@@ -112,6 +116,7 @@ class GameState extends Equatable {
       tempClicked: tempClicked ?? this.tempClicked,
       tempSecClicked: tempSecClicked ?? this.tempSecClicked,
       targets: targets ?? this.targets,
+      rewards: rewards ?? this.rewards,
       toBreak: toBreak ?? this.toBreak,
       planes: planes ?? this.planes,
       bulletVerticals: bulletVerticals ?? this.bulletVerticals,
@@ -187,6 +192,7 @@ class GameState extends Equatable {
         matchAll,
         bombTouched,
         selectedHelper,
-        targets
+        targets,
+        rewards
       ];
 }

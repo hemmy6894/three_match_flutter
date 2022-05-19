@@ -4,43 +4,50 @@ class BreakCharacter {
   static breakMatch(Emitter<GameState> emit, GameState state) {
     Map<int, Map<int, CharacterType>> boards = state.gameBoards;
 
-    List<Map<CharacterType,int>> targets = state.targets;
+    List<Map<CharacterType, int>> targets = state.targets;
 
-    List<Map<int,int>> targetBreaking = [];
-    for(Map<int,int> replace in state.toBreak) {
+    List<Map<int, int>> targetBreaking = [];
+    for (Map<int, int> replace in state.toBreak) {
       int rowCount = replace.entries.first.key;
       int colCount = replace.entries.first.value;
 
       bool breaking = true;
       bool first = false;
-      if(targetBreaking.isEmpty){
+      if (targetBreaking.isEmpty) {
         first = true;
         targetBreaking.add(replace);
       }
-      for(Map<int,int> rep in targetBreaking){
-        if(mapEquals(rep, replace) && !first){
+      for (Map<int, int> rep in targetBreaking) {
+        if (mapEquals(rep, replace) && !first) {
           breaking = false;
         }
       }
-      if(breaking) {
+      if (breaking) {
         targetBreaking.add(replace);
-        targets = reduceTarget(getBoardCharacter(boards, row: rowCount, col: colCount), targets);
+        targets = reduceTarget(
+            getBoardCharacter(boards, row: rowCount, col: colCount), targets);
       }
     }
 
     Map<int, Map<int, bool>> carpets = state.carpets;
-    boards = replaceCharacterWith(emit,state,boards, state.planes, CharacterType.plane);
-    boards = replaceCharacterWith(emit,state, boards, state.bulletVerticals, CharacterType.verticalBullet);
-    boards = replaceCharacterWith(emit,state, boards, state.bulletHorizontals, CharacterType.horizontalBullet);
-    boards = replaceCharacterWith(emit,state,boards, state.bombs, CharacterType.bomb);
-    boards = replaceCharacterWith(emit,state,boards, state.superBombs, CharacterType.superBomb);
+    boards = replaceCharacterWith(
+        emit, state, boards, state.planes, CharacterType.plane);
+    boards = replaceCharacterWith(emit, state, boards, state.bulletVerticals,
+        CharacterType.verticalBullet);
+    boards = replaceCharacterWith(emit, state, boards, state.bulletHorizontals,
+        CharacterType.horizontalBullet);
+    boards = replaceCharacterWith(
+        emit, state, boards, state.bombs, CharacterType.bomb);
+    boards = replaceCharacterWith(
+        emit, state, boards, state.superBombs, CharacterType.superBomb);
     List<Map<int, int>> remains = [];
     remains = removeIfMatchForBomb(state.planes, state.toBreak);
     remains = removeIfMatchForBomb(state.bombs, remains);
     remains = removeIfMatchForBomb(state.bulletVerticals, remains);
     remains = removeIfMatchForBomb(state.bulletHorizontals, remains);
     remains = removeIfMatchForBomb(state.superBombs, remains);
-    boards  = replaceCharacterWith(emit,state,boards, remains, CharacterType.hole);
+    boards =
+        replaceCharacterWith(emit, state, boards, remains, CharacterType.hole);
 
     bool hasCarpet = false;
     for (Map<int, int> replace in remains) {
@@ -67,13 +74,14 @@ class BreakCharacter {
         superBombs: []));
   }
 
-  static reduceTarget(CharacterType characterType, List<Map<CharacterType,int>> targets){
-    List<Map<CharacterType,int>> trgs = [];
-    for(Map<CharacterType,int> target in targets){
-      if(target.entries.first.key == characterType){
+  static reduceTarget(
+      CharacterType characterType, List<Map<CharacterType, int>> targets) {
+    List<Map<CharacterType, int>> trgs = [];
+    for (Map<CharacterType, int> target in targets) {
+      if (target.entries.first.key == characterType) {
         int newTargetNum = (target.entries.first.value - 1);
-        trgs.add({characterType : newTargetNum > 0 ? newTargetNum : 0 });
-      }else{
+        trgs.add({characterType: newTargetNum > 0 ? newTargetNum : 0});
+      } else {
         trgs.add(target);
       }
     }
@@ -95,7 +103,9 @@ class BreakCharacter {
           getBoardCharacter(boards, row: rowCount, col: colCount);
       bool isNone = noneBreakableCharacter(spacial);
       if (isNone && (CharacterType.hole == character)) {
-        if (spacial == CharacterType.boxThree) {
+        if (staticCharacterNeverChange(spacial)) {
+          row[colCount] = spacial;
+        } else if (spacial == CharacterType.boxThree) {
           row[colCount] = CharacterType.boxTwo;
         } else if (spacial == CharacterType.boxTwo) {
           row[colCount] = CharacterType.boxOne;
@@ -159,6 +169,47 @@ class BreakCharacter {
       CharacterType.diamondOne,
       CharacterType.diamondTwo,
       CharacterType.diamondThree,
+      CharacterType.space,
+    ];
+    bool isChar = false;
+    for (CharacterType char in chars) {
+      if (char == characterType) {
+        isChar = true;
+      }
+    }
+    return isChar;
+  }
+
+  static bool spaceCharacter(CharacterType characterType) {
+    List<CharacterType> chars = [
+      CharacterType.space,
+    ];
+    bool isChar = false;
+    for (CharacterType char in chars) {
+      if (char == characterType) {
+        isChar = true;
+      }
+    }
+    return isChar;
+  }
+
+  static bool notMovingCharacter(CharacterType characterType) {
+    List<CharacterType> chars = [
+      CharacterType.space,
+      CharacterType.boxThree,
+    ];
+    bool isChar = false;
+    for (CharacterType char in chars) {
+      if (char == characterType) {
+        isChar = true;
+      }
+    }
+    return isChar;
+  }
+
+  static bool staticCharacterNeverChange(CharacterType characterType) {
+    List<CharacterType> chars = [
+      CharacterType.space,
     ];
     bool isChar = false;
     for (CharacterType char in chars) {

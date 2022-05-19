@@ -13,34 +13,50 @@ class DropCharacter {
         bool isNonBreakable = false;
         int nonBreakable = state.row;
         List<CharacterType> newLook = [];
-        List<Map<int,Map<int, CharacterType>>> nones = [];
+        Map<int, CharacterType> nones = {};
         for (int i = state.row; i >= 1; i--) {
           // List all character in column which is not hole
           CharacterType character = boards[i]?[j] ?? CharacterType.hole;
-          if(BreakCharacter.noneBreakableCharacter(character)){
-            nonBreakable = 0;
-            nones.add({i: { j : character}});
-            isNonBreakable = true;
-          }
-          if (CharacterType.hole != character) {
+          if(BreakCharacter.notMovingCharacter(character)){
+            nones = {...nones, i : character};
+          }else if (CharacterType.hole != character) {
             newLook.add(character);
           }
         }
         if (newLook.length < state.row) {
-          lessBy = state.row - newLook.length;
+          lessBy = state.row - (newLook.length + nones.length);
+          // print("LOOP $lessBy ROW NUM ${state.row} LENGTH ${newLook.length} none ${nones.length}");
           int k = 0;
           // drop character down
           for (int i = state.row; i > lessBy; i--) {
             Map<int, CharacterType> row = boards[i] ?? {};
-            row = {...row, j: newLook[k]};
-            boards[i] = row;
-            k++;
+            CharacterType rowNotMove = nones[i] ?? CharacterType.hole;
+            if(BreakCharacter.notMovingCharacter(rowNotMove)){
+              row = {...row, j: rowNotMove};
+              boards[i] = row;
+              k++;
+            }else if(k < newLook.length) {
+              row = {...row, j: newLook[k]};
+              boards[i] = row;
+              k++;
+            }
           }
           // Replace remain character with new
           for (int i = lessBy; i >= 1; i--) {
             Map<int, CharacterType> row = boards[i] ?? {};
             previousPosition.add({0: j});
-            row = {...row, j: CharacterGenerator.getUniqueRandomCharacter(boards, i, j)};
+            CharacterType rowNotMove = nones[i] ?? CharacterType.hole;
+            if(BreakCharacter.notMovingCharacter(rowNotMove)) {
+              row = {
+                ...row,
+                j: rowNotMove
+              };
+            }else{
+              row = {
+                ...row,
+                j: CharacterGenerator.getUniqueRandomCharacter(boards, i, j)
+              };
+            }
             boards[i] = row;
             currentPosition.add({i: j});
           }
@@ -54,10 +70,12 @@ class DropCharacter {
     for (int i = 1; i <= state.row; i++) {
       for (int j = 1; j <= state.col; j++) {
         CharacterType type = getBoardCharacter(boards, row: i, col: j);
-        connected = getConnectedCharacter(state, i, j, type);
-        if (connected.isNotEmpty) {
-          if (connected.entries.first.key > 1) {
-            firstMoves = [...connected.entries.first.value];
+        if(!BreakCharacter.staticCharacterNeverChange(type)) {
+          connected = getConnectedCharacter(state, i, j, type);
+          if (connected.isNotEmpty) {
+            if (connected.entries.first.key > 1) {
+              firstMoves = [...connected.entries.first.value];
+            }
           }
         }
       }

@@ -74,7 +74,7 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
     int col = state.tempClicked.entries.first.value;
     CharacterType type = getCharacter(state, row: row, col: col);
     result = getConnectedCharacter(state, row, col, type);
-    bombing = BombMove.bombMoves(state, row, col);
+    bombing = await BombMove.bombMoves(emit,state, row, col);
     if (result.isNotEmpty) {
       matchCount = result.entries.first.key;
       game = result.entries.first.value;
@@ -82,7 +82,6 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
     if (bombing.isNotEmpty) {
       matchCount += bombing.entries.first.key;
       if (bombing.entries.first.key > 1) {
-        print("BOOOO 1");
         game = [...game, ...bombing.entries.first.value];
       }
     }
@@ -118,7 +117,7 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
     int col = state.tempSecClicked.entries.first.value;
     CharacterType type = getCharacter(state, row: row, col: col);
     result2 = getConnectedCharacter(state, row, col, type);
-    bombing2 = BombMove.bombMoves(state, row, col);
+    bombing2 = await  BombMove.bombMoves(emit,state, row, col);
     if (result2.isNotEmpty) {
       matchCount2 = result2.entries.first.key;
       game2 = result2.entries.first.value;

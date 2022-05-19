@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/logic/game/game_bloc.dart';
+import 'package:test_game/game/logic/ui/ui_cubit.dart';
 
 enum CharacterType {
   banana,
@@ -56,60 +57,105 @@ class Character extends StatefulWidget {
 }
 
 class _CharacterState extends State<Character> {
+  bool spaceCharacter = false;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        if (!widget.isObstacle && !widget.isHelper) {
-          if(!BreakCharacter.noneBreakableCharacter(widget.characterType)) {
+    spaceCharacter = BreakCharacter.spaceCharacter(widget.characterType);
+    return Container(
+      color:
+          !spaceCharacter ? const Color(Assets.boardColor) : Colors.transparent,
+      child: GestureDetector(
+        onTap: () {
+          if (!widget.isObstacle && !widget.isHelper) {
+            if (!BreakCharacter.noneBreakableCharacter(widget.characterType)) {
+              context.read<GameBlock>().add(
+                  GameClickCharacterEvent(row: widget.row, col: widget.col));
+            }
+          }
+          if (widget.isObstacle) {}
+          if (widget.isHelper) {
+            context
+                .read<GameBlock>()
+                .add(GameCatchHelperEvent(helper: widget.characterType));
+          }
+        },
+        onDoubleTap: () {
+          if (BreakCharacter.isBombCharacter(widget.characterType)) {
+            context
+                .read<GameBlock>()
+                .add(GameClickCharacterEvent(row: widget.row, col: widget.col));
             context
                 .read<GameBlock>()
                 .add(GameClickCharacterEvent(row: widget.row, col: widget.col));
           }
-        }
-        if (widget.isObstacle) {}
-        if (widget.isHelper) {
-          context
-              .read<GameBlock>()
-              .add(GameCatchHelperEvent(helper: widget.characterType));
-        }
-      },
-      onDoubleTap: () {
-        if(BreakCharacter.isBombCharacter(widget.characterType)){
-          context
-              .read<GameBlock>()
-              .add(GameClickCharacterEvent(row: widget.row, col: widget.col));
-          context
-              .read<GameBlock>()
-              .add(GameClickCharacterEvent(row: widget.row, col: widget.col));
-        }
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: const BorderRadius.all(Radius.circular(0)),
-          image: widget.asCarpet ? const DecorationImage(
-            image: AssetImage(Assets.carpet),
-          ) : null,
-        ),
+        },
         child: Container(
-          decoration: BoxDecoration(
-            color: widget.asCarpet ? Colors.transparent : const Color(Assets.characterColor),
-            borderRadius: const BorderRadius.all(Radius.circular(6)),
-            border: widget.active
-                ? Border.all(color: Colors.red, width: 0.5)
+          decoration: !spaceCharacter
+              ? BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: const BorderRadius.all(Radius.circular(0)),
+                  image: widget.asCarpet
+                      ? const DecorationImage(
+                          image: AssetImage(Assets.carpet),
+                        )
+                      : null,
+                )
+              : null,
+          child: Container(
+            decoration: !spaceCharacter
+                ? BoxDecoration(
+                    color: widget.asCarpet
+                        ? Colors.transparent
+                        : const Color(Assets.characterColor),
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(6),
+                      topLeft: Radius.circular(6),
+                      bottomLeft: Radius.circular(6),
+                      bottomRight: Radius.circular(6),
+                    ),
+                    border: widget.active
+                        ? Border.all(color: Colors.red, width: 0.5)
+                        : null,
+                  )
                 : null,
-          ),
-          child: Image.asset(
-            Assets.getCharacter(characterType: widget.characterType),
-            width: widget.width,
-            height: widget.height,
+            child: Stack(
+              children: [
+                Image.asset(
+                  Assets.getCharacter(characterType: widget.characterType),
+                  width: widget.width,
+                  height: widget.height,
+                ),
+                if (widget.isHelper)
+                  if (context
+                          .read<UiCubit>()
+                          .state
+                          .getRewardCount(widget.characterType) >
+                      0)
+                    Positioned(
+                      bottom: 2,
+                      right: 2,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(6),
+                          ),
+                        ),
+                        child: Text(
+                          context
+                              .read<UiCubit>()
+                              .state
+                              .getRewardCount(widget.characterType)
+                              .toString(),
+                        ),
+                      ),
+                    ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
-
-
 }

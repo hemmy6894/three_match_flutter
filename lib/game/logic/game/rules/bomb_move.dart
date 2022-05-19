@@ -1,7 +1,6 @@
 part of '../game_bloc.dart';
 class BombMove {
-  static Map<int, List<Map<int, int>>> bombMoves(GameState state, int row, int col,{bool recheck = false }) {
-
+  static Future<Map<int, List<Map<int, int>>>> bombMoves(Emitter<GameState> emit,GameState state, int row, int col,{bool recheck = false }) async {
     List<Map<int, int>> firstMoves = [];
     int matchCount = 0;
     CharacterType block = getCharacter(state, row: row, col: col);
@@ -36,32 +35,38 @@ class BombMove {
     }
 
     if (block == CharacterType.superBomb) {
-      List<dynamic> superBombs = superBombMove(row, col,state);
+      List<dynamic> superBombs = await superBombMove(row, col,emit,state, recheck: recheck);
       if (superBombs.isNotEmpty) {
         firstMoves = [...firstMoves, ...superBombs];
         matchCount = 3;
       }
     }
     if(!recheck) {
-      for (Map<int, int> fm in firstMoves) {
-        if (BreakCharacter.isBombCharacter(getCharacter(state, row: fm.entries.first.key, col: fm.entries.first.key))) {
-          Map<int, List<Map<int, int>>> bo = bombMoves(state, fm.entries.first.key, fm.entries.first.value, recheck: true);
-          if(bo.isNotEmpty){
-            if(bo.entries.first.key > 1){
-              firstMoves = [...firstMoves, ...bo.entries.first.value];
-            }
-          }
-        }
-      }
+      firstMoves = await recheckMoves(emit, state, firstMoves);
     }
     return {matchCount: firstMoves};
   }
 
-  static superBombMove(int row, int col,GameState state){
+  static recheckMoves(Emitter<GameState> emit, GameState state,List<Map<int,int>> firstMoves) async {
+    for (Map<int, int> fm in firstMoves) {
+      if (BreakCharacter.isBombCharacter(getCharacter(state, row: fm.entries.first.key, col: fm.entries.first.value))) {
+        Map<int, List<Map<int, int>>> bo = await bombMoves(emit, state, fm.entries.first.key, fm.entries.first.value, recheck: true);
+        if(bo.isNotEmpty){
+          if(bo.entries.first.key > 1){
+            firstMoves = [...firstMoves, ...bo.entries.first.value];
+          }
+        }
+      }
+    }
+    return firstMoves;
+  }
+
+  static superBombMove(int row, int col,Emitter<GameState> emit,GameState state,{bool recheck = false}) async {
     bool move = true;
     List<Map<int,int>> mvs = [];
     CharacterType firstCharacter = CharacterType.hole;
     CharacterType secCharacter = CharacterType.hole;
+    CharacterType thirdCharacter = getCharacter(state, row: row, col: col);
 
     int rowFirst = 0, rowSec = 0, colFirst = 0, colSec = 0;
     if(state.tempClicked.isNotEmpty){
@@ -75,6 +80,7 @@ class BombMove {
       secCharacter = getCharacter(state, row: rowSec, col: colSec);
     }
     if(mapEquals(state.tempSecClicked, state.tempClicked)){
+      // Does not allow double click
       move = false;
     }else if(firstCharacter == CharacterType.superBomb &&  !BreakCharacter.isBombCharacter(secCharacter)){
       mvs.add({row : col});
@@ -92,6 +98,10 @@ class BombMove {
           mvs.add({row : col});
         }
       }
+    }else if(thirdCharacter == CharacterType.superBomb &&  BreakCharacter.isBombCharacter(secCharacter)){
+      mvs = await breakSuperBombIfConnectedWithBombOrFoundOnBomb(emit, state, secCharacter == CharacterType.superBomb ? firstCharacter: secCharacter, mvs);
+    }else if(thirdCharacter == CharacterType.superBomb &&  BreakCharacter.isBombCharacter(firstCharacter)){
+      mvs = await breakSuperBombIfConnectedWithBombOrFoundOnBomb(emit, state, secCharacter == CharacterType.superBomb ? firstCharacter: secCharacter, mvs);
     }else{
       move = false;
     }
@@ -101,6 +111,23 @@ class BombMove {
     return mvs;
   }
 
+  static breakSuperBombIfConnectedWithBombOrFoundOnBomb(Emitter<GameState> emit, GameState state,CharacterType replace,List<Map<int,int>> mvs,{bool recheck = false}) async {
+    Map<int,int> randomCharacterToPutBomb = findRandomCharacterOnBoards(state, []);
+    List<Map<int,int>> matches = findMatchedCharacter(state, getCharacter(state, row: randomCharacterToPutBomb.entries.first.key, col: randomCharacterToPutBomb.entries.first.value));
+    if(recheck){
+      for(Map<int,int> match in matches){
+        mvs.add(match);
+      }
+    }else{
+      Map<int,Map<int,CharacterType>> boards = BreakCharacter.replaceCharacterWith(emit, state, state.gameBoards, matches, replace);
+      emit(state.copyWith(gameBoards: boards));
+      await Future.delayed(const Duration(milliseconds: 500));
+      for(Map<int,int> match in await recheckMoves(emit, state, matches)){
+        mvs.add(match);
+      }
+    }
+    return mvs;
+  }
   static bombMove(int row, int col){
     bool move = false;
     List<Map<int,int>> mvs = [];
@@ -187,6 +214,20 @@ class BombMove {
         if(targetOnBard == lastTarget){
           targets.add({row: col});
         }
+      }
+    }
+    var rand = Random();
+    if(targets.isEmpty){
+      return {0:0};
+    }
+    return targets[rand.nextInt(targets.length)];
+  }
+
+  static Map<int,int> findRandomCharacterOnBoards(GameState state, List<Map<int,int>> excepts){
+    List<Map<int,int>> targets = [];
+    for(int row = state.row; row >= 1; row--){
+      for(int col = state.col; col >= 1; col--){
+        targets.add({row: col});
       }
     }
     var rand = Random();

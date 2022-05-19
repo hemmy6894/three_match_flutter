@@ -14,6 +14,13 @@ class GameLevels{
     if(target.isNotEmpty){
       targets = target;
     }
+
+    var reward = level1["rewards"];
+    List<Map<CharacterType, int>> rewards = [];
+    if(reward.isNotEmpty){
+      rewards = reward;
+    }
+
     final int moves = level1["moves"];
     for (int i = 1; i <= row; i++) {
       Map<int, CharacterType> gameBoard = {};
@@ -29,6 +36,6 @@ class GameLevels{
         }
       }
     }
-    emit(state.copyWith(gameBoards: gameBoards, col: col, row: row, carpets: carpets, targets: targets, moves: moves ));
+    emit(state.copyWith(gameBoards: gameBoards, col: col, row: row, carpets: carpets, targets: targets, moves: moves, rewards: rewards ));
   }
 }

@@ -25,10 +25,12 @@ class GameOverWidget extends StatefulWidget {
 
 class _GameOverWidgetState extends State<GameOverWidget> {
   List<Map<CharacterType, int>> targets = [];
+  List<Map<CharacterType, int>> rewards = [];
   int moves = 1;
   bool gameOver = false;
   bool targetFinished = false;
   bool notAlive = false;
+  Map<CharacterType, int> received = {};
 
   @override
   Widget build(BuildContext context) {
@@ -80,49 +82,101 @@ class _GameOverWidgetState extends State<GameOverWidget> {
     }
 
     if (targetFinished) {
-      return Container(
-        color: Colors.transparent,
-        width: widget.width,
-        height: widget.height,
-        child: Center(
-          child: Container(
-            alignment: Alignment.center,
-            width: widget.width * 0.6,
-            height: widget.height * 0.6,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(8)),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.75),
-                  spreadRadius: 5,
-                  blurRadius: 5,
-                  offset: const Offset(0, 5), // changes position of shadow
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  "Congratulation",
-                  style: TextStyle(
-                      color: Colors.red.withOpacity(0.95),
-                      fontSize: widget.width * 0.09),
-                ),
-                displayTarget(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    goHome(),
+      return Stack(
+        children: [
+          BlocListener<UiCubit, UiState>(
+            listenWhen: (previous, current) =>
+            !mapEquals(previous.received, current.received),
+            listener: (context, state) {
+              setState(() {
+                received = state.received;
+              });
+            },
+            child: Text(""),
+          ),
+          Container(
+            color: Colors.transparent,
+            width: widget.width,
+            height: widget.height,
+            child: Center(
+              child: Container(
+                alignment: Alignment.center,
+                width: widget.width * 0.6,
+                height: widget.height * 0.6,
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(8)),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.75),
+                      spreadRadius: 5,
+                      blurRadius: 5,
+                      offset: const Offset(0, 5), // changes position of shadow
+                    ),
                   ],
                 ),
-              ],
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Congratulation",
+                      style: TextStyle(
+                          color: Colors.red.withOpacity(0.95),
+                          fontSize: widget.width * 0.09),
+                    ),
+                    displayRewards(),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        goHome(),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+          if (received.isNotEmpty)
+            Positioned(
+              top: 0,
+              right: 0,
+              left: 0,
+              bottom: 0,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.asset(
+                    Assets.getCharacter(
+                        characterType: received.entries.first.key),
+                    height: 90,
+                    width: 90,
+                  ),
+                  Positioned(
+                    right: widget.width * 0.40,
+                    bottom: widget.height * 0.40,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16),
+                        ),
+                      ),
+                      child: Text(
+                        received.entries.first.value.toString(),
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            )
+        ],
       );
     }
 
@@ -172,7 +226,6 @@ class _GameOverWidgetState extends State<GameOverWidget> {
         ),
       );
     }
-
     return MultiBlocListener(listeners: [
       BlocListener<GameBlock, GameState>(
         listenWhen: (p, c) => p.moves != c.moves,
@@ -199,15 +252,25 @@ class _GameOverWidgetState extends State<GameOverWidget> {
               targetFinished = true;
               targets = state.targets;
               gameOver = false;
+              rewards = state.rewards;
             });
           }
         },
       ),
       BlocListener<UiCubit, UiState>(
+        listenWhen: (previous, current) =>
+            !mapEquals(previous.received, current.received),
         listener: (context, state) {
-            setState(() {
-              notAlive = state.lastLifeCount < 1;
-            });
+          setState(() {
+            received = state.received;
+          });
+        },
+      ),
+      BlocListener<UiCubit, UiState>(
+        listener: (context, state) {
+          setState(() {
+            notAlive = state.lastLifeCount < 1;
+          });
         },
       ),
     ], child: const Text(""));
@@ -223,6 +286,53 @@ class _GameOverWidgetState extends State<GameOverWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             for (Map<CharacterType, int> target in targets)
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.asset(
+                    Assets.getCharacter(
+                        characterType: target.entries.first.key),
+                    height: 33,
+                    width: 33,
+                  ),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(7),
+                        ),
+                      ),
+                      child: Text(
+                        target.entries.first.value.toString(),
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget displayRewards() {
+    context.read<UiCubit>().receiveRewards(rewards: rewards);
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            for (Map<CharacterType, int> target in rewards)
               Stack(
                 alignment: Alignment.center,
                 children: [

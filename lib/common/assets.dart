@@ -36,6 +36,9 @@ class Assets {
   static const int characterColor = 0xFF94B8DB;
   static const int boardColor = 0xFFC2D6EB;
 
+  static const int primaryColor = 0xFF94B8DB;
+  static const int secondaryColor = 0xFF94B8DB;
+
   static String getCharacter({required CharacterType characterType}) {
     if (characterType == CharacterType.banana) {
       return Assets.banana;
@@ -94,6 +97,9 @@ class Assets {
     if (characterType == CharacterType.diamondThree) {
       return Assets.diamondThree;
     }
+    if (characterType == CharacterType.space) {
+      return Assets.hole;
+    }
     return Assets.hole;
   }
 
@@ -101,6 +107,7 @@ class Assets {
     "row" : 9,
     "col" : 8,
     "targets": [],
+    "rewards" : [{CharacterType.hand : 2},{CharacterType.hand : 3}],
     "moves": 30,
     "board" : [
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
@@ -120,14 +127,15 @@ class Assets {
   static const Map<String,dynamic> level1 = {
     "row" : 9,
     "col" : 8,
-    "targets": [{CharacterType.pear : 1000},{CharacterType.banana : 1000},{CharacterType.apple : 1000}],
-    "moves": 50,
+    "rewards" : [{CharacterType.hand : 5},{CharacterType.hummer : 3}, {CharacterType.orange : 10}],
+    "targets": [{CharacterType.pear : 10},{CharacterType.banana : 10},{CharacterType.apple : 10}],
+    "moves": 1,
     "board" : [
+      [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.space,CharacterType.space],
+      [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.space],
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
-      [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
-      [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
-      [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
+      [CharacterType.space,CharacterType.hole,CharacterType.space,CharacterType.space,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
@@ -141,6 +149,7 @@ class Assets {
     "row" : 7,
     "col" : 5,
     "targets": [],
+    "rewards" : [{CharacterType.hand : 2},{CharacterType.hand : 3}],
     "moves": 10,
     "board" : [
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,],
@@ -157,6 +166,7 @@ class Assets {
   static const Map<String,dynamic> level3 = {
     "row" : 10,
     "col" : 8,
+    "rewards" : [{CharacterType.hand : 2},{CharacterType.hand : 3}],
     "targets": [{CharacterType.boxOne : 12},{CharacterType.boxTwo: 6},{CharacterType.boxThree: 3}],
     "moves": 60,
     "board" : [
@@ -178,6 +188,7 @@ class Assets {
     "row" : 7,
     "col" : 6,
     "targets": [],
+    "rewards" : [{CharacterType.hand : 2},{CharacterType.hand : 3}],
     "moves": 10,
     "board" : [
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,],
@@ -195,6 +206,7 @@ class Assets {
     "row" : 11,
     "col" : 8,
     "targets": [],
+    "rewards" : [],
     "moves": 10,
     "board" : [
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,],

@@ -101,10 +101,9 @@ class _GameHomeState extends State<GameHome> {
               child: Stack(
                 alignment: AlignmentDirectional.center,
                 children: [
-                  Container(
+                  SizedBox(
                     width: width * (col / row),
                     height: width,
-                    color: const Color(Assets.boardColor),
                   ),
                   for (var boards in gBoards.entries)
                     for (var board in boards.value.entries)
