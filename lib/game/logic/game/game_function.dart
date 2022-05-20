@@ -125,7 +125,6 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
     if (bombing2.isNotEmpty) {
       matchCount2 += bombing2.entries.first.key;
       if (bombing2.entries.first.key > 1) {
-        print("BOOOO");
         game2 = [...game2, ...bombing2.entries.first.value];
       }
     }
@@ -186,6 +185,9 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
 Map<int, List<Map<int, int>>> getConnectedCharacter(
     GameState state, int row, int col, CharacterType type) {
   if (row > state.row || row <= 0 || col > state.col || col <= 0) {
+    return {0: []};
+  }
+  if(BreakCharacter.staticCharacterNeverChange(type)){
     return {0: []};
   }
   int matchCount = 0;

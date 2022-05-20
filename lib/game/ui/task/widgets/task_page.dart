@@ -55,7 +55,7 @@ class _TaskPageState extends State<TaskPage> {
     );
   }
 
-  bool expand = false;
+  bool expand = true;
 
   Widget allAction() {
     return Column(

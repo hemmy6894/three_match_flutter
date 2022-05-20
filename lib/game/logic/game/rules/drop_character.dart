@@ -24,7 +24,7 @@ class DropCharacter {
           }
         }
         if (newLook.length < state.row) {
-          lessBy = state.row - (newLook.length + nones.length);
+          lessBy = state.row - (newLook.length);
           // print("LOOP $lessBy ROW NUM ${state.row} LENGTH ${newLook.length} none ${nones.length}");
           int k = 0;
           // drop character down
@@ -34,7 +34,7 @@ class DropCharacter {
             if(BreakCharacter.notMovingCharacter(rowNotMove)){
               row = {...row, j: rowNotMove};
               boards[i] = row;
-              k++;
+              // k++;
             }else if(k < newLook.length) {
               row = {...row, j: newLook[k]};
               boards[i] = row;
@@ -52,9 +52,10 @@ class DropCharacter {
                 j: rowNotMove
               };
             }else{
+              CharacterType newUniqueCharacter = CharacterGenerator.getUniqueRandomCharacter(boards, i, j);
               row = {
                 ...row,
-                j: CharacterGenerator.getUniqueRandomCharacter(boards, i, j)
+                j: newUniqueCharacter
               };
             }
             boards[i] = row;

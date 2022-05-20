@@ -4,6 +4,9 @@ class BombMove {
     List<Map<int, int>> firstMoves = [];
     int matchCount = 0;
     CharacterType block = getCharacter(state, row: row, col: col);
+    if(BreakCharacter.staticCharacterNeverChange(block)){
+      return {0 : []};
+    }
     if (block == CharacterType.plane) {
       List<dynamic> planeMove = planeMoves(row, col, state);
       if (planeMove.isNotEmpty) {

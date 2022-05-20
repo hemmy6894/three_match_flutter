@@ -40,6 +40,7 @@ dependencies:
   hydrated_bloc: ^8.1.0
   flutter_services_binding: ^0.1.0
   path_provider: ^2.0.10
+  carousel_slider: ^4.1.1
 
 dev_dependencies:
   flutter_test:
