@@ -12,6 +12,14 @@ class ServerBloc extends Bloc<ServerEvent, ServerState> {
     on<RegisterUserEvent>((event, emit) async {
         await event.registerUser(emit, state, "token");
     });
+
+    on<ServerPutPayload>((event, emit) async {
+      await event.putPayload(emit, state);
+    });
+
+    on<ServerDestroyPayload>((event, emit) async {
+      await event.destroyPayload(emit, state);
+    });
   }
 }
 

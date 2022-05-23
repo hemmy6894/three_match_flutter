@@ -32,7 +32,7 @@ class ApplicationBaseRequest {
       if (!kReleaseMode) {
         // return Uri.https(baseUrl, endpoint, params);
       }
-      return Uri.https(baseUrl, endpoint, params);
+      return Uri.http(baseUrl, endpoint, params);
     }
 
     return ApplicationBaseRequest._(
@@ -160,7 +160,6 @@ class ApplicationBaseRequest {
         req.headers.addAll(_getHeaders());
         response = await http.Response.fromStream(await req.send());
       }
-
       if (method.toLowerCase() == "post") {
         final Uri _requestUrl = getUri(baseUrl, endpoint);
         // response =  await http.post(_requestUrl, headers: _getHeaders(), body: data);
@@ -222,6 +221,7 @@ class ApplicationBaseRequest {
         response = await http.Response.fromStream(await req.send());
       }
     } catch (e) {
+      print(e);
       response = http.Response("{message:'Unknown Error'}", 404);
     }
     var _response;

@@ -19,7 +19,7 @@ class UserModel extends Equatable {
     if(json == null){
       return UserModel.empty();
     }
-    return UserModel(name: json["name"], email: json["email"], phone: json["phone"]);
+    return UserModel(name: json["name"] ?? "", email: json["email"] ?? "", phone: json["phone"] ?? "");
   }
 
   Map<String,dynamic> toMap(){

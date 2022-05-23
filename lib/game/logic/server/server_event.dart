@@ -41,3 +41,21 @@ class ServerUserTokenEvent extends ServerEvent {
     emit(state.copyWith(registering: false));
   }
 }
+
+
+class ServerPutPayload implements ServerEvent {
+  final String value;
+  final String key;
+
+  ServerPutPayload({required this.value, required this.key});
+  putPayload(Emitter<ServerState> emit, ServerState state) {
+    final Map<String, dynamic> payload = {...state.payload, key: value};
+    emit(state.copyWith(payload: payload));
+  }
+}
+
+class ServerDestroyPayload implements ServerEvent {
+  destroyPayload(Emitter<ServerState> emit, ServerState state) {
+    emit(state.copyWith(payload: {}));
+  }
+}

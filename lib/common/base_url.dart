@@ -1,3 +1,3 @@
 class BaseUrl {
-  static String baseUrl = "http://three.mojabora.com/";
+  static String baseUrl = "three.mojabora.com";
 }

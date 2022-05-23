@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:test_game/game/ui/game/character.dart';
 
 class Assets {
@@ -38,6 +40,11 @@ class Assets {
 
   static const int primaryColor = 0xFF94B8DB;
   static const int secondaryColor = 0xFF94B8DB;
+
+  static const int blackColor = 0xFFF000000;
+  static const int thirdColor = 0xFF767577;
+  static const int redColors = 0xFFFF0000;
+  static const Color circularProgressColor = Color.fromARGB(255, 232, 226, 238);
 
   static String getCharacter({required CharacterType characterType}) {
     if (characterType == CharacterType.banana) {

@@ -13,8 +13,8 @@ class UserResponse {
     String response = "data",
   }) =>
       UserResponse(
-        success: json["success"],
-        message: json["message"],
+        success: json["status"] ?? false,
+        message: json["sms"] ?? "",
         data: UserData.toJson(json[response]),
       );
 }
