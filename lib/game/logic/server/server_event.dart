@@ -7,17 +7,40 @@ class ServerPullUserEvent extends ServerEvent {}
 class RegisterUserEvent extends ServerEvent {
   registerUser(
       Emitter<ServerState> emit, ServerState state, String token) async {
-    emit(state.copyWith(logining: true));
+    state = state.copyWith(logging: true);
+    emit(state);
     await GameRepository.registerUser(payload: {...state.payload}, token: token)
         .then((value) {
-          print(value.either((left) {print(left.data);}, (right) {print(right.message);}));
       if (value.isLeft) {
         if (value.left.success == true) {
-          emit(state.copyWith(user: value.left.data.user,logining: false));
+          UserModel user = value.left.data.user;
+          String token = value.left.data.token;
+          state = state.copyWith(user: user,logging: false, token: token,);
+          emit(state);
+          print(state.toMap());
         }
       }
     });
-    emit(state.copyWith(logining: false));
+    emit(state.copyWith(logging: false));
+  }
+}
+
+class UpdateUserEvent extends ServerEvent {
+  updateUser(Emitter<ServerState> emit, ServerState state, String token) async {
+    state = state.copyWith(logging: true);
+    emit(state);
+    await GameRepository.updateUser(payload: {...state.payload}, token: state.token)
+        .then((value) {
+      if (value.isLeft) {
+        if (value.left.success == true) {
+          UserModel user = value.left.data.user;
+          String token = value.left.data.token;
+          state = state.copyWith(user: user,logging: false, token: token,);
+          emit(state);
+        }
+      }
+    });
+    emit(state.copyWith(logging: false));
   }
 }
 
@@ -43,19 +66,24 @@ class ServerUserTokenEvent extends ServerEvent {
 }
 
 
-class ServerPutPayload implements ServerEvent {
+class ServerPutPayload extends ServerEvent {
   final String value;
   final String key;
 
   ServerPutPayload({required this.value, required this.key});
   putPayload(Emitter<ServerState> emit, ServerState state) {
     final Map<String, dynamic> payload = {...state.payload, key: value};
+    print(payload);
     emit(state.copyWith(payload: payload));
   }
 }
 
-class ServerDestroyPayload implements ServerEvent {
+class ServerDestroyPayload extends ServerEvent {
   destroyPayload(Emitter<ServerState> emit, ServerState state) {
     emit(state.copyWith(payload: {}));
   }
 }
+
+class FetchContactEvent extends ServerEvent{}
+class RequestFriendEvent extends ServerEvent{}
+class PullFriendEvent extends ServerEvent{}

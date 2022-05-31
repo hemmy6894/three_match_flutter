@@ -38,6 +38,7 @@ class Character extends StatefulWidget {
   final bool isObstacle;
   final bool isHelper;
   final bool asCarpet;
+  final Function(double) verticalUpdate;
 
   const Character(
       {Key? key,
@@ -49,6 +50,7 @@ class Character extends StatefulWidget {
       this.isHelper = false,
       this.isObstacle = false,
       this.asCarpet = false,
+        required this.verticalUpdate,
       required this.height})
       : super(key: key);
 
@@ -58,7 +60,9 @@ class Character extends StatefulWidget {
 
 class _CharacterState extends State<Character> {
   bool spaceCharacter = false;
-
+  bool left = false, right = false, up = false, down = false;
+  late DragStartDetails startDrag;
+  late DragUpdateDetails updateDrag;
   @override
   Widget build(BuildContext context) {
     spaceCharacter = BreakCharacter.spaceCharacter(widget.characterType);
@@ -67,6 +71,19 @@ class _CharacterState extends State<Character> {
           !spaceCharacter ? const Color(Assets.boardColor) : Colors.transparent,
       child: GestureDetector(
         onTap: () {
+
+        },
+        onDoubleTap: () {
+          if (BreakCharacter.isBombCharacter(widget.characterType)) {
+            context
+                .read<GameBlock>()
+                .add(GameClickCharacterEvent(row: widget.row, col: widget.col));
+            context
+                .read<GameBlock>()
+                .add(GameClickCharacterEvent(row: widget.row, col: widget.col));
+          }
+        },
+        onPanDown: (DragDownDetails details) {
           if (!widget.isObstacle && !widget.isHelper) {
             if (!BreakCharacter.noneBreakableCharacter(widget.characterType)) {
               context.read<GameBlock>().add(
@@ -80,14 +97,40 @@ class _CharacterState extends State<Character> {
                 .add(GameCatchHelperEvent(helper: widget.characterType));
           }
         },
-        onDoubleTap: () {
-          if (BreakCharacter.isBombCharacter(widget.characterType)) {
-            context
-                .read<GameBlock>()
-                .add(GameClickCharacterEvent(row: widget.row, col: widget.col));
-            context
-                .read<GameBlock>()
-                .add(GameClickCharacterEvent(row: widget.row, col: widget.col));
+        onPanStart: (DragStartDetails start) {
+          setState(() {
+            startDrag = start;
+          });
+        },
+        onPanUpdate: (DragUpdateDetails details){
+          setState(() {
+            updateDrag = details;
+          });
+        },
+        onPanEnd: (DragEndDetails details) {
+          int row = 0; int col = 0;
+          if(updateDrag.delta.dy < -0.5 && updateDrag.delta.dy < updateDrag.delta.dx){
+            if (!widget.isObstacle && !widget.isHelper) {
+              row = widget.row - 1; col = widget.col;
+            }
+          }
+          if(updateDrag.delta.dy > 0.5 && updateDrag.delta.dy > updateDrag.delta.dx){
+            if (!widget.isObstacle && !widget.isHelper) {
+              row = widget.row + 1; col = widget.col;
+            }
+          }
+          if(updateDrag.delta.dx < -0.5 && updateDrag.delta.dx < updateDrag.delta.dy){
+            if (!widget.isObstacle && !widget.isHelper) {
+              row = widget.row; col = widget.col - 1;
+            }
+          }
+          if(updateDrag.delta.dx > 0.5 && updateDrag.delta.dx > updateDrag.delta.dy){
+            if (!widget.isObstacle && !widget.isHelper) {
+              row = widget.row; col = widget.col + 1;
+            }
+          }
+          if (!BreakCharacter.noneBreakableCharacter(getBoardCharacter(context.read<GameBlock>().state.gameBoards, row: row, col: col))) {
+            context.read<GameBlock>().add(GameClickCharacterEvent(row: row, col: col));
           }
         },
         child: Container(

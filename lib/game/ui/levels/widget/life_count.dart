@@ -43,7 +43,7 @@ class _LiveCountState extends State<LiveCount> {
             // border: Border.all(color: Colors.black, width: 1)
             color: Colors.white),
         margin: const EdgeInsets.all(3),
-        width: MediaQuery.of(context).size.width * (liveCount < fullLives ?  0.16 : 0.05),
+        width: MediaQuery.of(context).size.width * (liveCount < fullLives ?  0.17 : 0.07),
         height: MediaQuery.of(context).size.height * 0.03,
         child: Row(
           children: [

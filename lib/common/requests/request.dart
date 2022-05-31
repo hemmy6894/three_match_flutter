@@ -176,14 +176,11 @@ class ApplicationBaseRequest {
           }
           if (value is List) {
             int i = 0;
-            // for (var ele in value) {
-            //    = jsonEncode(ele);
-            //   // i++;
-            // }
-            // req.fields["$key"]
-            req.fields[key] = jsonEncode(value);
+            for(dynamic v in value){
+              req.fields["$key[$i]"] = v;
+              i++;
+            }
           }
-
           // if (value is CustomFile) {
           //   req.files.add(await http.MultipartFile.fromPath(
           //     key,

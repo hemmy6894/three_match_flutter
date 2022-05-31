@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:test_game/game/logic/server/server_bloc.dart';
 import 'package:test_game/game/ui/levels/home.dart';
 import 'package:test_game/game/ui/levels/widget/life_count.dart';
 import 'package:test_game/game/ui/task/pages/all_task.dart';
@@ -30,6 +32,13 @@ class _MainAppState extends State<MainApp> {
       _selectedIndex = index;
     });
   }
+  Icon profile = const Icon(Icons.person);
+  String profileLabel = "Profile";
+  @override
+  initState(){
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,32 +64,44 @@ class _MainAppState extends State<MainApp> {
                   ],
                 ),
               ),
-              Expanded(child: _widgetOptions.elementAt(_selectedIndex))
+              Expanded(child: _widgetOptions.elementAt(_selectedIndex)),
+              BlocListener<ServerBloc,ServerState>(
+                  listener: (context,state) {
+                  setState((){
+                    if(state.token == ""){
+                      profile = const Icon(Icons.login);
+                      profileLabel = "login";
+                    }else{
+                      profile = const Icon(Icons.person);
+                      profileLabel = "Profile";
+                    }
+                  });
+              }, child: Container(),)
             ],
           ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+        items: <BottomNavigationBarItem>[
+          const BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.people_alt),
             label: 'Friends',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.add),
             label: 'Sign',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.book),
             label: 'Signed',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+            icon: profile,
+            label: profileLabel,
           ),
         ],
         currentIndex: _selectedIndex,

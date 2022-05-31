@@ -19,4 +19,25 @@ class GameProvider
         token: token)
         .request();
   }
+
+  static Future<Response> updateUser({payload, token}) async {
+    return await ApplicationBaseRequest.post(
+        baseUrl, ThreeMatchEndPoint.update,payload,
+        token: token)
+        .request();
+  }
+
+  static Future<Response> friendRequest({payload, token}) async {
+    return await ApplicationBaseRequest.post(
+        baseUrl, ThreeMatchEndPoint.friendRequest,payload,
+        token: token)
+        .request();
+  }
+
+  static Future<Response> friends({payload, token}) async {
+    return await ApplicationBaseRequest.get(
+        baseUrl, ThreeMatchEndPoint.friends,params: payload,
+        token: token)
+        .request();
+  }
 }

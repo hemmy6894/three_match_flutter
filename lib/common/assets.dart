@@ -107,6 +107,9 @@ class Assets {
     if (characterType == CharacterType.space) {
       return Assets.hole;
     }
+    if (characterType == CharacterType.carpet) {
+      return Assets.carpet;
+    }
     return Assets.hole;
   }
 
@@ -155,9 +158,9 @@ class Assets {
   static const Map<String,dynamic> level2 = {
     "row" : 7,
     "col" : 5,
-    "targets": [],
+    "targets": [{CharacterType.pear : 100},{CharacterType.banana : 100},{CharacterType.apple : 100}],
+    "moves": 30,
     "rewards" : [{CharacterType.hand : 2},{CharacterType.hand : 3}],
-    "moves": 10,
     "board" : [
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,],
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,],
@@ -194,7 +197,7 @@ class Assets {
   static const Map<String,dynamic> level4 = {
     "row" : 7,
     "col" : 6,
-    "targets": [],
+    "targets": [{CharacterType.banana: 50, CharacterType.pear: 70}],
     "rewards" : [{CharacterType.hand : 2},{CharacterType.hand : 3}],
     "moves": 10,
     "board" : [
@@ -212,9 +215,9 @@ class Assets {
   static const Map<String,dynamic> level5 = {
     "row" : 11,
     "col" : 8,
-    "targets": [],
+    "targets": [{CharacterType.carpet: 88}],
     "rewards" : [],
-    "moves": 10,
+    "moves": 20,
     "board" : [
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,],
       [CharacterType.hole,CharacterType.hole,CharacterType.boxOne,CharacterType.hole,CharacterType.hole,CharacterType.diamondOne,CharacterType.hole,CharacterType.hole,],

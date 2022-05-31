@@ -5,7 +5,8 @@ import 'package:test_game/game/logic/game/game_bloc.dart';
 import 'package:test_game/game/ui/game/character.dart';
 
 class MoveWidget extends StatefulWidget {
-  const MoveWidget({Key? key}) : super(key: key);
+  final double height, width;
+  const MoveWidget({Key? key, required this.height,required this.width}) : super(key: key);
 
   @override
   State<MoveWidget> createState() => _MoveWidgetState();
@@ -32,8 +33,8 @@ class _MoveWidgetState extends State<MoveWidget> {
               color: Colors.white,
               borderRadius: BorderRadius.all(Radius.circular(8)),
             ),
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height * 0.13,
+            width: widget.width,
+            height: widget.height * 0.13,
           ),
           Positioned(
             top: 5,
@@ -76,7 +77,7 @@ class _MoveWidgetState extends State<MoveWidget> {
         style: TextStyle(
           color: Colors.black,
           fontWeight: FontWeight.bold,
-          fontSize: MediaQuery.of(context).size.width * 0.14,
+          fontSize: widget.width * 0.14,
         ),
       ),
     );

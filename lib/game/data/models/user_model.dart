@@ -30,6 +30,18 @@ class UserModel extends Equatable {
     };
   }
 
+  static List<UserModel>  getList(json)  {
+    List<UserModel> users = [];
+    try{
+      for(var js in json){
+        users.add(js);
+      }
+    }catch(e){
+      users = [];
+    }
+    return users;
+  }
+
   @override
   List<Object?> get props => [name,phone,email];
 }

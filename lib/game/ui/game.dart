@@ -45,6 +45,9 @@ class _GameHomeState extends State<GameHome> {
     double height = screenSize.height;
     double width = screenSize.width;
     double temp = 0;
+    if(width > 600){
+      width = 600;
+    }
     if (width > height) {
       temp = width;
       width = height;
@@ -88,8 +91,8 @@ class _GameHomeState extends State<GameHome> {
                       ],
                     ),
                   ),
-                  const Expanded(
-                    child: MoveWidget(),
+                  Expanded(
+                    child: MoveWidget(width: width, height: height,),
                   ),
                 ],
               ),
@@ -123,6 +126,9 @@ class _GameHomeState extends State<GameHome> {
                           row: boards.key,
                           active: mapEquals(clicked, {boards.key: board.key}),
                           col: board.key,
+                          verticalUpdate: (d) => {
+
+                          },
                           asCarpet: hasCarpet(row: boards.key, col: board.key),
                           height: width / row,
                           width: width / row,
@@ -147,6 +153,7 @@ class _GameHomeState extends State<GameHome> {
                   row: 100,
                   active: CharacterType.hummer == selectedCharacter,
                   col: 100,
+                  verticalUpdate: (d) {},
                   isHelper: true,
                   height: (width / row),
                   width: (width / row),
@@ -157,6 +164,7 @@ class _GameHomeState extends State<GameHome> {
                 Character(
                   characterType: CharacterType.hand,
                   row: 100,
+                  verticalUpdate: (d) {},
                   isHelper: true,
                   active: CharacterType.hand == selectedCharacter,
                   col: 100,
