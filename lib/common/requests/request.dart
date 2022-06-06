@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:test_game/common/requests/response.dart';
@@ -149,12 +150,12 @@ class ApplicationBaseRequest {
           if (value is double || value is int) {
             req.fields[key] = value.toString();
           }
-          // if (value is CustomFile) {
-          //   req.files.add(await http.MultipartFile.fromPath(
-          //     key,
-          //     value.path,
-          //   ));
-          // }
+          if (value is PlatformFile) {
+            req.files.add(http.MultipartFile.fromBytes(
+              key,
+              value.bytes!.toList(),
+            ));
+          }
         });
 
         req.headers.addAll(_getHeaders());
@@ -181,12 +182,12 @@ class ApplicationBaseRequest {
               i++;
             }
           }
-          // if (value is CustomFile) {
-          //   req.files.add(await http.MultipartFile.fromPath(
-          //     key,
-          //     value.path,
-          //   ));
-          // }
+          if (value is PlatformFile) {
+            req.files.add(await http.MultipartFile.fromPath(
+              key,
+              value.path!,
+            ));
+          }
         });
 
         req.headers.addAll(_getHeaders());

@@ -6,10 +6,12 @@ class ServerState extends Equatable {
   final bool logging;
   final bool registering;
   final bool loadFriend;
-  final TaskList tasks;
-  final AssignList assigns;
+  final List<TaskModel> tasks;
+  final List<AssignModel> assigns;
   final List<String> phones;
   final List<PhoneModel> friends;
+  final List<GenderModel> genders;
+  final List<CountryModel> countries;
   final Map<String, dynamic> payload;
 
   const ServerState(
@@ -22,6 +24,8 @@ class ServerState extends Equatable {
       required this.phones,
       required this.loadFriend,
       required this.friends,
+      required this.genders,
+      required this.countries,
       required this.payload});
 
   factory ServerState.empty() {
@@ -31,23 +35,41 @@ class ServerState extends Equatable {
         loadFriend: false,
         token: "",
         phones: const [],
-        assigns: AssignList.empty(),
-        tasks: TaskList.empty(),
+        assigns: List<AssignModel>.empty(),
+        tasks: List<TaskModel>.empty(),
         friends: const [],
+        genders: const [],
+        countries: const [],
         user: UserModel.empty(),
         payload: const {});
   }
 
+  AssignModel? assigned({required String id}){
+    for(AssignModel assigned in assigns){
+      if(assigned.id == id){
+        return assigned;
+      }
+    }
+    return null;
+  }
+
+  ///  Copy with all element of Server state
+  ///  $friends
+  ///  $phones
+  ///  $genders
+  ///
   ServerState copyWith(
       {UserModel? user,
       String? token,
       Map<String, dynamic>? payload,
       bool? logging,
       bool? loadFriend,
-      AssignList? assigns,
-      TaskList? tasks,
+      List<AssignModel>? assigns,
+      List<TaskModel>? tasks,
       List<String>? phones,
       List<PhoneModel>? friends,
+      List<GenderModel>? genders,
+      List<CountryModel>? countries,
       bool? registering}) {
     var states =  ServerState(
         logging: logging ?? this.logging,
@@ -58,6 +80,8 @@ class ServerState extends Equatable {
         tasks: tasks ?? this.tasks,
         phones: phones ?? this.phones,
         friends: friends ?? this.friends,
+        genders: genders ?? this.genders,
+        countries: countries ?? this.countries,
         token: token ?? this.token,
         payload: payload ?? this.payload);
     return states;
@@ -74,10 +98,13 @@ class ServerState extends Equatable {
         token: json["token"] ?? "",
         phones: const [],
         friends:  PhoneModel.getList(json),
-        tasks: TaskList.toJson(json["tasks"]),
-        assigns: AssignList.toJson(json["assigns"]),
+        countries:  CountryModel.getList(json["countries"]),
+        genders:  GenderModel.getList(json["genders"]),
+        tasks:  TaskModel.getList(json["tasks"]),// List<TaskModel>.toJson(json["tasks"]),
+        assigns: AssignModel.getList(json["assigns"]),
         user: UserModel.toJson(json["user"]),
-        payload: json["payload"] ?? "");
+        payload: const {}
+    );
   }
 
   Map<String, dynamic> toMap() {
@@ -87,12 +114,11 @@ class ServerState extends Equatable {
       "token" : token,
       "load_friend" : loadFriend,
       "user" : user.toMap(),
-      "payload" : payload,
-      "tasks" : tasks,
-      "assigns" : assigns,
+      // "tasks" : tasks.map((e) => e.toMap()),
+      // "assigns" : assigns.toMap(),
     };
   }
 
   @override
-  List<Object?> get props => [token,user,payload,logging,registering,phones,friends,loadFriend,assigns,tasks];
+  List<Object?> get props => [token,user,payload,logging,registering,phones,friends,loadFriend,assigns,tasks,countries,genders];
 }

@@ -1,11 +1,13 @@
-import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:test_game/game/data/models/country.dart';
+import 'package:test_game/game/data/models/gender.dart';
 import 'package:test_game/game/data/models/user_model.dart';
 import 'package:test_game/game/logic/server/server_bloc.dart';
 import 'package:test_game/game/ui/widgets/forms/button_component.dart';
 import 'package:test_game/game/ui/widgets/forms/input_component.dart';
+import 'package:test_game/game/ui/widgets/forms/select_input_component.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -15,9 +17,14 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  Map<String, dynamic> genders = {};
+  Map<String, dynamic> countries = {};
+
   @override
   void initState() {
     context.read<ServerBloc>().add(ServerDestroyPayload());
+    context.read<ServerBloc>().add(PullGenderEvent());
+    context.read<ServerBloc>().add(PullCountryEvent());
     getContactList();
     super.initState();
   }
@@ -39,13 +46,43 @@ class _ProfileState extends State<Profile> {
   UserModel userModel = UserModel.empty();
 
   Widget display() {
-    return BlocListener<ServerBloc, ServerState>(
-      listener: (context, state) {
-        setState(() {
-          isOn = state.token == "" ? false : true;
-          userModel = state.user;
-        });
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<ServerBloc, ServerState>(
+          listener: (context, state) {
+            setState(() {
+              isOn = state.token == "" ? false : true;
+              userModel = state.user;
+            });
+          },
+        ),
+        BlocListener<ServerBloc, ServerState>(
+          listenWhen: (previous, current) =>
+              previous.genders != current.genders,
+          listener: (context, state) {
+            setState(() {
+              genders = {};
+              for (GenderModel gender in state.genders) {
+                genders.addAll({gender.id: gender.name});
+              }
+            });
+          },
+        ),
+        BlocListener<ServerBloc, ServerState>(
+          listenWhen: (previous, current) =>
+              previous.countries != current.countries,
+          listener: (context, state) {
+            setState(
+              () {
+                countries = {};
+                for (CountryModel country in state.countries) {
+                  countries.addAll({country.id: country.name});
+                }
+              },
+            );
+          },
+        ),
+      ],
       child: isOn ? profile() : register(),
     );
   }
@@ -59,6 +96,12 @@ class _ProfileState extends State<Profile> {
           displayTap(key: "Name", value: userModel.name),
           displayTap(key: "Email", value: userModel.email),
           displayTap(key: "Phone", value: userModel.phone),
+          if (genders.isNotEmpty)
+            displayTapSelect(
+                key: "Gender", value: userModel.genderId, values: genders),
+          if (countries.isNotEmpty)
+            displayTapSelect(
+                key: "Country", value: userModel.countryId, values: countries),
           serverListeners(
             child: Row(
               children: [
@@ -105,10 +148,39 @@ class _ProfileState extends State<Profile> {
                       }
                     }
                   }
-                  context.read<ServerBloc>().add(ServerPutPayload(value: change, key: key.toLowerCase()));
+                  context.read<ServerBloc>().add(
+                      ServerPutPayload(value: change, key: key.toLowerCase()));
                 },
                 initialValue: value,
               ))
+        ],
+      ),
+    );
+  }
+
+  Widget displayTapSelect({
+    required String key,
+    required String value,
+    required Map<String, dynamic> values,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(4),
+      child: Row(
+        children: [
+          Expanded(
+              child: Text(
+            key,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          )),
+          Expanded(
+            flex: 4,
+            child: SelectInputComponent(
+              onSave: () {},
+              onChange: () {},
+              items: values,
+              initialValue: value,
+            ),
+          )
         ],
       ),
     );
@@ -166,7 +238,7 @@ class _ProfileState extends State<Profile> {
         BlocListener<ServerBloc, ServerState>(
           listenWhen: (previous, current) => previous.phones != current.phones,
           listener: (context, state) {
-            if(state.phones.isNotEmpty) {
+            if (state.phones.isNotEmpty) {
               context.read<ServerBloc>().add(RequestFriendEvent());
             }
           },

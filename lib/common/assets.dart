@@ -110,6 +110,9 @@ class Assets {
     if (characterType == CharacterType.carpet) {
       return Assets.carpet;
     }
+    if (characterType == CharacterType.restart) {
+      return Assets.restart;
+    }
     return Assets.hole;
   }
 
@@ -138,7 +141,7 @@ class Assets {
     "row" : 9,
     "col" : 8,
     "rewards" : [{CharacterType.hand : 5},{CharacterType.hummer : 3}, {CharacterType.orange : 10}],
-    "targets": [{CharacterType.pear : 1000},{CharacterType.banana : 1000},{CharacterType.apple : 1000}],
+    "targets": [{CharacterType.pear : 10},{CharacterType.banana : 10},{CharacterType.apple : 10}],
     "moves": 60,
     "board" : [
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.space,CharacterType.space],

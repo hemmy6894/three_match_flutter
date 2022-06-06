@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/logic/game/game_bloc.dart';
+import 'package:test_game/game/logic/server/server_bloc.dart';
 import 'package:test_game/game/logic/ui/ui_cubit.dart';
 import 'package:test_game/game/ui/game/character.dart';
 import 'package:test_game/game/ui/levels/widget/life_count.dart';
@@ -12,12 +13,57 @@ class GameOverWidget extends StatefulWidget {
   final double width;
   final int levelName;
 
-  const GameOverWidget(
-      {Key? key,
-      required this.width,
-      required this.levelName,
-      required this.height})
+  const GameOverWidget({Key? key,
+    required this.width,
+    required this.levelName,
+    required this.height})
       : super(key: key);
+
+  static Widget displayTarget(List<Map<CharacterType, int>> targets) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            for (Map<CharacterType, int> target in targets)
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.asset(
+                    Assets.getCharacter(
+                        characterType: target.entries.first.key),
+                    height: 33,
+                    width: 33,
+                  ),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(7),
+                        ),
+                      ),
+                      child: Text(
+                        target.entries.first.value.toString(),
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+          ],
+        )
+      ],
+    );
+  }
 
   @override
   State<GameOverWidget> createState() => _GameOverWidgetState();
@@ -42,17 +88,24 @@ class _GameOverWidgetState extends State<GameOverWidget> {
         child: Center(
           child: Container(
             alignment: Alignment.center,
-            width: widget.width * 0.6,
-            height: widget.height * 0.6,
+            width: widget.width * 0.8,
+            height: widget.height * 0.8,
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              borderRadius: const BorderRadius.all(
+                Radius.circular(
+                  8,
+                ),
+              ),
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.75),
                   spreadRadius: 5,
                   blurRadius: 5,
-                  offset: const Offset(0, 5), // changes position of shadow
+                  offset: const Offset(
+                    0,
+                    5,
+                  ), // changes position of shadow
                 ),
               ],
             ),
@@ -63,10 +116,15 @@ class _GameOverWidgetState extends State<GameOverWidget> {
                 Text(
                   "Out Of Moves",
                   style: TextStyle(
-                      color: Colors.red.withOpacity(0.95),
-                      fontSize: widget.width * 0.09),
+                    color: Colors.red.withOpacity(
+                      0.95,
+                    ),
+                    fontSize: widget.width * 0.09,
+                  ),
                 ),
-                displayTarget(),
+                GameOverWidget.displayTarget(
+                  targets,
+                ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -123,8 +181,9 @@ class _GameOverWidgetState extends State<GameOverWidget> {
                       "Congratulation",
                       style: TextStyle(
                           color: Colors.red.withOpacity(0.95),
-                          fontSize: widget.width * 0.09),
+                          fontSize: widget.width * 0.07),
                     ),
+
                     displayRewards(),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -166,10 +225,9 @@ class _GameOverWidgetState extends State<GameOverWidget> {
                       child: Text(
                         received.entries.first.value.toString(),
                         style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 30
-                        ),
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 30),
                       ),
                     ),
                   )
@@ -259,7 +317,7 @@ class _GameOverWidgetState extends State<GameOverWidget> {
       ),
       BlocListener<UiCubit, UiState>(
         listenWhen: (previous, current) =>
-            !mapEquals(previous.received, current.received),
+        !mapEquals(previous.received, current.received),
         listener: (context, state) {
           setState(() {
             received = state.received;
@@ -274,52 +332,6 @@ class _GameOverWidgetState extends State<GameOverWidget> {
         },
       ),
     ], child: const Text(""));
-  }
-
-  Widget displayTarget() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            for (Map<CharacterType, int> target in targets)
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Image.asset(
-                    Assets.getCharacter(
-                        characterType: target.entries.first.key),
-                    height: 33,
-                    width: 33,
-                  ),
-                  Positioned(
-                    right: 0,
-                    bottom: 0,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(7),
-                        ),
-                      ),
-                      child: Text(
-                        target.entries.first.value.toString(),
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-          ],
-        )
-      ],
-    );
   }
 
   Widget displayRewards() {

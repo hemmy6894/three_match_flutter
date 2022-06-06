@@ -86,7 +86,7 @@ class _SelectInputComponentState extends State<SelectInputComponent> {
               widget.hintText,
               style: const TextStyle(color: Colors.white),
             ),
-            value: initial,
+            // value: initial,
             icon: const Icon(Icons.arrow_downward,
                 color: Color(Assets.primaryColor)),
             elevation: 16,

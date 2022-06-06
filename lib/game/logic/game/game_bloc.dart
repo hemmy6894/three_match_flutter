@@ -20,7 +20,7 @@ part 'rules/bomb_move.dart';
 class GameBlock extends Bloc<GameEvent, GameState> {
   GameBlock() : super(GameState.empty()) {
     on<GameStartEvent>((event, emit) async {
-       GameLevels.startGame(emit,state, event.levelName);
+       GameLevels.startGame(emit,state, event);
     });
 
     on<GameClickCharacterEvent>((event, emit) async {
@@ -28,7 +28,7 @@ class GameBlock extends Bloc<GameEvent, GameState> {
     });
 
     on<GameCatchHelperEvent>((event, emit) async {
-      Helpers.catchHelper(emit,state, event.helper);
+      await Helpers.catchHelper(emit,state, event.helper);
     });
 
     on<GameIsCapturedEvent>((event, emit) async {

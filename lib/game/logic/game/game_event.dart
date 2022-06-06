@@ -3,7 +3,8 @@ abstract class GameEvent {}
 
 class GameStartEvent extends GameEvent{
   final int levelName;
-  GameStartEvent({required this.levelName});
+  final String? assignId;
+  GameStartEvent({required this.levelName, this.assignId});
 }
 
 class GameClickCharacterEvent extends GameEvent{

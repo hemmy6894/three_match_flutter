@@ -20,12 +20,14 @@ class GameState extends Equatable {
   final int col;
   final int moves;
   final int row;
+  final int level;
   final List<Map<CharacterType, int>> rewards;
   final bool match;
   final bool reversed;
   final bool dropDown;
   final bool matchAll;
   final bool bombTouched;
+  final String? assignedId;
 
   const GameState(
       {required this.gameBoards,
@@ -45,6 +47,7 @@ class GameState extends Equatable {
       required this.currentPosition,
       required this.row,
       required this.col,
+      required this.level,
       required this.moves,
       required this.match,
       required this.reversed,
@@ -52,6 +55,7 @@ class GameState extends Equatable {
       required this.matchAll,
       required this.selectedHelper,
       required this.bombTouched,
+      required this.assignedId,
       required this.secondClicked});
 
   factory GameState.empty() => const GameState(
@@ -74,11 +78,13 @@ class GameState extends Equatable {
       moves: 10,
       col: 10,
       row: 11,
+      level: 1,
       match: false,
       reversed: false,
       matchAll: false,
       selectedHelper: null,
       bombTouched: true,
+      assignedId: null,
       dropDown: false);
 
   GameState copyWith({
@@ -101,11 +107,13 @@ class GameState extends Equatable {
     int? moves,
     int? col,
     int? row,
+    int? level,
     bool? match,
     bool? reversed,
     bool? dropDown,
     bool? matchAll,
     bool? bombTouched,
+    String? assignedId,
     CharacterType? selectedHelper,
   }) {
     return GameState(
@@ -128,11 +136,13 @@ class GameState extends Equatable {
       moves: moves ?? this.moves,
       row: row ?? this.row,
       col: col ?? this.col,
+      level: level ?? this.level,
       match: match ?? this.match,
       reversed: reversed ?? this.reversed,
       matchAll: matchAll ?? this.matchAll,
       dropDown: dropDown ?? this.dropDown,
       bombTouched: bombTouched ?? this.bombTouched,
+      assignedId: assignedId ?? this.assignedId,
       selectedHelper: selectedHelper ?? this.selectedHelper,
     );
   }
@@ -175,6 +185,7 @@ class GameState extends Equatable {
         secondClicked.entries,
         col,
         row,
+        level,
         moves,
         match,
         tempClicked.entries,
@@ -193,6 +204,7 @@ class GameState extends Equatable {
         bombTouched,
         selectedHelper,
         targets,
+        assignedId,
         rewards
       ];
 }

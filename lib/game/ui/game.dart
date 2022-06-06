@@ -4,16 +4,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_game/animations/animate_position.dart';
 import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/logic/game/game_bloc.dart';
+import 'package:test_game/game/logic/server/server_bloc.dart';
 import 'package:test_game/game/ui/game/character.dart';
 import 'package:test_game/game/ui/layouts/app.dart';
 import 'package:test_game/game/ui/levels/widget/game_over.dart';
+import 'package:test_game/game/ui/levels/widget/game_reward.dart';
 import 'package:test_game/game/ui/levels/widget/move.dart';
 import 'package:test_game/game/ui/levels/widget/target.dart';
 
 class GameHome extends StatefulWidget {
   final int levelName;
+  final String? assignedId;
 
-  const GameHome({Key? key, required this.levelName}) : super(key: key);
+  const GameHome({Key? key, required this.levelName, this.assignedId})
+      : super(key: key);
 
   @override
   State<GameHome> createState() => _GameHomeState();
@@ -33,7 +37,12 @@ class _GameHomeState extends State<GameHome> {
   @override
   void initState() {
     // TODO: implement initState
-    context.read<GameBlock>().add(GameStartEvent(levelName: widget.levelName));
+    context.read<GameBlock>().add(
+          GameStartEvent(
+            levelName: widget.levelName,
+            assignId: widget.assignedId,
+          ),
+        );
     row = context.read<GameBlock>().state.row;
     col = context.read<GameBlock>().state.col;
     super.initState();
@@ -45,7 +54,7 @@ class _GameHomeState extends State<GameHome> {
     double height = screenSize.height;
     double width = screenSize.width;
     double temp = 0;
-    if(width > 600){
+    if (width > 600) {
       width = 600;
     }
     if (width > height) {
@@ -58,126 +67,145 @@ class _GameHomeState extends State<GameHome> {
         alignment: Alignment.center,
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-
         // decoration: const BoxDecoration(
         //   image: DecorationImage(
         //     image: AssetImage(Assets.background),
         //   ),
         // ),
-        child: Column(
+        child: Stack(
           children: [
-            Container(
-              color: Colors.red.withOpacity(0.95),
-              child: Row(
-                children: [
-                  const Expanded(
-                    child: TargetWidget(),
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.3,
-                    height: 90,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Image.asset(Assets.orange),
-                        const Text(
-                          "Give Away",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: MoveWidget(width: width, height: height,),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            gameListeners(
-              child: Stack(
-                alignment: AlignmentDirectional.center,
-                children: [
-                  SizedBox(
-                    width: width * (col / row),
-                    height: width,
-                  ),
-                  for (var boards in gBoards.entries)
-                    for (var board in boards.value.entries)
-                      MojaPositionAnimation(
-                        beginPosition: -2,
-                        endPosition: 1,
-                        position: Position(
-                          left: width / row * (board.key - 1),
-                          top: width /
-                              row *
-                              (boards.key - 1) *
-                              getKeyTop(board.key * boards.key),
-                        ),
-                        duration: 3,
-                        child: Character(
-                          characterType: board.value,
-                          row: boards.key,
-                          active: mapEquals(clicked, {boards.key: board.key}),
-                          col: board.key,
-                          verticalUpdate: (d) => {
-
-                          },
-                          asCarpet: hasCarpet(row: boards.key, col: board.key),
-                          height: width / row,
-                          width: width / row,
+            Column(
+              children: [
+                Container(
+                  color: Colors.red.withOpacity(0.95),
+                  child: Row(
+                    children: [
+                      const Expanded(
+                        child: TargetWidget(),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.3,
+                        height: 90,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Image.asset(Assets.orange),
+                            const Text(
+                              "Give Away",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                  GameOverWidget(
-                      height: width,
-                      width: width * (col / row),
-                      levelName: widget.levelName),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: width * (0.3 / row),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Character(
-                  characterType: CharacterType.hummer,
-                  row: 100,
-                  active: CharacterType.hummer == selectedCharacter,
-                  col: 100,
-                  verticalUpdate: (d) {},
-                  isHelper: true,
-                  height: (width / row),
-                  width: (width / row),
+                      Expanded(
+                        child: MoveWidget(
+                          width: width,
+                          height: height,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(
-                  width: 5,
+                  height: 20,
                 ),
-                Character(
-                  characterType: CharacterType.hand,
-                  row: 100,
-                  verticalUpdate: (d) {},
-                  isHelper: true,
-                  active: CharacterType.hand == selectedCharacter,
-                  col: 100,
-                  height: (width / row),
-                  width: (width / row),
+                gameListeners(
+                  child: Stack(
+                    alignment: AlignmentDirectional.center,
+                    children: [
+                      SizedBox(
+                        width: width * (col / row),
+                        height: width,
+                      ),
+                      for (var boards in gBoards.entries)
+                        for (var board in boards.value.entries)
+                          MojaPositionAnimation(
+                            beginPosition: -2,
+                            endPosition: 1,
+                            position: Position(
+                              left: width / row * (board.key - 1),
+                              top: width /
+                                  row *
+                                  (boards.key - 1) *
+                                  getKeyTop(board.key * boards.key),
+                            ),
+                            duration: 3,
+                            child: Character(
+                              characterType: board.value,
+                              row: boards.key,
+                              active: mapEquals(clicked, {boards.key: board.key}),
+                              col: board.key,
+                              verticalUpdate: (d) => {},
+                              asCarpet: hasCarpet(row: boards.key, col: board.key),
+                              height: width / row,
+                              width: width / row,
+                            ),
+                          ),
+                      GameOverWidget(
+                          height: width,
+                          width: width * (col / row),
+                          levelName: widget.levelName),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: width * (0.3 / row),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Character(
+                      characterType: CharacterType.hummer,
+                      row: 100,
+                      active: CharacterType.hummer == selectedCharacter,
+                      col: 100,
+                      verticalUpdate: (d) {},
+                      isHelper: true,
+                      height: (width / row),
+                      width: (width / row),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Character(
+                      characterType: CharacterType.hand,
+                      row: 100,
+                      verticalUpdate: (d) {},
+                      isHelper: true,
+                      active: CharacterType.hand == selectedCharacter,
+                      col: 100,
+                      height: (width / row),
+                      width: (width / row),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Character(
+                      characterType: CharacterType.restart,
+                      row: 100,
+                      verticalUpdate: (d) {},
+                      isHelper: true,
+                      active: false,
+                      col: 100,
+                      height: (width / row),
+                      width: (width / row),
+                    ),
+                  ],
                 ),
               ],
             ),
+            const GameRewardWidget(),
           ],
         ),
       ),
     );
   }
+
 
   Map<int, double> topAnimation = {};
 

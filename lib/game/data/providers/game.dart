@@ -40,4 +40,39 @@ class GameProvider
         token: token)
         .request();
   }
+
+  static Future<Response> tasks({payload, token}) async {
+    return await ApplicationBaseRequest.post(
+        baseUrl, ThreeMatchEndPoint.tasks,payload,
+        token: token)
+        .request();
+  }
+
+  static Future<Response> assignTasks({payload, token}) async {
+    return await ApplicationBaseRequest.post(
+        baseUrl, ThreeMatchEndPoint.assign,payload,
+        token: token)
+        .request();
+  }
+
+  static Future<Response> pullAssigns({payload, token}) async {
+    return await ApplicationBaseRequest.get(
+        baseUrl, ThreeMatchEndPoint.assignLists, params: payload,
+        token: token)
+        .request();
+  }
+
+  static Future<Response> getGenders({payload, token}) async {
+    return await ApplicationBaseRequest.get(
+        baseUrl, ThreeMatchEndPoint.gender, params: payload,
+        token: token)
+        .request();
+  }
+
+  static Future<Response> getCountries({payload, token}) async {
+    return await ApplicationBaseRequest.get(
+        baseUrl, ThreeMatchEndPoint.country, params: payload,
+        token: token)
+        .request();
+  }
 }

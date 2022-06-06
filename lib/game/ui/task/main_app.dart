@@ -19,13 +19,7 @@ class _MainAppState extends State<MainApp> {
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static const List<Widget> _widgetOptions = <Widget>[
-    HomePage(),
-    FriendPage(),
-    AssignTask(),
-    AllSignedTask(),
-    Profile(),
-  ];
+  List<Widget> _widgetOptions = [];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -36,7 +30,15 @@ class _MainAppState extends State<MainApp> {
   String profileLabel = "Profile";
   @override
   initState(){
-
+    _widgetOptions = [
+      const HomePage(),
+      const FriendPage(),
+      AssignTask(taped: (num) {
+        _onItemTapped(num);
+      }),
+      const AllSignedTask(),
+      const Profile(),
+    ];
     super.initState();
   }
 

@@ -25,7 +25,8 @@ enum CharacterType {
   diamondOne,
   diamondTwo,
   diamondThree,
-  carpet
+  carpet,
+  restart
 }
 
 class Character extends StatefulWidget {
