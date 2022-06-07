@@ -39,7 +39,9 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    return display();
+    return SingleChildScrollView(
+      child: display(),
+    );
   }
 
   bool isOn = false;
@@ -57,26 +59,22 @@ class _ProfileState extends State<Profile> {
           },
         ),
         BlocListener<ServerBloc, ServerState>(
-          listenWhen: (previous, current) =>
-              previous.genders != current.genders,
-          listener: (context, state) {
-            setState(() {
-              genders = {};
-              for (GenderModel gender in state.genders) {
-                genders.addAll({gender.id: gender.name});
-              }
-            });
-          },
-        ),
-        BlocListener<ServerBloc, ServerState>(
-          listenWhen: (previous, current) =>
-              previous.countries != current.countries,
           listener: (context, state) {
             setState(
               () {
-                countries = {};
-                for (CountryModel country in state.countries) {
-                  countries.addAll({country.id: country.name});
+                if (state.countries.isNotEmpty) {
+                  countries = {};
+                  countries.addAll({"": "Select country"});
+                  for (CountryModel country in state.countries) {
+                    countries.addAll({country.id: country.name});
+                  }
+                }
+                if (state.genders.isNotEmpty) {
+                  genders = {};
+                  genders.addAll({"": "Select gender"});
+                  for (GenderModel gender in state.genders) {
+                    genders.addAll({gender.id: gender.name});
+                  }
                 }
               },
             );
@@ -127,42 +125,21 @@ class _ProfileState extends State<Profile> {
     required String key,
     required String value,
   }) {
-    return Padding(
-      padding: const EdgeInsets.all(4),
-      child: Row(
-        children: [
-          Expanded(
-              child: Text(
-            key,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          )),
-          Expanded(
-              flex: 4,
-              child: InputComponent(
-                onSave: () {},
-                onChange: (change) {
-                  if (key.toLowerCase() == "phone") {
-                    if (change.isNotEmpty) {
-                      if (change[0] == "0") {
-                        change = "255" + change.replaceFirst("0", "");
-                      }
-                    }
-                  }
-                  context.read<ServerBloc>().add(
-                      ServerPutPayload(value: change, key: key.toLowerCase()));
-                },
-                initialValue: value,
-              ))
-        ],
-      ),
-    );
-  }
-
-  Widget displayTapSelect({
-    required String key,
-    required String value,
-    required Map<String, dynamic> values,
-  }) {
+    if (value != "") {
+      if (key.toLowerCase() == "phone") {
+        if (value.isNotEmpty) {
+          if (value[0] == "0") {
+            value = "255" + value.replaceFirst("0", "");
+          }
+        }
+      }
+      context.read<ServerBloc>().add(
+            ServerPutPayload(
+              value: value,
+              key: key.toLowerCase(),
+            ),
+          );
+    }
     return Padding(
       padding: const EdgeInsets.all(4),
       child: Row(
@@ -174,10 +151,67 @@ class _ProfileState extends State<Profile> {
           )),
           Expanded(
             flex: 4,
+            child: InputComponent(
+              onSave: () {},
+              onChange: (change) {
+                if (key.toLowerCase() == "phone") {
+                  if (change.isNotEmpty) {
+                    if (change[0] == "0") {
+                      change = "255" + change.replaceFirst("0", "");
+                    }
+                  }
+                }
+                context.read<ServerBloc>().add(
+                    ServerPutPayload(value: change, key: key.toLowerCase()));
+              },
+              initialValue: value,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget displayTapSelect({
+    required String key,
+    required String value,
+    required Map<String, dynamic> values,
+  }) {
+    if (value != "") {
+      context.read<ServerBloc>().add(
+            ServerPutPayload(
+              value: value,
+              key: key.toLowerCase(),
+            ),
+          );
+    }
+    return Padding(
+      padding: const EdgeInsets.all(4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              key,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 4,
             child: SelectInputComponent(
               onSave: () {},
-              onChange: () {},
+              onChange: (change) {
+                context.read<ServerBloc>().add(
+                      ServerPutPayload(
+                        value: change,
+                        key: key.toLowerCase(),
+                      ),
+                    );
+              },
               items: values,
+              hintText: "Select " + key,
               initialValue: value,
             ),
           )
@@ -196,12 +230,17 @@ class _ProfileState extends State<Profile> {
             hintText: "Username",
             initialValue: "",
             onSave: (String? value) {},
-            onChange: (value) => context
-                .read<ServerBloc>()
-                .add(ServerPutPayload(value: value, key: "name")),
+            onChange: (value) => context.read<ServerBloc>().add(
+                  ServerPutPayload(
+                    value: value,
+                    key: "name",
+                  ),
+                ),
             validate: "string",
           ),
-          const SizedBox(height: 4.0),
+          const SizedBox(
+            height: 4.0,
+          ),
           serverListeners(
             child: Row(
               children: [
@@ -210,7 +249,9 @@ class _ProfileState extends State<Profile> {
                     isLoading: loading,
                     title: "Login",
                     onPressed: () {
-                      context.read<ServerBloc>().add(RegisterUserEvent());
+                      context.read<ServerBloc>().add(
+                            RegisterUserEvent(),
+                          );
                     },
                     transparent: false,
                   ),
@@ -230,16 +271,20 @@ class _ProfileState extends State<Profile> {
           listenWhen: (previous, current) =>
               previous.logging != current.logging,
           listener: (context, state) {
-            setState(() {
-              loading = state.logging;
-            });
+            setState(
+              () {
+                loading = state.logging;
+              },
+            );
           },
         ),
         BlocListener<ServerBloc, ServerState>(
           listenWhen: (previous, current) => previous.phones != current.phones,
           listener: (context, state) {
             if (state.phones.isNotEmpty) {
-              context.read<ServerBloc>().add(RequestFriendEvent());
+              context.read<ServerBloc>().add(
+                    RequestFriendEvent(),
+                  );
             }
           },
         ),

@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:test_game/game/data/models/country.dart';
+import 'package:test_game/game/data/models/gender.dart';
 import 'package:test_game/game/data/models/phone.dart';
 import 'package:test_game/game/data/models/task.dart';
 import 'package:test_game/game/logic/server/server_bloc.dart';
 import 'package:test_game/game/ui/task/pages/widgets/gift.dart';
 import 'package:test_game/game/ui/task/pages/widgets/search.dart';
+import 'package:test_game/game/ui/task/pages/widgets/search_country.dart';
+import 'package:test_game/game/ui/task/pages/widgets/search_gender.dart';
 import 'package:test_game/game/ui/task/pages/widgets/search_task.dart';
 
 class AssignTask extends StatefulWidget {
   final Function(int) taped;
+
   const AssignTask({Key? key, required this.taped}) : super(key: key);
 
   @override
@@ -18,39 +23,74 @@ class AssignTask extends StatefulWidget {
 class _AssignTaskState extends State<AssignTask> {
   List<PhoneModel> friends = [];
   List<TaskModel> tasks = [];
+  List<GenderModel> genders = [];
+  List<CountryModel> countries = [];
   late PhoneModel selectedUser;
   late TaskModel selectedTask;
+  late GenderModel selectedGender;
+  late CountryModel selectedCountry;
   int _currentStep = 0;
 
   @override
   initState() {
     selectedUser = PhoneModel.empty();
     selectedTask = TaskModel.empty();
+    selectedGender = GenderModel.empty();
+    selectedCountry = CountryModel.empty();
     context.read<ServerBloc>().add(PullFriendEvent());
     context.read<ServerBloc>().add(PullTaskEvent());
+    context.read<ServerBloc>().add(PullGenderEvent());
+    context.read<ServerBloc>().add(PullCountryEvent());
     friends = context.read<ServerBloc>().state.friends;
+    tasks = context.read<ServerBloc>().state.tasks;
+    genders = context.read<ServerBloc>().state.genders;
+    countries = context.read<ServerBloc>().state.countries;
+    if (context.read<ServerBloc>().state.user.type == "company") {
+      taskStep = 2;
+      prizeStep = 3;
+    } else {
+      taskStep = 1;
+      prizeStep = 2;
+    }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    print(context.read<ServerBloc>().state.user.type);
     return SingleChildScrollView(
       child: MultiBlocListener(
         listeners: [
           BlocListener<ServerBloc, ServerState>(
-            listenWhen: (previous, current) =>
-                previous.friends != current.friends,
+            // listenWhen: (previous, current) => previous.genders != current.genders,
             listener: (context, state) {
               setState(() {
-                friends = state.friends;
-              });
-            },
-          ),
-          BlocListener<ServerBloc, ServerState>(
-            listenWhen: (previous, current) => previous.tasks != current.tasks,
-            listener: (context, state) {
-              setState(() {
-                tasks = state.tasks;
+                if (state.genders.isNotEmpty) {
+                  genders = state.genders;
+                  genders.insert(
+                    0,
+                    const GenderModel(
+                      name: "All gender",
+                      id: "",
+                    ),
+                  );
+                }
+                if (state.countries.isNotEmpty) {
+                  countries = state.countries;
+                  countries.insert(
+                    0,
+                    const CountryModel(
+                      name: "All country",
+                      id: "",
+                    ),
+                  );
+                }
+                if (state.tasks.isNotEmpty) {
+                  tasks = state.tasks;
+                }
+                if (state.friends.isNotEmpty) {
+                  friends = state.friends;
+                }
               });
             },
           ),
@@ -58,7 +98,12 @@ class _AssignTaskState extends State<AssignTask> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _selectUser(),
+            if (context.read<ServerBloc>().state.user.type == "company")
+              _genderWidget(),
+            if (context.read<ServerBloc>().state.user.type == "company")
+              _countryWidget(),
+            if (context.read<ServerBloc>().state.user.type != "company")
+              _selectUser(),
             _selectTask(),
             _enterPrize(),
           ],
@@ -97,8 +142,78 @@ class _AssignTaskState extends State<AssignTask> {
     return Container();
   }
 
-  Widget _selectTask() {
+  Widget _genderWidget() {
+    if (_currentStep == 0) {
+      return Column(
+        children: [
+          SearchGender(
+            genders: genders,
+            clicked: (gender) {
+              context
+                  .read<ServerBloc>()
+                  .add(ServerPutPayload(value: gender.id, key: "gender_id"));
+              setState(() {
+                selectedGender = gender;
+              });
+            },
+          ),
+          if (selectedGender != GenderModel.empty())
+            Row(
+              children: [
+                const Text("SELECTED: "),
+                SearchGender.selected(gender: selectedGender),
+              ],
+            ),
+          Row(
+            children: [
+              nextButton(),
+            ],
+          )
+        ],
+      );
+    }
+    return Container();
+  }
+
+  int taskStep = 1;
+  int prizeStep = 2;
+
+  Widget _countryWidget() {
     if (_currentStep == 1) {
+      return Column(
+        children: [
+          SearchCountry(
+            countries: countries,
+            clicked: (country) {
+              context
+                  .read<ServerBloc>()
+                  .add(ServerPutPayload(value: country.id, key: "country_id"));
+              setState(() {
+                selectedCountry = country;
+              });
+            },
+          ),
+          if (selectedCountry != CountryModel.empty())
+            Row(
+              children: [
+                const Text("SELECTED: "),
+                SearchCountry.selected(country: selectedCountry),
+              ],
+            ),
+          Row(
+            children: [
+              nextButton(),
+              backButton(),
+            ],
+          )
+        ],
+      );
+    }
+    return Container();
+  }
+
+  Widget _selectTask() {
+    if (_currentStep == taskStep) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -133,7 +248,7 @@ class _AssignTaskState extends State<AssignTask> {
   }
 
   Widget _enterPrize() {
-    if (_currentStep == 2) {
+    if (_currentStep == prizeStep) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -167,6 +282,7 @@ class _AssignTaskState extends State<AssignTask> {
 
   bool isLoading = false;
   bool clicked = false;
+
   Widget saveButton() {
     return ElevatedButton(
       onPressed: () {
@@ -177,10 +293,10 @@ class _AssignTaskState extends State<AssignTask> {
           },
         );
       },
-      child: BlocListener<ServerBloc,ServerState>(
-        listenWhen: (previous,current) => previous.logging != current.logging,
+      child: BlocListener<ServerBloc, ServerState>(
+        listenWhen: (previous, current) => previous.logging != current.logging,
         listener: (context, state) {
-          if(!isLoading && clicked){
+          if (!isLoading && clicked) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text("Assigned Success"),
@@ -192,13 +308,15 @@ class _AssignTaskState extends State<AssignTask> {
             isLoading = state.logging;
           });
         },
-        child: isLoading ? const SizedBox(width: 15,height: 15, child: CircularProgressIndicator()) : const Text(
-          "Save",
-        ),
+        child: isLoading
+            ? const SizedBox(
+                width: 15, height: 15, child: CircularProgressIndicator())
+            : const Text(
+                "Save",
+              ),
       ),
     );
   }
-
 
   Widget backButton() {
     return TextButton(

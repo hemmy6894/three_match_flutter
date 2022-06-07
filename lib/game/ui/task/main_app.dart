@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_game/game/logic/server/server_bloc.dart';
-import 'package:test_game/game/ui/levels/home.dart';
 import 'package:test_game/game/ui/levels/widget/life_count.dart';
 import 'package:test_game/game/ui/task/pages/all_task.dart';
 import 'package:test_game/game/ui/task/pages/assign.dart';
 import 'package:test_game/game/ui/task/pages/friend.dart';
+import 'package:test_game/game/ui/task/pages/home.dart';
 import 'package:test_game/game/ui/task/pages/profile.dart';
 
 class MainApp extends StatefulWidget {
@@ -31,12 +31,12 @@ class _MainAppState extends State<MainApp> {
   @override
   initState(){
     _widgetOptions = [
-      const HomePage(),
-      const FriendPage(),
+      const GameHomePage(),
+      const AllSignedTask(),
       AssignTask(taped: (num) {
         _onItemTapped(num);
       }),
-      const AllSignedTask(),
+      const FriendPage(),
       const Profile(),
     ];
     super.initState();
@@ -90,16 +90,16 @@ class _MainAppState extends State<MainApp> {
             label: 'Home',
           ),
           const BottomNavigationBarItem(
-            icon: Icon(Icons.people_alt),
-            label: 'Friends',
+            icon: Icon(Icons.book),
+            label: 'Signed',
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.add),
             label: 'Sign',
           ),
           const BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Signed',
+            icon: Icon(Icons.people_alt),
+            label: 'Friends',
           ),
           BottomNavigationBarItem(
             icon: profile,

@@ -63,8 +63,6 @@ class GameBlock extends Bloc<GameEvent, GameState> {
 
   @override
   void onChange(Change<GameState> change) {
-    // TODO: implement onChange
-    // print(change.currentState.gameBoards);
     super.onChange(change);
   }
 }

@@ -1,52 +1,56 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:test_game/game/ui/levels/widget/header.dart';
-import 'package:test_game/game/ui/levels/widget/life_count.dart';
-import 'package:test_game/game/ui/levels/widget/task.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:test_game/game/data/models/assign.dart';
+import 'package:test_game/game/logic/server/server_bloc.dart';
+import 'package:test_game/game/ui/task/pages/widgets/task.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class GameHomePage extends StatefulWidget {
+  const GameHomePage({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<GameHomePage> createState() => _GameHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _GameHomePageState extends State<GameHomePage> {
+  List<AssignModel> assigns = [];
+  List<Widget> widgets = [];
+  @override
+  initState(){
+    context.read<ServerBloc>().add(ServerDestroyPayload());
+    context.read<ServerBloc>().add(PullAssignmentEvent());
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.blueGrey,
-      child: Stack(
-        children: [
-          const LiveCount(),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 10,),
-              const TitleBar(),
-              const SizedBox(height: 25,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [
-                  TaskButton(title: "Task 1",levelName: 1,),
-                  TaskButton(title: "Task 2", levelName: 2,),
-                  TaskButton(title: "Task 3",levelName: 3,),
-                ],
-              ),
-              const SizedBox(height: 15,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [
-                  TaskButton(title: "Task 4",levelName: 4,),
-                  TaskButton(title: "Task 5",levelName: 5,),
-                ],
+    return BlocListener<ServerBloc,ServerState>(
+      listenWhen: (previous,current) => previous.assigns != current.assigns,
+      listener: (context,state){
+        setState((){
+          for(AssignModel assign in state.assigns){
+            widgets.add(TaskViewWidget(title: assign, levelName: int.parse(assign.task.label)));
+          }
+        });
+      },
+      child: Container(
+          color: Colors.blueGrey,
+          child: CarouselSlider(
+              items: widgets,
+              options: CarouselOptions(
+                height: MediaQuery.of(context).size.height,
+                aspectRatio: 16/9,
+                viewportFraction: 1,
+                initialPage: 0,
+                enableInfiniteScroll: true,
+                reverse: false,
+                autoPlay: false,
+                autoPlayInterval: const Duration(seconds: 3),
+                autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                autoPlayCurve: Curves.easeIn,
+                enlargeCenterPage: true,
+                scrollDirection: Axis.vertical,
               )
-            ],
-          ),
-          Positioned(child: Container())
-        ],
+          )
       ),
     );
   }

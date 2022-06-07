@@ -9,6 +9,7 @@ class AssignModel extends Equatable {
   final String title;
   final String description;
   final String url;
+  final String type;
   final UserModel user;
   final TaskModel task;
 
@@ -19,6 +20,7 @@ class AssignModel extends Equatable {
     required this.title,
     required this.description,
     required this.url,
+    required this.type,
     required this.user,
     required this.task,
   });
@@ -31,6 +33,7 @@ class AssignModel extends Equatable {
       title: "",
       description: "",
       url: "",
+      type: "user",
       user: UserModel.empty(),
       task: TaskModel.empty(),
     );
@@ -43,6 +46,7 @@ class AssignModel extends Equatable {
     String? title,
     String? description,
     String? url,
+    String? type,
     UserModel? user,
     TaskModel? task,
   }) {
@@ -53,6 +57,7 @@ class AssignModel extends Equatable {
       title: title ?? this.title,
       description: description ?? this.description,
       url: url ?? this.url,
+      type: type ?? this.type,
       user: user ?? this.user,
       task: task ?? this.task,
     );
@@ -69,6 +74,7 @@ class AssignModel extends Equatable {
       title: json["title"] ?? "",
       description: json["description"] ?? "",
       url: json["url"] ?? "",
+      type: json["type"] ?? "",
       user: UserModel.toJson(json["user"]),
       task: TaskModel.toJson(json["task"]),
     );
@@ -82,6 +88,7 @@ class AssignModel extends Equatable {
       "title": title,
       "description": description,
       "url": url,
+      "type": type,
       "user": user.toMap(),
       "task": task.toMap(),
     };
@@ -100,5 +107,5 @@ class AssignModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id,taskId, userId,title,description,url,user.toMap(),task.toMap()];
+  List<Object?> get props => [id,taskId, userId,title,description,url,user.toMap(),task.toMap(),type];
 }

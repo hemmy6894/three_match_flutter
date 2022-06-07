@@ -16,6 +16,7 @@ class SelectInputComponent extends StatefulWidget {
   final Icon? prefixIcon;
   final String? label;
   final Color? prefixIconColor;
+
   const SelectInputComponent(
       {Key? key,
       this.hintText = "",
@@ -41,9 +42,12 @@ class SelectInputComponent extends StatefulWidget {
 class _SelectInputComponentState extends State<SelectInputComponent> {
   late List<String> keys = [];
   String? initial;
+  String hintText = "";
+
   @override
   void initState() {
     initial = widget.initialValue;
+    hintText = widget.hintText;
     for (var item in widget.items.keys) {
       keys.add(item);
     }
@@ -60,14 +64,11 @@ class _SelectInputComponentState extends State<SelectInputComponent> {
     }
     return Container(
       decoration: BoxDecoration(
-        border: saveError ? Border.all(
-            color: Colors.red,
-            width: 1
-        ) : null,
+        border: saveError ? Border.all(color: Colors.red, width: 1) : null,
       ),
       child: Column(
-        mainAxisAlignment:  MainAxisAlignment.start,
-        crossAxisAlignment:  CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           widget.label != null
               ? Padding(
@@ -83,10 +84,10 @@ class _SelectInputComponentState extends State<SelectInputComponent> {
             isExpanded: true,
             autofocus: true,
             hint: Text(
-              widget.hintText,
+              hintText,
               style: const TextStyle(color: Colors.white),
             ),
-            // value: initial,
+            value: initial,
             icon: const Icon(Icons.arrow_downward,
                 color: Color(Assets.primaryColor)),
             elevation: 16,
@@ -99,21 +100,29 @@ class _SelectInputComponentState extends State<SelectInputComponent> {
               widget.onChange(newValue);
               setState(() {
                 initial = newValue;
+                hintText = widget.items[newValue];
               });
             },
             items: keys.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Text(widget.items[value],
-                    style: const TextStyle(color: Colors.white)),
+                child: Text(
+                  widget.items[value] ?? hintText,
+                  style: const TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
               );
             }).toList(),
           ),
           saveError
               ? Text(
-            widget.errorText ?? "",
-            style: TextStyle(color: Colors.red, fontSize: 12),
-          )
+                  widget.errorText ?? "",
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                  ),
+                )
               : Container(),
         ],
       ),

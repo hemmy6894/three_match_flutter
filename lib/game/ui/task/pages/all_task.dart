@@ -17,20 +17,34 @@ class AllSignedTask extends StatefulWidget {
 class _AllSignedTaskState extends State<AllSignedTask> {
   List<AssignModel> assigns = [];
   List<Widget> widgets = [];
+
   @override
-  initState(){
+  initState() {
     context.read<ServerBloc>().add(ServerDestroyPayload());
+    context
+        .read<ServerBloc>()
+        .add(ServerPutPayload(value: "user", key: "type"));
     context.read<ServerBloc>().add(PullAssignmentEvent());
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ServerBloc,ServerState>(
-      listenWhen: (previous,current) => previous.assigns != current.assigns,
-      listener: (context,state){
-        setState((){
-          for(AssignModel assign in state.assigns){
-            widgets.add(TaskViewWidget(title: assign, levelName: int.parse(assign.task.label)));
+    return BlocListener<ServerBloc, ServerState>(
+      listenWhen: (previous, current) => previous.assigns != current.assigns,
+      listener: (context, state) {
+        setState(() {
+          for (AssignModel assign in state.assigns) {
+            if (assign.type != "company") {
+              widgets.add(
+                TaskViewWidget(
+                  title: assign,
+                  levelName: int.parse(
+                    assign.task.label,
+                  ),
+                ),
+              );
+            }
           }
         });
       },
@@ -40,7 +54,7 @@ class _AllSignedTaskState extends State<AllSignedTask> {
               items: widgets,
               options: CarouselOptions(
                 height: MediaQuery.of(context).size.height,
-                aspectRatio: 16/9,
+                aspectRatio: 16 / 9,
                 viewportFraction: 1,
                 initialPage: 0,
                 enableInfiniteScroll: true,
@@ -51,9 +65,7 @@ class _AllSignedTaskState extends State<AllSignedTask> {
                 autoPlayCurve: Curves.easeIn,
                 enlargeCenterPage: true,
                 scrollDirection: Axis.vertical,
-              )
-          )
-      ),
+              ))),
     );
   }
 }
