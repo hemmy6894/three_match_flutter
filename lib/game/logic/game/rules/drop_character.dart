@@ -53,6 +53,11 @@ class DropCharacter {
               };
             }else{
               CharacterType newUniqueCharacter = CharacterGenerator.getUniqueRandomCharacter(boards, i, j);
+              if(newLook.length > k) {
+                // Draw remaining characters!!
+                newUniqueCharacter = newLook[k];
+                k++;
+              }
               row = {
                 ...row,
                 j: newUniqueCharacter

@@ -190,6 +190,9 @@ Map<int, List<Map<int, int>>> getConnectedCharacter(
   if(BreakCharacter.staticCharacterNeverChange(type)){
     return {0: []};
   }
+  if(BreakCharacter.noneBreakableCharacter(type)){
+    return {0: []};
+  }
   int matchCount = 0;
   late CharacterType block;
   List<Map<int, int>> planes = [];

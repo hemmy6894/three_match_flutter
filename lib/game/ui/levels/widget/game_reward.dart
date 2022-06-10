@@ -18,23 +18,30 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
   int tickTime = 16;
   int timing = 0;
   bool showTimer = false;
+
+  @override
+  dispose(){
+
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
+    return Container();
     return BlocListener<GameBlock, GameState>(
       listenWhen: (p, c) => p.targets != c.targets,
       listener: (context, state) {
         if (state.targetIsOver()) {
-          Timer.periodic(const Duration(seconds: 1), (timer) {
-            setState((){
-              timing = tickTime - timer.tick;
-            });
-            if(timer.tick >= tickTime){
-              timer.cancel();
-              setState(() {
-                isOverTarget = true;
-              });
-            }
-          });
+          // Timer.periodic(const Duration(seconds: 1), (timer) {
+          //   setState((){
+          //     timing = tickTime - timer.tick;
+          //   });
+          //   if(timer.tick >= tickTime){
+          //     timer.cancel();
+          //     setState(() {
+          //       isOverTarget = true;
+          //     });
+          //   }
+          // });
         }
       },
       child: displayWidget(),

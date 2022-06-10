@@ -30,24 +30,18 @@ class BreakCharacter {
     }
 
     Map<int, Map<int, bool>> carpets = state.carpets;
-    boards = replaceCharacterWith(
-        emit, state, boards, state.planes, CharacterType.plane);
-    boards = replaceCharacterWith(emit, state, boards, state.bulletVerticals,
-        CharacterType.verticalBullet);
-    boards = replaceCharacterWith(emit, state, boards, state.bulletHorizontals,
-        CharacterType.horizontalBullet);
-    boards = replaceCharacterWith(
-        emit, state, boards, state.bombs, CharacterType.bomb);
-    boards = replaceCharacterWith(
-        emit, state, boards, state.superBombs, CharacterType.superBomb);
+    boards = replaceCharacterWith(emit, state, boards, state.planes, CharacterType.plane);
+    boards = replaceCharacterWith(emit, state, boards, state.bulletVerticals, CharacterType.verticalBullet);
+    boards = replaceCharacterWith(emit, state, boards, state.bulletHorizontals, CharacterType.horizontalBullet);
+    boards = replaceCharacterWith(emit, state, boards, state.bombs, CharacterType.bomb);
+    boards = replaceCharacterWith(emit, state, boards, state.superBombs, CharacterType.superBomb);
     List<Map<int, int>> remains = [];
     remains = removeIfMatchForBomb(state.planes, state.toBreak);
     remains = removeIfMatchForBomb(state.bombs, remains);
     remains = removeIfMatchForBomb(state.bulletVerticals, remains);
     remains = removeIfMatchForBomb(state.bulletHorizontals, remains);
     remains = removeIfMatchForBomb(state.superBombs, remains);
-    boards =
-        replaceCharacterWith(emit, state, boards, remains, CharacterType.hole);
+    boards = replaceCharacterWith(emit, state, boards, remains, CharacterType.hole);
 
     bool hasCarpet = false;
     for (Map<int, int> replace in remains) {
@@ -94,6 +88,7 @@ class BreakCharacter {
       Map<int, Map<int, CharacterType>> boards,
       List<Map<int, int>> replaces,
       CharacterType character) {
+    replaces = removeDublicate(replaces);
     Map<int, Map<int, CharacterType>> bds = boards;
     for (Map<int, int> replace in replaces) {
       int rowCount = replace.entries.first.key;
@@ -139,8 +134,28 @@ class BreakCharacter {
     return bds;
   }
 
+  static removeDublicate(List<Map<int, int>> dublicates){
+    //REMOVE DUPLICATE
+    List<Map<int, int>> freshRemains = [];
+    bool match = true;
+    for (Map<int, int> map in dublicates) {
+      match = false;
+      for (Map<int, int> fresh in freshRemains) {
+        if (mapEquals(map, fresh)) {
+          match = true;
+        }
+      }
+      if (!match) {
+        freshRemains.add(map);
+      }
+    }
+    return freshRemains;
+    //END REMOVE
+  }
   static List<Map<int, int>> removeIfMatchForBomb(
       List<Map<int, int>> bombs, List<Map<int, int>> breaks) {
+  breaks = removeDublicate(breaks);
+  bombs = removeDublicate(bombs);
     List<Map<int, int>> remains = [];
     if (bombs.isNotEmpty) {
       bool exist = false;
