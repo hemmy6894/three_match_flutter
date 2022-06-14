@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_game/common/assets.dart';
+import 'package:test_game/game/data/models/game/reward.dart';
 import 'package:test_game/game/logic/game/game_bloc.dart';
-import 'package:test_game/game/logic/server/server_bloc.dart';
 import 'package:test_game/game/logic/ui/ui_cubit.dart';
 import 'package:test_game/game/ui/game/character.dart';
 import 'package:test_game/game/ui/levels/widget/life_count.dart';
@@ -71,7 +71,7 @@ class GameOverWidget extends StatefulWidget {
 
 class _GameOverWidgetState extends State<GameOverWidget> {
   List<Map<CharacterType, int>> targets = [];
-  List<Map<CharacterType, int>> rewards = [];
+  List<RewardModel> rewards = [];
   int moves = 1;
   bool gameOver = false;
   bool targetFinished = false;
@@ -183,7 +183,6 @@ class _GameOverWidgetState extends State<GameOverWidget> {
                           color: Colors.red.withOpacity(0.95),
                           fontSize: widget.width * 0.07),
                     ),
-
                     displayRewards(),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -334,8 +333,14 @@ class _GameOverWidgetState extends State<GameOverWidget> {
     ], child: const Text(""));
   }
 
+  bool isRewarded = false;
   Widget displayRewards() {
-    context.read<UiCubit>().receiveRewards(rewards: rewards);
+    if(!isRewarded) {
+      context.read<UiCubit>().receiveRewards(rewards: rewards);
+      setState((){
+        isRewarded = true;
+      });
+    }
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -344,13 +349,12 @@ class _GameOverWidgetState extends State<GameOverWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            for (Map<CharacterType, int> target in rewards)
+            for (RewardModel target in rewards)
               Stack(
                 alignment: Alignment.center,
                 children: [
                   Image.asset(
-                    Assets.getCharacter(
-                        characterType: target.entries.first.key),
+                    Assets.getCharacter(characterType: target.character),
                     height: 33,
                     width: 33,
                   ),
@@ -365,7 +369,7 @@ class _GameOverWidgetState extends State<GameOverWidget> {
                         ),
                       ),
                       child: Text(
-                        target.entries.first.value.toString(),
+                        target.amount.toString(),
                         style: const TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,

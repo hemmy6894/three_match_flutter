@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:test_game/common/assets.dart';
+import 'package:test_game/game/data/models/game/reward.dart';
 import 'package:test_game/game/ui/game/character.dart';
 
 part 'game_event.dart';
@@ -20,7 +21,7 @@ part 'rules/bomb_move.dart';
 class GameBlock extends Bloc<GameEvent, GameState> {
   GameBlock() : super(GameState.empty()) {
     on<GameStartEvent>((event, emit) async {
-       GameLevels.startGame(emit,state, event);
+       await GameLevels.startGame(emit,state, event);
     });
 
     on<GameClickCharacterEvent>((event, emit) async {
@@ -28,7 +29,7 @@ class GameBlock extends Bloc<GameEvent, GameState> {
     });
 
     on<GameCatchHelperEvent>((event, emit) async {
-      await Helpers.catchHelper(emit,state, event.helper);
+      await Helpers.catchHelper(emit,state, event);
     });
 
     on<GameIsCapturedEvent>((event, emit) async {
@@ -58,6 +59,11 @@ class GameBlock extends Bloc<GameEvent, GameState> {
     on<GameClearCharacterEvent>((event, emit) async {
       clearClick(emit, state);
     });
+
+    on<GameClearHelperEvent>((event, emit) async {
+      emit(state.copyWith(reduceHelperReward: CharacterType.hole));
+    });
+
   }
 
 

@@ -17,11 +17,12 @@ class GameState extends Equatable {
   final List<Map<int, int>> previousPosition;
   final List<Map<int, int>> currentPosition;
   final CharacterType? selectedHelper;
+  final CharacterType? reduceHelperReward;
   final int col;
   final int moves;
   final int row;
   final int level;
-  final List<Map<CharacterType, int>> rewards;
+  final List<RewardModel> rewards;
   final bool match;
   final bool reversed;
   final bool dropDown;
@@ -54,6 +55,7 @@ class GameState extends Equatable {
       required this.dropDown,
       required this.matchAll,
       required this.selectedHelper,
+      required this.reduceHelperReward,
       required this.bombTouched,
       required this.assignedId,
       required this.secondClicked});
@@ -83,6 +85,7 @@ class GameState extends Equatable {
       reversed: false,
       matchAll: false,
       selectedHelper: null,
+      reduceHelperReward: null,
       bombTouched: true,
       assignedId: null,
       dropDown: false);
@@ -95,7 +98,7 @@ class GameState extends Equatable {
     Map<int, int>? tempClicked,
     Map<int, int>? tempSecClicked,
     List<Map<CharacterType, int>>? targets,
-    List<Map<CharacterType, int>>? rewards,
+    List<RewardModel>? rewards,
     List<Map<int, int>>? toBreak,
     List<Map<int, int>>? planes,
     List<Map<int, int>>? bulletHorizontals,
@@ -115,6 +118,7 @@ class GameState extends Equatable {
     bool? bombTouched,
     String? assignedId,
     CharacterType? selectedHelper,
+    CharacterType? reduceHelperReward,
   }) {
     return GameState(
       gameBoards: gameBoards ?? this.gameBoards,
@@ -144,6 +148,7 @@ class GameState extends Equatable {
       bombTouched: bombTouched ?? this.bombTouched,
       assignedId: assignedId ?? this.assignedId,
       selectedHelper: selectedHelper ?? this.selectedHelper,
+      reduceHelperReward: reduceHelperReward ?? this.reduceHelperReward,
     );
   }
 
@@ -203,6 +208,7 @@ class GameState extends Equatable {
         matchAll,
         bombTouched,
         selectedHelper,
+        reduceHelperReward,
         targets,
         assignedId,
         rewards

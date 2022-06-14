@@ -19,29 +19,43 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
   int timing = 0;
   bool showTimer = false;
 
-  @override
-  dispose(){
+  late Timer timer;
 
+  @override
+  initState() {
+    timer = Timer(const Duration(days: 2), () { });
+    super.initState();
+  }
+
+  @override
+  dispose() {
+    if (timer.isActive) {
+      timer.cancel();
+    }
     super.dispose();
   }
+
+  initiateTimer() {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        timing = tickTime - timer.tick;
+      });
+      if (timer.tick >= tickTime) {
+        timer.cancel();
+        setState(() {
+          isOverTarget = true;
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container();
     return BlocListener<GameBlock, GameState>(
       listenWhen: (p, c) => p.targets != c.targets,
       listener: (context, state) {
         if (state.targetIsOver()) {
-          // Timer.periodic(const Duration(seconds: 1), (timer) {
-          //   setState((){
-          //     timing = tickTime - timer.tick;
-          //   });
-          //   if(timer.tick >= tickTime){
-          //     timer.cancel();
-          //     setState(() {
-          //       isOverTarget = true;
-          //     });
-          //   }
-          // });
+          initiateTimer();
         }
       },
       child: displayWidget(),
@@ -49,7 +63,7 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
   }
 
   displayWidget() {
-    if(timing > 0){
+    if (timing > 0) {
       return Container(
         alignment: Alignment.center,
         color: Colors.transparent.withOpacity(0.9),
@@ -62,23 +76,26 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
             Text(
               "Congratulation",
               style: TextStyle(
-                  color: Colors.white.withOpacity(0.95),
-                  fontSize: MediaQuery.of(context).size.width * 0.06),
+                color: Colors.white.withOpacity(0.95),
+                fontSize: MediaQuery.of(context).size.width * 0.06,
+              ),
             ),
             Text(
               "Wait for your gift",
               style: TextStyle(
-                  color: Colors.white.withOpacity(0.95),
-                  fontSize: MediaQuery.of(context).size.width * 0.04),
+                color: Colors.white.withOpacity(0.95),
+                fontSize: MediaQuery.of(context).size.width * 0.04,
+              ),
             ),
             Text(
               "$timing",
               style: TextStyle(
-                  color: Colors.white.withOpacity(0.95),
-                  fontSize: MediaQuery.of(context).size.width * 0.06),
+                color: Colors.white.withOpacity(0.95),
+                fontSize: MediaQuery.of(context).size.width * 0.06,
+              ),
             ),
           ],
-        )
+        ),
       );
     }
     if (isOverTarget) {

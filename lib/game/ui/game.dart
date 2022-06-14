@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_game/animations/animate_position.dart';
 import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/logic/game/game_bloc.dart';
-import 'package:test_game/game/logic/server/server_bloc.dart';
+import 'package:test_game/game/logic/ui/ui_cubit.dart';
 import 'package:test_game/game/ui/game/character.dart';
 import 'package:test_game/game/ui/layouts/app.dart';
 import 'package:test_game/game/ui/levels/widget/game_over.dart';
@@ -67,11 +67,13 @@ class _GameHomeState extends State<GameHome> {
         alignment: Alignment.center,
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        // decoration: const BoxDecoration(
-        //   image: DecorationImage(
-        //     image: AssetImage(Assets.background),
-        //   ),
-        // ),
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(Assets.background),
+            fit: BoxFit.cover,
+            opacity: 0.65,
+          ),
+        ),
         child: Stack(
           children: [
             Column(
@@ -199,7 +201,7 @@ class _GameHomeState extends State<GameHome> {
                 ),
               ],
             ),
-            const GameRewardWidget(),
+            // const GameRewardWidget(),
           ],
         ),
       ),
@@ -234,7 +236,7 @@ class _GameHomeState extends State<GameHome> {
         BlocListener<GameBlock, GameState>(
           listenWhen: (p, c) => p.gameBoards != c.gameBoards,
           listener: (context, state) async {
-            await Future.delayed(const Duration(milliseconds: 1000));
+            await Future.delayed(const Duration(seconds: 1));
             setState(() {
               gBoards = state.gameBoards;
               col = state.col;
@@ -250,6 +252,15 @@ class _GameHomeState extends State<GameHome> {
                   .read<GameBlock>()
                   .add(GameMatchCharacterStateEvent(match: false));
               context.read<GameBlock>().add(GameMatchCharacterEvent());
+            }
+          },
+        ),
+        BlocListener<GameBlock, GameState>(
+          listenWhen: (p, c) => p.reduceHelperReward != c.reduceHelperReward,
+          listener: (context, state) {
+            if (state.reduceHelperReward != null) {
+              context.read<UiCubit>().reduceReward(characterType: state.reduceHelperReward!, amount: 1);
+              context.read<GameBlock>().add(GameClearHelperEvent());
             }
           },
         ),

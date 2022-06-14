@@ -1,12 +1,15 @@
 part of '../game_bloc.dart';
 
 class Helpers {
-  static catchHelper(
-      Emitter<GameState> emit, GameState state, CharacterType helper) async {
+  static catchHelper(Emitter<GameState> emit, GameState state,  GameCatchHelperEvent event) async {
+    if(event.amount < 1){
+      return null;
+    }
+    CharacterType helper = event.helper;
     if (helper == CharacterType.restart) {
       await Helpers.isRestartClicked(emit, state);
     } else {
-      emit(state.copyWith(selectedHelper: helper));
+      emit(state.copyWith(selectedHelper: helper, reduceHelperReward: null));
     }
   }
 
@@ -56,10 +59,10 @@ class Helpers {
       Map<int, CharacterType> myRow = boards[row] ?? {};
       myRow = {...myRow, col: CharacterType.hole};
       boards = {...boards, row: myRow};
-
       emit(state.copyWith(
         gameBoards: boards,
         dropDown: true,
+        reduceHelperReward: CharacterType.hummer,
         selectedHelper: CharacterType.hole,
         firstClicked: {},
       ));

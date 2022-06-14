@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:test_game/game/data/models/game/reward.dart';
 import 'package:test_game/game/ui/game/character.dart';
 
 class Assets {
@@ -120,7 +121,7 @@ class Assets {
     "row" : 9,
     "col" : 8,
     "targets": [],
-    "rewards" : [{CharacterType.hand : 2},{CharacterType.hand : 3}],
+    "rewards" : [RewardModel(character: CharacterType.hand, amount: 5),RewardModel(character: CharacterType.hummer, amount: 3), RewardModel(character: CharacterType.orange, amount: 4)],
     "moves": 30,
     "board" : [
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
@@ -140,8 +141,8 @@ class Assets {
   static const Map<String,dynamic> level1 = {
     "row" : 9,
     "col" : 8,
-    "rewards" : [{CharacterType.hand : 5},{CharacterType.hummer : 3}, {CharacterType.orange : 10}],
-    "targets": [{CharacterType.pear : 1000},{CharacterType.banana : 1000},{CharacterType.apple : 1000}],
+    "rewards" : [RewardModel(character: CharacterType.hand, amount: 5),RewardModel(character: CharacterType.hummer, amount: 3), RewardModel(character: CharacterType.orange, amount: 4)],
+    "targets": [{CharacterType.pear : 10},{CharacterType.banana : 10},{CharacterType.apple : 10}],
     "moves": 60,
     "board" : [
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
@@ -163,7 +164,7 @@ class Assets {
     "col" : 5,
     "targets": [{CharacterType.pear : 100},{CharacterType.banana : 100},{CharacterType.apple : 100}],
     "moves": 30,
-    "rewards" : [{CharacterType.hand : 2},{CharacterType.hand : 3}],
+    "rewards" : [RewardModel(character: CharacterType.hand, amount: 5),RewardModel(character: CharacterType.hummer, amount: 3), RewardModel(character: CharacterType.orange, amount: 4)],
     "board" : [
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,],
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,],
@@ -179,7 +180,7 @@ class Assets {
   static const Map<String,dynamic> level3 = {
     "row" : 10,
     "col" : 8,
-    "rewards" : [{CharacterType.hand : 2},{CharacterType.hand : 3}],
+    "rewards" : [RewardModel(character: CharacterType.hand, amount: 5),RewardModel(character: CharacterType.hummer, amount: 3), RewardModel(character: CharacterType.orange, amount: 4)],
     "targets": [{CharacterType.boxOne : 12},{CharacterType.boxTwo: 6},{CharacterType.boxThree: 3}],
     "moves": 60,
     "board" : [
@@ -201,7 +202,7 @@ class Assets {
     "row" : 7,
     "col" : 6,
     "targets": [{CharacterType.banana: 50, CharacterType.pear: 70}],
-    "rewards" : [{CharacterType.hand : 2},{CharacterType.hand : 3}],
+    "rewards" : [RewardModel(character: CharacterType.hand, amount: 5),RewardModel(character: CharacterType.hummer, amount: 3), RewardModel(character: CharacterType.orange, amount: 4)],
     "moves": 10,
     "board" : [
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,],

@@ -41,8 +41,7 @@ class BombMove {
     }
 
     if (block == CharacterType.superBomb) {
-      List<dynamic> superBombs =
-          await superBombMove(row, col, emit, state, recheck: recheck);
+      List<dynamic> superBombs = await superBombMove(row, col, emit, state, recheck: recheck);
       if (superBombs.isNotEmpty) {
         firstMoves = [...firstMoves, ...superBombs];
         matchCount = 3;
@@ -174,21 +173,50 @@ class BombMove {
       reserve = state.tempSecClicked;
     } else if (mapEquals({row: col}, state.tempSecClicked)) {
       reserve = state.tempClicked;
+    }else{
+      if(getCharacter(state, row: state.tempClicked.entries.first.key, col: state.tempClicked.entries.first.value) == CharacterType.bomb){
+        reserve = state.tempSecClicked;
+      }else{
+        reserve = state.tempClicked;
+      }
     }
     CharacterType bomb = CharacterType.hole;
     if (reserve.isNotEmpty) {
-      bomb = getCharacter(state,
-          row: reserve.entries.first.key, col: reserve.entries.first.value);
+      bomb = getCharacter(state, row: reserve.entries.first.key, col: reserve.entries.first.value);
     }
     if(bomb == CharacterType.plane && !manual){
       return [];
     }
+    if(bomb == CharacterType.bomb && !manual && (getCharacter(state, row: state.tempClicked.entries.first.key, col: state.tempClicked.entries.first.value) != getCharacter(state, row: state.tempSecClicked.entries.first.key, col: state.tempSecClicked.entries.first.value))){
+      return [];
+    }
     bool move = false;
     List<Map<int, int>> mvs = [];
-    for (int h = (row + 1); h >= (row - 1); h--) {
-      for (int v = (col + 1); v >= (col - 1); v--) {
-        mvs.add({h: v});
-        move = true;
+
+    if (bomb == CharacterType.verticalBullet || bomb == CharacterType.horizontalBullet) {
+      for (int v = state.col; v >= 1; v--) {
+        mvs.add({row-1: v});
+        mvs.add({row: v});
+        mvs.add({row+1: v});
+      }
+      for (int h = state.row; h >= 1; h--) {
+        mvs.add({h: col+1});
+        mvs.add({h: col});
+        mvs.add({h: col-1});
+      }
+    }else if (bomb == CharacterType.bomb) {
+      for (int h = (row + 2); h >= (row - 2); h--) {
+        for (int v = (col + 2); v >= (col - 2); v--) {
+          mvs.add({h: v});
+          move = true;
+        }
+      }
+    }else{
+      for (int h = (row + 1); h >= (row - 1); h--) {
+        for (int v = (col + 1); v >= (col - 1); v--) {
+          mvs.add({h: v});
+          move = true;
+        }
       }
     }
     if (move) {
@@ -204,20 +232,35 @@ class BombMove {
       reserve = state.tempSecClicked;
     } else if (mapEquals({row: col}, state.tempSecClicked)) {
       reserve = state.tempClicked;
+    }else{
+      if(getCharacter(state, row: state.tempClicked.entries.first.key, col: state.tempClicked.entries.first.value) == CharacterType.verticalBullet){
+        reserve = state.tempSecClicked;
+      }else{
+        reserve = state.tempClicked;
+      }
     }
     CharacterType bomb = CharacterType.hole;
     if (reserve.isNotEmpty) {
-      bomb = getCharacter(state,
-          row: reserve.entries.first.key, col: reserve.entries.first.value);
+      bomb = getCharacter(state, row: reserve.entries.first.key, col: reserve.entries.first.value);
     }
     if(bomb == CharacterType.plane && !manual){
       return [];
     }
+    if(bomb == CharacterType.bomb && !manual){
+      return [];
+    }
     bool move = false;
     List<Map<int, int>> mvs = [];
-    for (int h = row; h >= 1; h--) {
+    for (int h = state.row; h >= 1; h--) {
       mvs.add({h: col});
       move = true;
+    }
+    //Same bomb
+    if(bomb == CharacterType.verticalBullet && !manual){
+      for (int h = state.col; h >= 1; h--) {
+        mvs.add({reserve.entries.first.key: h});
+        move = true;
+      }
     }
     if (move) {
       return mvs;
@@ -228,24 +271,39 @@ class BombMove {
   static horizontalMoves(int row, int col, GameState state,
       {bool manual = false}) {
     Map<int, int> reserve = {};
+    CharacterType bomb = CharacterType.hole;
     if (mapEquals({row: col}, state.tempClicked)) {
       reserve = state.tempSecClicked;
     } else if (mapEquals({row: col}, state.tempSecClicked)) {
       reserve = state.tempClicked;
+    }else{
+      if(getCharacter(state, row: state.tempClicked.entries.first.key, col: state.tempClicked.entries.first.value) == CharacterType.horizontalBullet){
+        reserve = state.tempSecClicked;
+      }else{
+        reserve = state.tempClicked;
+      }
     }
-    CharacterType bomb = CharacterType.hole;
     if (reserve.isNotEmpty) {
-      bomb = getCharacter(state,
-          row: reserve.entries.first.key, col: reserve.entries.first.value);
+      bomb = getCharacter(state, row: reserve.entries.first.key, col: reserve.entries.first.value);
     }
     if(bomb == CharacterType.plane && !manual){
       return [];
     }
+    if(bomb == CharacterType.bomb && !manual){
+      return [];
+    }
     bool move = false;
     List<Map<int, int>> mvs = [];
-    for (int v = col; v >= 1; v--) {
+    for (int v = state.col; v >= 1; v--) {
       mvs.add({row: v});
       move = true;
+    }
+    //Same bomb
+    if(bomb == CharacterType.horizontalBullet && !manual){
+      for (int h = state.row; h >= 1; h--) {
+        mvs.add({h: reserve.entries.first.value});
+        move = true;
+      }
     }
     if (move) {
       return mvs;
@@ -258,19 +316,25 @@ class BombMove {
     CharacterType firstCharacter = CharacterType.hole;
     firstCharacter = getCharacter(state, row: row, col: col);
     Map<int, int> reserve = {};
+    CharacterType bomb = CharacterType.hole;
     if (mapEquals({row: col}, state.tempClicked)) {
       reserve = state.tempSecClicked;
     } else if (mapEquals({row: col}, state.tempSecClicked)) {
       reserve = state.tempClicked;
+    }else{
+      if(getCharacter(state, row: state.tempClicked.entries.first.key, col: state.tempClicked.entries.first.value) == CharacterType.plane){
+        reserve = state.tempSecClicked;
+      }else{
+        reserve = state.tempClicked;
+      }
     }
-    CharacterType bomb = CharacterType.hole;
     if (reserve.isNotEmpty) {
-      bomb = getCharacter(state,
-          row: reserve.entries.first.key, col: reserve.entries.first.value);
+      bomb = getCharacter(state, row: reserve.entries.first.key, col: reserve.entries.first.value);
     }
-    if(bomb == CharacterType.plane && !manual){
+    if(bomb == CharacterType.plane && !manual && (getCharacter(state, row: state.tempClicked.entries.first.key, col: state.tempClicked.entries.first.value) != getCharacter(state, row: state.tempSecClicked.entries.first.key, col: state.tempSecClicked.entries.first.value))){
       return [];
     }
+    // TODO: This called twice due to bomb moves called twice so you must check if is already called before recall
     if (firstCharacter == CharacterType.plane) {
       mvs.add({row: col});
       mvs.add({row: col + 1});

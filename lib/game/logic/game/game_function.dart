@@ -18,11 +18,9 @@ characterClicked(Emitter<GameState> emit, GameState state, int row, int col) {
       secondClicked: {row: col},
       tempSecClicked: {row: col},
       reversed: Helpers.isHandCaptured(state),
-      selectedHelper: Helpers.isHandCaptured(state)
-          ? CharacterType.hole
-          : state.selectedHelper,
+      reduceHelperReward: state.selectedHelper,
+      selectedHelper: Helpers.isHandCaptured(state) ? CharacterType.hole : state.selectedHelper,
       bombTouched: true);
-
   emit(state);
 }
 

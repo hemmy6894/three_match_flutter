@@ -1,7 +1,7 @@
 part of '../game_bloc.dart';
 
 class GameLevels {
-  static startGame(Emitter<GameState> emit, GameState state, GameStartEvent event) {
+  static startGame(Emitter<GameState> emit, GameState state, GameStartEvent event) async{
     Map<String, dynamic> level1 = Assets.levels[event.levelName];
     int col = level1["col"];
     int row = level1["row"];
@@ -15,7 +15,7 @@ class GameLevels {
     }
 
     var reward = level1["rewards"];
-    List<Map<CharacterType, int>> rewards = [];
+    List<RewardModel> rewards = [];
     if (reward.isNotEmpty) {
       rewards = reward;
     }
@@ -35,6 +35,10 @@ class GameLevels {
         assignedId: event.assignId
       ),
     );
+    await Future.delayed(const Duration(seconds: 1));
+    List<Map<int,int>> replaces = [{1:1}];
+    gameBoards = BreakCharacter.replaceCharacterWith(emit, state, gameBoards, replaces, CharacterType.horizontalBullet);
+    emit(state.copyWith(gameBoards: gameBoards));
   }
 
   static Map<int, Map<int, CharacterType>> drawBoard(
@@ -60,8 +64,7 @@ class GameLevels {
       for (int j = 1; j <= col; j++) {
         CharacterType characterType =
             boards[i - 1][j - 1] ?? CharacterType.hole;
-        CharacterType randCharacter =
-            CharacterGenerator.getUniqueRandomCharacter(gameBoards, i, j);
+        CharacterType randCharacter = CharacterGenerator.getUniqueRandomCharacter(gameBoards, i, j);
         if (BreakCharacter.noneBreakableCharacter(characterType)) {
           gameBoard.addAll({j: characterType});
           gameBoards.addAll({i: gameBoard});

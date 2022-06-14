@@ -6,7 +6,7 @@ class UiState extends Equatable {
   final int lastUpdated;
   final int remainingTime;
   final Map<CharacterType, int> received;
-  final List<Map<CharacterType, int>> rewards;
+  final List<RewardModel> rewards;
 
   const UiState(
       {required this.fullLiveCount,
@@ -22,7 +22,7 @@ class UiState extends Equatable {
     int? lastUpdated,
     int? remainingTime,
     Map<CharacterType, int>? received,
-    List<Map<CharacterType, int>>? rewards,
+    List<RewardModel>? rewards,
   }) {
     return UiState(
       fullLiveCount: fullLiveCount ?? this.fullLiveCount,
@@ -48,23 +48,11 @@ class UiState extends Equatable {
     if (json == null) {
       return UiState.empty();
     }
-    List<Map<CharacterType,int>> getList(List<dynamic> json){
-      List<Map<CharacterType,int>> elements = [];
-      try {
-        for (List<dynamic> el in json) {
-          elements.add({el[0]: el[1]});
-        }
-      }catch(e){
-        elements = [];
-      }
-      print(elements);
-      return elements;
-    }
     return UiState(
       fullLiveCount: json["full_live_count"],
       lastLifeCount: json["last_life_count"],
       lastUpdated: json["last_updated"],
-      rewards: getList(json["rewards"]),
+      rewards: RewardModel.getList(json["rewards"]),
       received: const {},
       remainingTime: json["remaining_time"],
     );
@@ -75,15 +63,15 @@ class UiState extends Equatable {
       "full_live_count": fullLiveCount,
       "last_updated": lastUpdated,
       "last_life_count": lastLifeCount,
-      "rewards": rewards.map((e) => [e.entries.first.key.toString(),e.entries.first.value]).toList(),
+      "rewards": RewardModel.getMap(rewards),
       "remaining_time": remainingTime,
     };
   }
 
   int getRewardCount(CharacterType characterType){
-    for(Map<CharacterType,int> reward in rewards){
-      if(reward.entries.first.key == characterType){
-        return reward.entries.first.value;
+    for(RewardModel reward in rewards){
+      if(reward.character == characterType){
+        return reward.amount;
       }
     }
     return 0;

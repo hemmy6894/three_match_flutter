@@ -26,9 +26,12 @@ class GameMatchCharacterStateEvent extends GameEvent{
 
 class GameCatchHelperEvent extends GameEvent{
   final CharacterType helper;
-  GameCatchHelperEvent({required this.helper});
+  final int amount;
+  GameCatchHelperEvent({required this.helper,required this.amount});
 }
 
 class GameIsCapturedEvent extends GameEvent{
   GameIsCapturedEvent();
 }
+
+class GameClearHelperEvent extends GameEvent{}

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:test_game/game/data/models/game/reward.dart';
 import 'package:test_game/game/ui/game/character.dart';
 
 part 'ui_state.dart';
@@ -38,21 +39,33 @@ class UiCubit extends Cubit<UiState> with HydratedMixin {
         lastUpdated: DateTime.now().millisecondsSinceEpoch));
   }
 
-  receiveRewards({required List<Map<CharacterType, int>> rewards}) async{
-    List<Map<CharacterType, int>> rds = [];
-    for(Map<CharacterType,int> reward in rewards){
+  receiveRewards({required List<RewardModel> rewards}) async{
+    List<RewardModel> rds = [];
+    for(RewardModel reward in rewards){
       bool exit = false;
-      for(Map<CharacterType,int> sReward in state.rewards){
-        if(mapEquals(reward, sReward)){
-          rds.add({reward.entries.first.key : ( reward.entries.first.value + sReward.entries.first.value)});
+      for(RewardModel sReward in state.rewards){
+        if(reward.character == sReward.character){
+          rds.add(RewardModel(character: reward.character, amount: reward.amount + sReward.amount));
           exit = true;
         }
       }
       if(!exit){
-        rds.add({reward.entries.first.key : reward.entries.first.value});
+        rds.add(RewardModel(character: reward.character, amount: reward.amount));
       }
     }
     emit(state.copyWith(rewards: rds, received: {}));
+  }
+
+  reduceReward({CharacterType characterType = CharacterType.hole, int amount = 0}){
+    List<RewardModel> rds = [];
+    for(RewardModel reward in state.rewards){
+      if(reward.character == characterType){
+        rds.add(RewardModel(character: reward.character, amount: reward.amount - amount));
+      }else{
+        rds.add(RewardModel(character: reward.character, amount: reward.amount));
+      }
+    }
+    emit(state.copyWith(rewards: rds));
   }
 
   @override
@@ -63,5 +76,11 @@ class UiCubit extends Cubit<UiState> with HydratedMixin {
   @override
   Map<String, dynamic>? toJson(UiState state) {
     return state.toJson();
+  }
+
+  @override
+  onChange(Change<UiState> change){
+    print(change.currentState.rewards);
+    super.onChange(change);
   }
 }

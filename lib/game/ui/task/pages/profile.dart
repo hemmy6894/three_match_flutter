@@ -85,6 +85,8 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  String codeNumber = "";
+  String phoneNumber = "";
   Widget profile() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -93,7 +95,18 @@ class _ProfileState extends State<Profile> {
         children: [
           displayTap(key: "Name", value: userModel.name),
           displayTap(key: "Email", value: userModel.email),
-          displayTap(key: "Phone", value: userModel.phone),
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                  child: displayTapSelect(
+                      key: "Code", value: userModel.phone, values: {"253": "253","255": "255", "254":"254"}, label: false)),
+              Expanded(
+                flex: 4,
+                child: displayTap(key: "Phone", value: userModel.phone, label: false),
+              ),
+            ],
+          ),
           if (genders.isNotEmpty)
             displayTapSelect(
                 key: "Gender", value: userModel.genderId, values: genders),
@@ -121,34 +134,47 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget displayTap({
-    required String key,
-    required String value,
-  }) {
+  Widget displayTap({required String key, required String value, bool label = true}) {
     if (value != "") {
       if (key.toLowerCase() == "phone") {
+        if(phoneNumber != ""){
+          value = phoneNumber;
+        }
         if (value.isNotEmpty) {
           if (value[0] == "0") {
-            value = "255" + value.replaceFirst("0", "");
+            value = value.replaceFirst("0", "");
           }
         }
+        if(value.startsWith(codeNumber)){
+          value = value.replaceFirst(codeNumber, "");
+        }
+        context.read<ServerBloc>().add(
+          ServerPutPayload(
+            value: value.startsWith(codeNumber) ? value : codeNumber + value,
+            key: key.toLowerCase(),
+          ),
+        );
+      }else {
+        context.read<ServerBloc>().add(
+          ServerPutPayload(
+            value: value,
+            key: key.toLowerCase(),
+          ),
+        );
       }
-      context.read<ServerBloc>().add(
-            ServerPutPayload(
-              value: value,
-              key: key.toLowerCase(),
-            ),
-          );
     }
     return Padding(
       padding: const EdgeInsets.all(4),
       child: Row(
         children: [
-          Expanded(
+          if (label)
+            Expanded(
               child: Text(
-            key,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          )),
+                key,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
           Expanded(
             flex: 4,
             child: InputComponent(
@@ -157,12 +183,18 @@ class _ProfileState extends State<Profile> {
                 if (key.toLowerCase() == "phone") {
                   if (change.isNotEmpty) {
                     if (change[0] == "0") {
-                      change = "255" + change.replaceFirst("0", "");
+                      change = change.replaceFirst("0", "");
                     }
                   }
+                  if(!value.startsWith(codeNumber)){
+                    change = codeNumber + change;
+                  }
+                  print(codeNumber);
+                  // setState((){
+                  //   phoneNumber = change;
+                  // });
                 }
-                context.read<ServerBloc>().add(
-                    ServerPutPayload(value: change, key: key.toLowerCase()));
+                context.read<ServerBloc>().add(ServerPutPayload(value: change, key: key.toLowerCase()));
               },
               initialValue: value,
             ),
@@ -176,6 +208,7 @@ class _ProfileState extends State<Profile> {
     required String key,
     required String value,
     required Map<String, dynamic> values,
+    bool label = true,
   }) {
     if (value != "") {
       context.read<ServerBloc>().add(
@@ -185,11 +218,25 @@ class _ProfileState extends State<Profile> {
             ),
           );
     }
+    if(key.toLowerCase() == "code"){
+      values.forEach((key, v) {
+        if(value.startsWith(v)){
+          value = v;
+          setState((){
+            if(phoneNumber.startsWith(codeNumber)){
+              phoneNumber = phoneNumber.replaceFirst(codeNumber, "");
+            }
+            codeNumber = value;
+          });
+        }
+      });
+    }
     return Padding(
       padding: const EdgeInsets.all(4),
       child: Row(
         children: [
           Expanded(
+            flex: label ? 1 : 4,
             child: Text(
               key,
               style: const TextStyle(
@@ -203,6 +250,9 @@ class _ProfileState extends State<Profile> {
             child: SelectInputComponent(
               onSave: () {},
               onChange: (change) {
+                setState((){
+                  codeNumber = change;
+                });
                 context.read<ServerBloc>().add(
                       ServerPutPayload(
                         value: change,
