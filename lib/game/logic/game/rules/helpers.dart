@@ -54,8 +54,8 @@ class Helpers {
     if (state.firstClicked.isNotEmpty &&
         state.secondClicked.isEmpty &&
         state.selectedHelper == CharacterType.hummer) {
-      int row = state.firstClicked.entries.first.key;
-      int col = state.firstClicked.entries.first.value;
+      int row = state.firstClicked.row;
+      int col = state.firstClicked.col;
       Map<int, CharacterType> myRow = boards[row] ?? {};
       myRow = {...myRow, col: CharacterType.hole};
       boards = {...boards, row: myRow};
@@ -64,7 +64,7 @@ class Helpers {
         dropDown: true,
         reduceHelperReward: CharacterType.hummer,
         selectedHelper: CharacterType.hole,
-        firstClicked: {},
+        firstClicked: state.firstClicked.clear,
       ));
     }
   }

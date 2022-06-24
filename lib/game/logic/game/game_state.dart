@@ -3,19 +3,19 @@ part of 'game_bloc.dart';
 class GameState extends Equatable {
   final Map<int, Map<int, CharacterType>> gameBoards;
   final Map<int, Map<int, bool>> carpets;
-  final Map<int, int> firstClicked;
-  final Map<int, int> secondClicked;
-  final Map<int, int> tempClicked;
-  final Map<int, int> tempSecClicked;
+  final PositionModel firstClicked;
+  final PositionModel secondClicked;
+  final PositionModel tempClicked;
+  final PositionModel tempSecClicked;
   final List<Map<CharacterType, int>> targets;
-  final List<Map<int, int>> toBreak;
-  final List<Map<int, int>> planes;
-  final List<Map<int, int>> bombs;
-  final List<Map<int, int>> bulletVerticals;
-  final List<Map<int, int>> bulletHorizontals;
-  final List<Map<int, int>> superBombs;
-  final List<Map<int, int>> previousPosition;
-  final List<Map<int, int>> currentPosition;
+  final List<PositionModel> toBreak;
+  final List<PositionModel> planes;
+  final List<PositionModel> bombs;
+  final List<PositionModel> bulletVerticals;
+  final List<PositionModel> bulletHorizontals;
+  final List<PositionModel> superBombs;
+  final List<PositionModel> previousPosition;
+  final List<PositionModel> currentPosition;
   final CharacterType? selectedHelper;
   final CharacterType? reduceHelperReward;
   final int col;
@@ -28,7 +28,10 @@ class GameState extends Equatable {
   final bool dropDown;
   final bool matchAll;
   final bool bombTouched;
+  final bool clearSelectedBooster;
   final String? assignedId;
+  final List<Map<CharacterType, int>> startWith;
+  final bool checkHasNextMove;
 
   const GameState(
       {required this.gameBoards,
@@ -46,6 +49,7 @@ class GameState extends Equatable {
       required this.superBombs,
       required this.previousPosition,
       required this.currentPosition,
+      required this.checkHasNextMove,
       required this.row,
       required this.col,
       required this.level,
@@ -58,25 +62,27 @@ class GameState extends Equatable {
       required this.reduceHelperReward,
       required this.bombTouched,
       required this.assignedId,
+      required this.startWith,
+      required this.clearSelectedBooster,
       required this.secondClicked});
 
-  factory GameState.empty() => const GameState(
-      gameBoards: {},
-      carpets: {},
-      firstClicked: {},
-      toBreak: [],
-      planes: [],
-      bulletVerticals: [],
-      bulletHorizontals: [],
-      bombs: [],
-      superBombs: [],
-      previousPosition: [],
-      currentPosition: [],
-      secondClicked: {},
-      tempClicked: {},
-      tempSecClicked: {},
-      targets: [],
-      rewards: [],
+  factory GameState.empty() => GameState(
+      gameBoards: const {},
+      carpets: const {},
+      firstClicked: PositionModel.empty(),
+      toBreak: const [],
+      planes: const [],
+      bulletVerticals: const [],
+      bulletHorizontals: const [],
+      bombs: const [],
+      superBombs: const [],
+      previousPosition: const [],
+      currentPosition: const [],
+      secondClicked: PositionModel.empty(),
+      tempClicked: PositionModel.empty(),
+      tempSecClicked: PositionModel.empty(),
+      targets: const [],
+      rewards: const [],
       moves: 10,
       col: 10,
       row: 11,
@@ -84,35 +90,41 @@ class GameState extends Equatable {
       match: false,
       reversed: false,
       matchAll: false,
+      checkHasNextMove: false,
       selectedHelper: null,
       reduceHelperReward: null,
       bombTouched: true,
+      clearSelectedBooster: true,
       assignedId: null,
+      startWith: const [],
       dropDown: false);
 
   GameState copyWith({
     Map<int, Map<int, CharacterType>>? gameBoards,
     Map<int, Map<int, bool>>? carpets,
-    Map<int, int>? firstClicked,
-    Map<int, int>? secondClicked,
-    Map<int, int>? tempClicked,
-    Map<int, int>? tempSecClicked,
+    PositionModel? firstClicked,
+    PositionModel? secondClicked,
+    PositionModel? tempClicked,
+    PositionModel? tempSecClicked,
     List<Map<CharacterType, int>>? targets,
+    List<Map<CharacterType, int>>? startWith,
     List<RewardModel>? rewards,
-    List<Map<int, int>>? toBreak,
-    List<Map<int, int>>? planes,
-    List<Map<int, int>>? bulletHorizontals,
-    List<Map<int, int>>? bulletVerticals,
-    List<Map<int, int>>? bombs,
-    List<Map<int, int>>? superBombs,
-    List<Map<int, int>>? previousPosition,
-    List<Map<int, int>>? currentPosition,
+    List<PositionModel>? toBreak,
+    List<PositionModel>? planes,
+    List<PositionModel>? bulletHorizontals,
+    List<PositionModel>? bulletVerticals,
+    List<PositionModel>? bombs,
+    List<PositionModel>? superBombs,
+    List<PositionModel>? previousPosition,
+    List<PositionModel>? currentPosition,
     int? moves,
     int? col,
     int? row,
     int? level,
     bool? match,
     bool? reversed,
+    bool? clearSelectedBooster,
+    bool? checkHasNextMove,
     bool? dropDown,
     bool? matchAll,
     bool? bombTouched,
@@ -128,6 +140,7 @@ class GameState extends Equatable {
       tempClicked: tempClicked ?? this.tempClicked,
       tempSecClicked: tempSecClicked ?? this.tempSecClicked,
       targets: targets ?? this.targets,
+      startWith: startWith ?? this.startWith,
       rewards: rewards ?? this.rewards,
       toBreak: toBreak ?? this.toBreak,
       planes: planes ?? this.planes,
@@ -141,6 +154,8 @@ class GameState extends Equatable {
       row: row ?? this.row,
       col: col ?? this.col,
       level: level ?? this.level,
+      clearSelectedBooster: clearSelectedBooster ?? this.clearSelectedBooster,
+      checkHasNextMove: checkHasNextMove ?? this.checkHasNextMove,
       match: match ?? this.match,
       reversed: reversed ?? this.reversed,
       matchAll: matchAll ?? this.matchAll,
@@ -154,9 +169,9 @@ class GameState extends Equatable {
 
   bool checkClicked({required int row, required int col}) {
     bool clicked = false;
-    if (firstClicked.isNotEmpty) {
-      int firstRow = firstClicked.entries.first.key;
-      int firstCol = firstClicked.entries.first.value;
+    if (firstClicked != PositionModel.empty()) {
+      int firstRow = firstClicked.row;
+      int firstCol = firstClicked.col;
       if ((row == firstRow && col == firstCol)) {
         clicked = true;
       }
@@ -186,15 +201,15 @@ class GameState extends Equatable {
   List<Object?> get props => [
         gameBoards.entries,
         carpets.entries,
-        firstClicked.entries,
-        secondClicked.entries,
+        firstClicked.toMap(),
+        secondClicked.toMap(),
         col,
         row,
         level,
         moves,
         match,
-        tempClicked.entries,
-        tempSecClicked.entries,
+        tempClicked.toMap(),
+        tempSecClicked.toMap(),
         previousPosition,
         currentPosition,
         reversed,
@@ -202,6 +217,8 @@ class GameState extends Equatable {
         planes,
         bulletVerticals,
         bulletHorizontals,
+        clearSelectedBooster,
+        checkHasNextMove,
         bombs,
         superBombs,
         dropDown,
@@ -210,7 +227,17 @@ class GameState extends Equatable {
         selectedHelper,
         reduceHelperReward,
         targets,
+        startWith,
         assignedId,
         rewards
       ];
+
+  int? selectedBooster({required CharacterType booster}) {
+    for (Map<CharacterType, int> start in startWith) {
+      if (start.entries.first.key == booster) {
+        return start.entries.first.value;
+      }
+    }
+    return null;
+  }
 }

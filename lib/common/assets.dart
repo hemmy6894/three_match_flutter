@@ -141,7 +141,7 @@ class Assets {
   static const Map<String,dynamic> level1 = {
     "row" : 9,
     "col" : 8,
-    "rewards" : [RewardModel(character: CharacterType.hand, amount: 5),RewardModel(character: CharacterType.hummer, amount: 3), RewardModel(character: CharacterType.orange, amount: 4)],
+    "rewards" : [RewardModel(character: CharacterType.hummer, amount: 3), RewardModel(character: CharacterType.superBomb, amount: 2), RewardModel(character: CharacterType.bomb, amount: 2), RewardModel(character: CharacterType.verticalBullet, amount: 1),RewardModel(character: CharacterType.horizontalBullet, amount: 1), RewardModel(character: CharacterType.plane, amount: 2)],
     "targets": [{CharacterType.pear : 10},{CharacterType.banana : 10},{CharacterType.apple : 10}],
     "moves": 60,
     "board" : [

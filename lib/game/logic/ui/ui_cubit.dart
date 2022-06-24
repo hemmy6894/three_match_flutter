@@ -80,7 +80,6 @@ class UiCubit extends Cubit<UiState> with HydratedMixin {
 
   @override
   onChange(Change<UiState> change){
-    print(change.currentState.rewards);
     super.onChange(change);
   }
 }

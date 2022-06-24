@@ -13,13 +13,19 @@ class GameOverWidget extends StatefulWidget {
   final double width;
   final int levelName;
 
-  const GameOverWidget({Key? key,
-    required this.width,
-    required this.levelName,
-    required this.height})
+  const GameOverWidget(
+      {Key? key,
+      required this.width,
+      required this.levelName,
+      required this.height})
       : super(key: key);
 
-  static Widget displayTarget(List<Map<CharacterType, int>> targets) {
+  static Widget displayTarget(List<Map<CharacterType, int>> targets,
+      {Function(Map<CharacterType, int>)? click, double iconWidth = 33, double iconHeight = 33}) {
+    Map<CharacterType,bool> disableClick = {};
+    for (Map<CharacterType, int> target in targets){
+      disableClick[target.entries.first.key] = false;
+    }
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -29,35 +35,77 @@ class GameOverWidget extends StatefulWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             for (Map<CharacterType, int> target in targets)
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Image.asset(
-                    Assets.getCharacter(
-                        characterType: target.entries.first.key),
-                    height: 33,
-                    width: 33,
-                  ),
-                  Positioned(
-                    right: 0,
-                    bottom: 0,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(7),
+              GestureDetector(
+                onTap: () {
+                  bool dis = disableClick[target.entries.first.key] ?? false;
+                  if(click != null && !dis){
+                    click(target);
+                  }
+                },
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Image.asset(
+                      Assets.getCharacter(
+                          characterType: target.entries.first.key),
+                      height: iconHeight,
+                      width: iconWidth,
+                    ),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        decoration:  BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.all(
+                            Radius.circular((iconHeight / 4)),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        target.entries.first.value.toString(),
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                        child: Text(
+                          target.entries.first.value.toString(),
+                          style:  TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: (iconHeight / 4)
+                          ),
                         ),
                       ),
                     ),
-                  )
-                ],
+                    BlocBuilder<GameBlock,GameState>(
+                      builder: (context,state){
+                        int? boosted = context.read<GameBlock>().state.selectedBooster(booster: target.entries.first.key);
+                        if(boosted == null){
+                          return Container();
+                        }
+                        if(boosted >= target.entries.first.value){
+                          disableClick[target.entries.first.key] = true;
+                        }else{
+                          disableClick[target.entries.first.key] = false;
+                        }
+                        return Positioned(
+                          left: 0,
+                          bottom: 0,
+                          child: Container(
+                            decoration:  BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular((iconHeight / 4)),
+                              ),
+                            ),
+                            child: Text(
+                              boosted.toString(),
+                              style:  TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: (iconHeight / 4)
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  ],
+                ),
               ),
           ],
         )
@@ -144,13 +192,13 @@ class _GameOverWidgetState extends State<GameOverWidget> {
         children: [
           BlocListener<UiCubit, UiState>(
             listenWhen: (previous, current) =>
-            !mapEquals(previous.received, current.received),
+                !mapEquals(previous.received, current.received),
             listener: (context, state) {
               setState(() {
                 received = state.received;
               });
             },
-            child: Text(""),
+            child: const Text(""),
           ),
           Container(
             color: Colors.transparent,
@@ -316,7 +364,7 @@ class _GameOverWidgetState extends State<GameOverWidget> {
       ),
       BlocListener<UiCubit, UiState>(
         listenWhen: (previous, current) =>
-        !mapEquals(previous.received, current.received),
+            !mapEquals(previous.received, current.received),
         listener: (context, state) {
           setState(() {
             received = state.received;
@@ -334,10 +382,11 @@ class _GameOverWidgetState extends State<GameOverWidget> {
   }
 
   bool isRewarded = false;
+
   Widget displayRewards() {
-    if(!isRewarded) {
+    if (!isRewarded) {
       context.read<UiCubit>().receiveRewards(rewards: rewards);
-      setState((){
+      setState(() {
         isRewarded = true;
       });
     }

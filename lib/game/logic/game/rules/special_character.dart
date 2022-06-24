@@ -1,17 +1,17 @@
 part of '../game_bloc.dart';
 class SpecialCharacter {
-  static checkPlane(GameState state, List<Map<int, int>> horizontal,
-      List<Map<int, int>> vertical, Map<int, int> current) {
+  static List<PositionModel> checkPlane(GameState state, List<PositionModel> horizontal,
+      List<PositionModel> vertical, PositionModel current) {
     if (horizontal.isNotEmpty && vertical.isNotEmpty) {
       if (current.isNotEmpty) {
-        int horizontalRow = horizontal[0].entries.first.key;
-        int horizontalCol = horizontal[0].entries.first.value;
+        int horizontalRow = horizontal[0].row;
+        int horizontalCol = horizontal[0].col;
 
-        int verticalRow = vertical[0].entries.first.key;
-        int verticalCol = vertical[0].entries.first.value;
+        int verticalRow = vertical[0].row;
+        int verticalCol = vertical[0].col;
 
-        int currentRow = current.entries.first.key;
-        int currentCol = current.entries.first.value;
+        int currentRow = current.row;
+        int currentCol = current.col;
 
         int newCol = 0, newRow = 0;
         if (currentRow == horizontalRow && currentCol == verticalCol) {
@@ -45,7 +45,7 @@ class SpecialCharacter {
               horizontal[0],
               vertical[0],
               current,
-              {newRow: newCol}
+              PositionModel(row: newRow, col: newCol)
             ];
           }
         }
@@ -54,7 +54,7 @@ class SpecialCharacter {
     return [];
   }
 
-  static checkBulletHorizontal(List<Map<int, int>> horizontal, List<Map<int, int>> vertical,
+  static checkBulletHorizontal(List<PositionModel> horizontal, List<PositionModel> vertical,
       Map<int, int> current) {
     if (vertical.length == 3) {
       return [current];
@@ -62,7 +62,7 @@ class SpecialCharacter {
     return [];
   }
 
-  static checkBulletVertical(List<Map<int, int>> horizontal, List<Map<int, int>> vertical,
+  static checkBulletVertical(List<PositionModel> horizontal, List<PositionModel> vertical,
       Map<int, int> current) {
     if (horizontal.length == 3) {
       return [current];
@@ -70,7 +70,7 @@ class SpecialCharacter {
     return [];
   }
 
-  static checkBombs(List<Map<int, int>> horizontal, List<Map<int, int>> vertical,
+  static checkBombs(List<PositionModel> horizontal, List<PositionModel> vertical,
       Map<int, int> current) {
     if (horizontal.length == 2 && vertical.length == 2) {
       return [current];
@@ -78,7 +78,7 @@ class SpecialCharacter {
     return [];
   }
 
-  static checkSuperBombs(List<Map<int, int>> horizontal, List<Map<int, int>> vertical,
+  static checkSuperBombs(List<PositionModel> horizontal, List<PositionModel> vertical,
       Map<int, int> current) {
     if (horizontal.length >= 4 || vertical.length >= 4) {
       return [current];

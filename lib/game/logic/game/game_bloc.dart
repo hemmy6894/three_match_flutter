@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:test_game/common/assets.dart';
+import 'package:test_game/game/data/models/game/position.dart';
 import 'package:test_game/game/data/models/game/reward.dart';
 import 'package:test_game/game/ui/game/character.dart';
 
@@ -64,11 +65,23 @@ class GameBlock extends Bloc<GameEvent, GameState> {
       emit(state.copyWith(reduceHelperReward: CharacterType.hole));
     });
 
+    on<GameClickBoosterEvent>((event, emit)  {
+      event.boosterClicked(emit, state, event);
+    });
+
+    on<GameClearBoosterClickedEvent>((event, emit)  {
+      event.boosterClear(emit, state);
+    });
+
+    on<GameCheckIfHasNextMoveEvent>((event, emit)  {
+      event.checkHasNextMove(emit, state);
+    });
   }
 
 
   @override
   void onChange(Change<GameState> change) {
+    print(change.currentState.startWith);
     super.onChange(change);
   }
 }

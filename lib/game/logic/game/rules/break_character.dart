@@ -6,10 +6,10 @@ class BreakCharacter {
 
     List<Map<CharacterType, int>> targets = state.targets;
 
-    List<Map<int, int>> targetBreaking = [];
-    for (Map<int, int> replace in state.toBreak) {
-      int rowCount = replace.entries.first.key;
-      int colCount = replace.entries.first.value;
+    List<PositionModel> targetBreaking = [];
+    for (PositionModel replace in state.toBreak) {
+      int rowCount = replace.row;
+      int colCount = replace.col;
 
       bool breaking = true;
       bool first = false;
@@ -17,8 +17,8 @@ class BreakCharacter {
         first = true;
         targetBreaking.add(replace);
       }
-      for (Map<int, int> rep in targetBreaking) {
-        if (mapEquals(rep, replace) && !first) {
+      for (PositionModel rep in targetBreaking) {
+        if ((rep == replace) && !first) {
           breaking = false;
         }
       }
@@ -35,7 +35,7 @@ class BreakCharacter {
     boards = replaceCharacterWith(emit, state, boards, state.bulletHorizontals, CharacterType.horizontalBullet);
     boards = replaceCharacterWith(emit, state, boards, state.bombs, CharacterType.bomb);
     boards = replaceCharacterWith(emit, state, boards, state.superBombs, CharacterType.superBomb);
-    List<Map<int, int>> remains = [];
+    List<PositionModel> remains = [];
     remains = removeIfMatchForBomb(state.planes, state.toBreak);
     remains = removeIfMatchForBomb(state.bombs, remains);
     remains = removeIfMatchForBomb(state.bulletVerticals, remains);
@@ -44,9 +44,9 @@ class BreakCharacter {
     boards = replaceCharacterWith(emit, state, boards, remains, CharacterType.hole);
 
     bool hasCarpet = false;
-    for (Map<int, int> replace in remains) {
-      int rowCount = replace.entries.first.key;
-      int colCount = replace.entries.first.value;
+    for (PositionModel replace in remains) {
+      int rowCount = replace.row;
+      int colCount = replace.col;
       if (state.hasCarpet(row: rowCount, col: colCount)) {
         hasCarpet = true;
       }
@@ -86,16 +86,15 @@ class BreakCharacter {
       Emitter<GameState> emit,
       GameState state,
       Map<int, Map<int, CharacterType>> boards,
-      List<Map<int, int>> replaces,
+      List<PositionModel> replaces,
       CharacterType character) {
     replaces = removeDublicate(replaces);
     Map<int, Map<int, CharacterType>> bds = boards;
-    for (Map<int, int> replace in replaces) {
-      int rowCount = replace.entries.first.key;
-      int colCount = replace.entries.first.value;
+    for (PositionModel replace in replaces) {
+      int rowCount = replace.row;
+      int colCount = replace.col;
       Map<int, CharacterType> row = bds[rowCount] ?? {};
-      CharacterType spacial =
-          getBoardCharacter(boards, row: rowCount, col: colCount);
+      CharacterType spacial = getBoardCharacter(boards, row: rowCount, col: colCount);
       bool isNone = noneBreakableCharacter(spacial);
       if (isNone && (CharacterType.hole == character)) {
         if (staticCharacterNeverChange(spacial)) {
@@ -121,12 +120,12 @@ class BreakCharacter {
 
   static Map<int, Map<int, bool>> addCarpetAtCharacter(
       Map<int, Map<int, bool>> boards,
-      List<Map<int, int>> replaces,
+      List<PositionModel> replaces,
       bool status) {
     Map<int, Map<int, bool>> bds = boards;
-    for (Map<int, int> replace in replaces) {
-      int rowCount = replace.entries.first.key;
-      int colCount = replace.entries.first.value;
+    for (PositionModel replace in replaces) {
+      int rowCount = replace.row;
+      int colCount = replace.col;
       Map<int, bool> row = bds[rowCount] ?? {};
       row = {...row, colCount: status};
       bds = {...bds, rowCount: row};
@@ -134,14 +133,14 @@ class BreakCharacter {
     return bds;
   }
 
-  static removeDublicate(List<Map<int, int>> dublicates){
+  static removeDublicate(List<PositionModel> dublicates){
     //REMOVE DUPLICATE
-    List<Map<int, int>> freshRemains = [];
+    List<PositionModel> freshRemains = [];
     bool match = true;
-    for (Map<int, int> map in dublicates) {
+    for (PositionModel map in dublicates) {
       match = false;
-      for (Map<int, int> fresh in freshRemains) {
-        if (mapEquals(map, fresh)) {
+      for (PositionModel fresh in freshRemains) {
+        if (map == fresh) {
           match = true;
         }
       }
@@ -152,17 +151,17 @@ class BreakCharacter {
     return freshRemains;
     //END REMOVE
   }
-  static List<Map<int, int>> removeIfMatchForBomb(
-      List<Map<int, int>> bombs, List<Map<int, int>> breaks) {
+  static List<PositionModel> removeIfMatchForBomb(
+      List<PositionModel> bombs, List<PositionModel> breaks) {
   breaks = removeDublicate(breaks);
   bombs = removeDublicate(bombs);
-    List<Map<int, int>> remains = [];
+    List<PositionModel> remains = [];
     if (bombs.isNotEmpty) {
       bool exist = false;
-      for (Map<int, int> brk in breaks) {
+      for (PositionModel brk in breaks) {
         exist = false;
-        for (Map<int, int> bom in bombs) {
-          if (mapEquals(brk, bom)) {
+        for (PositionModel bom in bombs) {
+          if ((brk == bom)) {
             exist = true;
           }
         }

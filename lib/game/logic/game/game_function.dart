@@ -8,15 +8,15 @@ characterClicked(Emitter<GameState> emit, GameState state, int row, int col) {
   }
   if (state.firstClicked.isEmpty) {
     emit(state.copyWith(
-        firstClicked: {row: col},
-        tempClicked: {row: col},
+        firstClicked: PositionModel(row: row, col: col),
+        tempClicked: PositionModel(row: row, col: col),
         reversed: false,
         bombTouched: true));
     return;
   }
   state = state.copyWith(
-      secondClicked: {row: col},
-      tempSecClicked: {row: col},
+      secondClicked: PositionModel(row: row, col: col),
+      tempSecClicked: PositionModel(row: row, col: col),
       reversed: Helpers.isHandCaptured(state),
       reduceHelperReward: state.selectedHelper,
       selectedHelper: Helpers.isHandCaptured(state) ? CharacterType.hole : state.selectedHelper,
@@ -25,7 +25,7 @@ characterClicked(Emitter<GameState> emit, GameState state, int row, int col) {
 }
 
 clearClick(Emitter<GameState> emit, GameState state) {
-  emit(state.copyWith(firstClicked: {}, secondClicked: {}));
+  emit(state.copyWith(firstClicked: state.firstClicked.clear, secondClicked: state.secondClicked.clear));
 }
 
 CharacterType getCharacter(GameState state,
@@ -46,30 +46,30 @@ matchCharacter(Emitter<GameState> emit, GameState state) async {
 }
 
 checkConnected(Emitter<GameState> emit, GameState state) async {
-  List<Map<int, int>> game = [];
-  List<Map<int, int>> plane = [];
-  List<Map<int, int>> bulletH = [];
-  List<Map<int, int>> bulletV = [];
-  List<Map<int, int>> bomb = [];
-  List<Map<int, int>> superBomb = [];
-  Map<int, List<Map<int, int>>> result = {};
-  Map<int, List<Map<int, int>>> bombing = {};
+  List<PositionModel> game = [];
+  List<PositionModel> plane = [];
+  List<PositionModel> bulletH = [];
+  List<PositionModel> bulletV = [];
+  List<PositionModel> bomb = [];
+  List<PositionModel> superBomb = [];
+  Map<int, List<PositionModel>> result = {};
+  Map<int, List<PositionModel>> bombing = {};
   int matchCount = 0;
 
-  List<Map<int, int>> game2 = [];
-  List<Map<int, int>> plane2 = [];
-  List<Map<int, int>> bulletH2 = [];
-  List<Map<int, int>> bulletV2 = [];
-  List<Map<int, int>> bomb2 = [];
-  List<Map<int, int>> superBomb2 = [];
-  Map<int, List<Map<int, int>>> result2 = {};
-  Map<int, List<Map<int, int>>> bombing2 = {};
+  List<PositionModel> game2 = [];
+  List<PositionModel> plane2 = [];
+  List<PositionModel> bulletH2 = [];
+  List<PositionModel> bulletV2 = [];
+  List<PositionModel> bomb2 = [];
+  List<PositionModel> superBomb2 = [];
+  Map<int, List<PositionModel>> result2 = {};
+  Map<int, List<PositionModel>> bombing2 = {};
   int matchCount2 = 0;
 
   int total = 0;
   if (state.tempClicked.isNotEmpty) {
-    int row = state.tempClicked.entries.first.key;
-    int col = state.tempClicked.entries.first.value;
+    int row = state.tempClicked.row;
+    int col = state.tempClicked.col;
     CharacterType type = getCharacter(state, row: row, col: col);
     result = getConnectedCharacter(state, row, col, type);
     bombing = await BombMove.bombMoves(emit,state, row, col);
@@ -111,8 +111,8 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
   }
 
   if (state.tempSecClicked.isNotEmpty) {
-    int row = state.tempSecClicked.entries.first.key;
-    int col = state.tempSecClicked.entries.first.value;
+    int row = state.tempSecClicked.row;
+    int col = state.tempSecClicked.col;
     CharacterType type = getCharacter(state, row: row, col: col);
     result2 = getConnectedCharacter(state, row, col, type);
     bombing2 = await  BombMove.bombMoves(emit,state, row, col);
@@ -180,7 +180,7 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
   }
 }
 
-Map<int, List<Map<int, int>>> getConnectedCharacter(
+Map<int, List<PositionModel>> getConnectedCharacter(
     GameState state, int row, int col, CharacterType type) {
   if (row > state.row || row <= 0 || col > state.col || col <= 0) {
     return {0: []};
@@ -193,18 +193,18 @@ Map<int, List<Map<int, int>>> getConnectedCharacter(
   }
   int matchCount = 0;
   late CharacterType block;
-  List<Map<int, int>> planes = [];
-  List<Map<int, int>> bulletVerticals = [];
-  List<Map<int, int>> bulletHorizontals = [];
-  List<Map<int, int>> bombs = [];
-  List<Map<int, int>> superBombs = [];
+  List<PositionModel> planes = [];
+  List<PositionModel> bulletVerticals = [];
+  List<PositionModel> bulletHorizontals = [];
+  List<PositionModel> bombs = [];
+  List<PositionModel> superBombs = [];
 
-  List<Map<int, int>> firstMoves = [];
-  List<Map<int, int>> verticalMoves = [];
-  List<Map<int, int>> horizontalMoves = [];
+  List<PositionModel> firstMoves = [];
+  List<PositionModel> verticalMoves = [];
+  List<PositionModel> horizontalMoves = [];
   //MOVED DOWN
   block = getCharacter(state, row: row, col: col);
-  firstMoves.add({row: col});
+  firstMoves.add(PositionModel(row: row, col: col));
 
   int colCount = 1;
   int rowCount = 1;
@@ -214,7 +214,7 @@ Map<int, List<Map<int, int>>> getConnectedCharacter(
     if (block == type) {
       rowCount++;
       cc++;
-      verticalMoves.add({i: col});
+      verticalMoves.add(PositionModel(row: i, col: col));
     } else {
       break;
     }
@@ -222,7 +222,7 @@ Map<int, List<Map<int, int>>> getConnectedCharacter(
   for (int i = (row - 1); i >= 1; i--) {
     block = getCharacter(state, row: i, col: col);
     if (block == type) {
-      verticalMoves.add({i: col});
+      verticalMoves.add(PositionModel(row: i, col: col));
       rowCount++;
     } else {
       break;
@@ -231,7 +231,7 @@ Map<int, List<Map<int, int>>> getConnectedCharacter(
   for (int i = (col + 1); i <= state.col; i++) {
     block = getCharacter(state, row: row, col: i);
     if (block == type) {
-      horizontalMoves.add({row: i});
+      horizontalMoves.add(PositionModel(row: row, col: i));
       colCount++;
     } else {
       break;
@@ -240,7 +240,7 @@ Map<int, List<Map<int, int>>> getConnectedCharacter(
   for (int i = (col - 1); i >= 1; i--) {
     block = getCharacter(state, row: row, col: i);
     if (block == type) {
-      horizontalMoves.add({row: i});
+      horizontalMoves.add(PositionModel(row: row, col: i));
       colCount++;
     } else {
       break;
@@ -253,22 +253,22 @@ Map<int, List<Map<int, int>>> getConnectedCharacter(
     List<dynamic> bulletH = SpecialCharacter.checkBulletHorizontal(
         horizontalMoves, verticalMoves, {row: col});
     if (bulletH.isNotEmpty) {
-      bulletHorizontals.add({row: col});
+      bulletHorizontals.add(PositionModel(row: row, col: col));
     }
     List<dynamic> bulletV = SpecialCharacter.checkBulletVertical(
         horizontalMoves, verticalMoves, {row: col});
     if (bulletV.isNotEmpty) {
-      bulletVerticals.add({row: col});
+      bulletVerticals.add(PositionModel(row: row, col: col));
     }
     List<dynamic> bomb =
         SpecialCharacter.checkBombs(horizontalMoves, verticalMoves, {row: col});
     if (bomb.isNotEmpty) {
-      bombs.add({row: col});
+      bombs.add(PositionModel(row: row, col: col));
     }
     List<dynamic> superBomb = SpecialCharacter.checkSuperBombs(
         horizontalMoves, verticalMoves, {row: col});
     if (superBomb.isNotEmpty) {
-      superBombs.add({row: col});
+      superBombs.add(PositionModel(row: row, col: col));
     }
   } else {
     matchCount = 0;
@@ -277,9 +277,9 @@ Map<int, List<Map<int, int>>> getConnectedCharacter(
 
   if (horizontalMoves.isNotEmpty && verticalMoves.isNotEmpty) {
     List<dynamic> jet = SpecialCharacter.checkPlane(
-        state, horizontalMoves, verticalMoves, {row: col});
+        state, horizontalMoves, verticalMoves, PositionModel(row: row, col: col));
     if (jet.length >= 4) {
-      planes.add({row: col});
+      planes.add(PositionModel(row: row, col: col));
       firstMoves = [...firstMoves, ...jet];
       matchCount = 4;
     }
@@ -331,11 +331,10 @@ changeRow(
 
 moveCharacter(Emitter<GameState> emit, GameState state) {
   if (state.firstClicked.isNotEmpty && state.secondClicked.isNotEmpty) {
-    int firstRow = state.firstClicked.entries.first.key;
-    int firstCol = state.firstClicked.entries.first.value;
-    int secondRow = state.secondClicked.entries.first.key;
-    int secondCol = state.secondClicked.entries.first.value;
-
+    int firstRow = state.firstClicked.row;
+    int firstCol = state.firstClicked.col;
+    int secondRow = state.secondClicked.row;
+    int secondCol = state.secondClicked.col;
     CharacterType firstCharacter = getCharacter(state, row: firstRow, col: firstCol);
     CharacterType secondCharacter = getCharacter(state, row: secondRow, col: secondCol);
     if (firstCharacter != CharacterType.hole && secondCharacter != CharacterType.hole) {

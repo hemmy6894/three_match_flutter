@@ -36,11 +36,47 @@ class GameLevels {
       ),
     );
     await Future.delayed(const Duration(seconds: 1));
-    List<Map<int,int>> replaces = [{1:1}];
-    gameBoards = BreakCharacter.replaceCharacterWith(emit, state, gameBoards, replaces, CharacterType.horizontalBullet);
-    emit(state.copyWith(gameBoards: gameBoards));
+    List<Map<CharacterType,PositionModel>> replaces = getSelectedBoosters(state, row: row,col: col);
+    for(Map<CharacterType,PositionModel> rep in replaces) {
+      gameBoards = BreakCharacter.replaceCharacterWith(
+          emit, state, gameBoards, [rep.entries.first.value], rep.entries.first.key);
+    }
+    emit(
+      state.copyWith(
+          gameBoards: gameBoards,
+          col: col,
+          row: row,
+          carpets: carpets,
+          targets: targets,
+          moves: moves,
+          rewards: rewards,
+          clearSelectedBooster: !state.clearSelectedBooster,
+          level: event.levelName,
+          assignedId: event.assignId
+      ),
+    );
   }
 
+  static List<Map<CharacterType,PositionModel>> getSelectedBoosters(GameState state,{int row = 0, int col = 0}){
+    List<Map<CharacterType,PositionModel>> replaces = [];
+    List<PositionModel> possibilities = [];
+    for (int i = 1; i <= row; i++) {
+      for (int j = 1; j <= col; j++) {
+        possibilities.add(PositionModel(row: i, col: j));
+      }
+    }
+    List<Map<CharacterType,int>> starts = state.startWith;
+    var rng = Random();
+    for(Map<CharacterType,int> start in starts){
+      for(int i = start.entries.first.value; i > 0; i--) {
+        int position = rng.nextInt(possibilities.length);
+        PositionModel pos = possibilities[position];
+        possibilities.removeAt(position);
+        replaces.add({start.entries.first.key: pos});
+      }
+    }
+    return replaces;
+  }
   static Map<int, Map<int, CharacterType>> drawBoard(
       {required int level, bool restart = false}) {
     Map<String, dynamic> level1 = Assets.levels[level];

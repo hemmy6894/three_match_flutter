@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_game/animations/animate_position.dart';
 import 'package:test_game/common/assets.dart';
+import 'package:test_game/game/data/models/game/game_character.dart';
+import 'package:test_game/game/data/models/game/position.dart';
 import 'package:test_game/game/logic/game/game_bloc.dart';
 import 'package:test_game/game/logic/ui/ui_cubit.dart';
 import 'package:test_game/game/ui/game/character.dart';
@@ -30,7 +32,7 @@ class _GameHomeState extends State<GameHome> {
   int row = 0;
   int col = 0;
   int moves = 1;
-  Map<int, int> clicked = {};
+  PositionModel clicked = PositionModel.empty();
   List<Widget> characters = [];
   CharacterType? selectedCharacter;
 
@@ -139,7 +141,7 @@ class _GameHomeState extends State<GameHome> {
                             child: Character(
                               characterType: board.value,
                               row: boards.key,
-                              active: mapEquals(clicked, {boards.key: board.key}),
+                              active: clicked == PositionModel(row: boards.key, col: board.key),
                               col: board.key,
                               verticalUpdate: (d) => {},
                               asCarpet: hasCarpet(row: boards.key, col: board.key),
@@ -186,16 +188,6 @@ class _GameHomeState extends State<GameHome> {
                     ),
                     const SizedBox(
                       width: 5,
-                    ),
-                    Character(
-                      characterType: CharacterType.restart,
-                      row: 100,
-                      verticalUpdate: (d) {},
-                      isHelper: true,
-                      active: false,
-                      col: 100,
-                      height: (width / row),
-                      width: (width / row),
                     ),
                   ],
                 ),
@@ -246,11 +238,9 @@ class _GameHomeState extends State<GameHome> {
         ),
         BlocListener<GameBlock, GameState>(
           listenWhen: (p, c) => p.match != c.match,
-          listener: (context, state) {
+          listener: (context, state) async {
             if (state.match) {
-              context
-                  .read<GameBlock>()
-                  .add(GameMatchCharacterStateEvent(match: false));
+              context.read<GameBlock>().add(GameMatchCharacterStateEvent(match: false));
               context.read<GameBlock>().add(GameMatchCharacterEvent());
             }
           },
@@ -281,6 +271,23 @@ class _GameHomeState extends State<GameHome> {
           },
         ),
         BlocListener<GameBlock, GameState>(
+          listenWhen: (p, c) => p.clearSelectedBooster != c.clearSelectedBooster,
+          listener: (context, state) async {
+            List<Map<CharacterType,int>> startWiths = context.read<GameBlock>().state.startWith;
+            context.read<GameBlock>().add(GameClearBoosterClickedEvent());
+            for(Map<CharacterType,int> start in startWiths) {
+              context.read<UiCubit>().reduceReward(characterType: start.entries.first.key, amount: start.entries.first.value);
+              await Future.delayed(const Duration(seconds: 1));
+            }
+          },
+        ),
+        BlocListener<GameBlock, GameState>(
+          listenWhen: (p, c) => p.checkHasNextMove != c.checkHasNextMove,
+          listener: (context, state) async {
+            context.read<GameBlock>().add(GameCheckIfHasNextMoveEvent());
+          },
+        ),
+        BlocListener<GameBlock, GameState>(
           listenWhen: (p, c) => p.secondClicked != c.secondClicked,
           listener: (context, state) {
             if (state.secondClicked.isNotEmpty) {
@@ -307,8 +314,7 @@ class _GameHomeState extends State<GameHome> {
           },
         ),
         BlocListener<GameBlock, GameState>(
-          listenWhen: (previous, current) =>
-              !mapEquals(previous.firstClicked, current.firstClicked),
+          listenWhen: (previous, current) => previous.firstClicked != current.firstClicked,
           listener: (context, state) {
             if (state.firstClicked.isNotEmpty) {
               context.read<GameBlock>().add(GameIsCapturedEvent());
@@ -317,7 +323,7 @@ class _GameHomeState extends State<GameHome> {
               });
             } else {
               setState(() {
-                clicked = {};
+                clicked = PositionModel.empty();
               });
             }
           },

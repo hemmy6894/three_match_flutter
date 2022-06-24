@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_game/game/data/models/assign.dart';
+import 'package:test_game/game/data/models/game/reward.dart';
+import 'package:test_game/game/logic/game/game_bloc.dart';
+import 'package:test_game/game/logic/ui/ui_cubit.dart';
 import 'package:test_game/game/ui/game.dart';
+import 'package:test_game/game/ui/game/character.dart';
+import 'package:test_game/game/ui/levels/widget/game_over.dart';
+import 'package:test_game/game/ui/widgets/forms/button_component.dart';
 
 class TaskViewWidget extends StatefulWidget {
   final AssignModel title;
@@ -14,19 +21,18 @@ class TaskViewWidget extends StatefulWidget {
 }
 
 class _TaskViewWidgetState extends State<TaskViewWidget> {
+  List<RewardModel> rewards = [];
+  List<Map<CharacterType, int>> targets = [];
+  bool startWith = false;
+
   @override
   Widget build(BuildContext context) {
     Size mySize = MediaQuery.of(context).size;
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute<void>(
-            builder: (BuildContext context) =>
-                GameHome(levelName: widget.levelName, assignedId: widget.title.id,),
-            fullscreenDialog: true,
-          ),
-        );
+        setState(() {
+          startWith = !startWith;
+        });
       },
       child: Stack(
         alignment: Alignment.center,
@@ -47,13 +53,16 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                   child: Column(
                     children: [
                       Text(
                         widget.title.title,
-                        style:
-                        const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, backgroundColor: Colors.white),
+                        style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            backgroundColor: Colors.white),
                       ),
                       // Text(
                       //   widget.title.description,
@@ -62,6 +71,19 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
                       // )
                     ],
                   ),
+                ),
+                BlocListener<UiCubit, UiState>(
+                  listener: (context, state) {
+                    setState(() {
+                      targets = [];
+                      for (RewardModel reward in state.rewards) {
+                        if(BreakCharacter.isBombCharacter(reward.character)) {
+                          targets.add({reward.character: reward.amount});
+                        }
+                      }
+                    });
+                  },
+                  child: const Text(""),
                 )
               ],
             ),
@@ -71,6 +93,46 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
             bottom: 10,
             right: 10,
             child: allAction(),
+          ),
+          //
+          if (startWith) startByBooster(),
+        ],
+      ),
+    );
+  }
+
+  Widget startByBooster() {
+    return Container(
+      color: Colors.white,
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          GameOverWidget.displayTarget(targets, iconHeight: ((MediaQuery.of(context).size.width - 100) / 5), iconWidth: ((MediaQuery.of(context).size.width - 100) / 5), click: (clicked) {
+            if (clicked.isNotEmpty) {
+              context.read<GameBlock>().add(GameClickBoosterEvent(booster: clicked.entries.first.key, amount: 1));
+            }
+          }),
+          const SizedBox(height: 40,),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ButtonComponent(title: "Clear Selection", onPressed: () {
+                context.read<GameBlock>().add(GameClearBoosterClickedEvent());
+              }),
+              ButtonComponent(title: "Start Game", onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) =>
+                        GameHome(levelName: widget.levelName, assignedId: widget.title.taskId,),
+                    fullscreenDialog: true,
+                  ),
+                );
+                startWith = false;
+              })
+            ],
           ),
         ],
       ),
@@ -91,7 +153,8 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
               expand = !expand;
             });
           },
-          child: actionButton(expand ? Icons.close : Icons.add, color: expand ? Colors.white : Colors.white),
+          child: actionButton(expand ? Icons.close : Icons.add,
+              color: expand ? Colors.white : Colors.white),
         ),
       ],
     );
