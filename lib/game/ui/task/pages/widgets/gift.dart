@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_game/game/logic/server/server_bloc.dart';
+import 'package:test_game/game/ui/widgets/forms/date_picker_component.dart';
 import 'package:test_game/game/ui/widgets/forms/input_component.dart';
 
 class GiftWidget extends StatefulWidget {
@@ -44,6 +45,22 @@ class _GiftWidgetState extends State<GiftWidget> {
           minLines: 4,
           maxLines: 5,
         ),
+        DatePickerComponent(hintText: "Select start date", onSave: (d) {}, onChange: (value) {
+          context.read<ServerBloc>().add(
+            ServerPutPayload(
+              value: value,
+              key: "start_at",
+            ),
+          );
+        }),
+        DatePickerComponent(hintText: "Select end date",onSave: (d) {}, onChange: (value) {
+          context.read<ServerBloc>().add(
+            ServerPutPayload(
+              value: value,
+              key: "end_at",
+            ),
+          );
+        }),
         if (myFile != null)
           Container(
             margin: const EdgeInsets.only(top: 10),

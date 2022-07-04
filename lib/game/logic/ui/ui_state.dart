@@ -8,6 +8,8 @@ class UiState extends Equatable {
   final Map<CharacterType, int> received;
   final List<RewardModel> rewards;
 
+
+
   const UiState(
       {required this.fullLiveCount,
       required this.lastLifeCount,
@@ -23,6 +25,7 @@ class UiState extends Equatable {
     int? remainingTime,
     Map<CharacterType, int>? received,
     List<RewardModel>? rewards,
+
   }) {
     return UiState(
       fullLiveCount: fullLiveCount ?? this.fullLiveCount,
@@ -39,6 +42,7 @@ class UiState extends Equatable {
         fullLiveCount: 5,
         lastUpdated: DateTime.now().millisecondsSinceEpoch,
         remainingTime: 0,
+
         received: const {},
         rewards: const [],
         lastLifeCount: 1);
@@ -54,6 +58,7 @@ class UiState extends Equatable {
       lastUpdated: json["last_updated"],
       rewards: RewardModel.getList(json["rewards"]),
       received: const {},
+
       remainingTime: json["remaining_time"],
     );
   }
@@ -68,14 +73,15 @@ class UiState extends Equatable {
     };
   }
 
-  int getRewardCount(CharacterType characterType){
-    for(RewardModel reward in rewards){
-      if(reward.character == characterType){
+  int getRewardCount(CharacterType characterType) {
+    for (RewardModel reward in rewards) {
+      if (reward.character == characterType) {
         return reward.amount;
       }
     }
     return 0;
   }
+
   @override
   List<Object?> get props => [
         fullLiveCount,
@@ -83,6 +89,7 @@ class UiState extends Equatable {
         lastLifeCount,
         rewards,
         received,
+
         remainingTime,
       ];
 }

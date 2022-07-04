@@ -57,7 +57,6 @@ class _AssignTaskState extends State<AssignTask> {
 
   @override
   Widget build(BuildContext context) {
-    print(context.read<ServerBloc>().state.user.type);
     return SingleChildScrollView(
       child: MultiBlocListener(
         listeners: [
@@ -289,7 +288,7 @@ class _AssignTaskState extends State<AssignTask> {
         setState(
           () {
             context.read<ServerBloc>().add(AssignTaskEvent());
-            clicked = true;
+            // clicked = true;
           },
         );
       },

@@ -21,9 +21,11 @@ class GameOverWidget extends StatefulWidget {
       : super(key: key);
 
   static Widget displayTarget(List<Map<CharacterType, int>> targets,
-      {Function(Map<CharacterType, int>)? click, double iconWidth = 33, double iconHeight = 33}) {
-    Map<CharacterType,bool> disableClick = {};
-    for (Map<CharacterType, int> target in targets){
+      {Function(Map<CharacterType, int>)? click,
+      double iconWidth = 33,
+      double iconHeight = 33}) {
+    Map<CharacterType, bool> disableClick = {};
+    for (Map<CharacterType, int> target in targets) {
       disableClick[target.entries.first.key] = false;
     }
     return Column(
@@ -38,7 +40,7 @@ class GameOverWidget extends StatefulWidget {
               GestureDetector(
                 onTap: () {
                   bool dis = disableClick[target.entries.first.key] ?? false;
-                  if(click != null && !dis){
+                  if (click != null && !dis) {
                     click(target);
                   }
                 },
@@ -55,38 +57,46 @@ class GameOverWidget extends StatefulWidget {
                       right: 0,
                       bottom: 0,
                       child: Container(
-                        decoration:  BoxDecoration(
+                        decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.all(
                             Radius.circular((iconHeight / 4)),
                           ),
                         ),
-                        child: Text(
-                          target.entries.first.value.toString(),
-                          style:  TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: (iconHeight / 4)
-                          ),
-                        ),
+                        child: target.entries.first.value < 1
+                            ? const Icon(Icons.plus_one)
+                            : Text(
+                                target.entries.first.value.toString(),
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: (iconHeight / 4)),
+                              ),
                       ),
                     ),
-                    BlocBuilder<GameBlock,GameState>(
-                      builder: (context,state){
-                        int? boosted = context.read<GameBlock>().state.selectedBooster(booster: target.entries.first.key);
-                        if(boosted == null){
+                    BlocBuilder<GameBlock, GameState>(
+                      builder: (context, state) {
+                        int? boosted = context
+                            .read<GameBlock>()
+                            .state
+                            .selectedBooster(booster: target.entries.first.key);
+                        if (boosted == null) {
                           return Container();
                         }
-                        if(boosted >= target.entries.first.value){
+                        if (boosted >= 3) {
+                          //target.entries.first.value) {
                           disableClick[target.entries.first.key] = true;
-                        }else{
+                        } else {
                           disableClick[target.entries.first.key] = false;
+                        }
+                        if(boosted < 1){
+                          return Container();
                         }
                         return Positioned(
                           left: 0,
                           bottom: 0,
                           child: Container(
-                            decoration:  BoxDecoration(
+                            decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.all(
                                 Radius.circular((iconHeight / 4)),
@@ -94,11 +104,10 @@ class GameOverWidget extends StatefulWidget {
                             ),
                             child: Text(
                               boosted.toString(),
-                              style:  TextStyle(
+                              style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: (iconHeight / 4)
-                              ),
+                                  fontSize: (iconHeight / 4)),
                             ),
                           ),
                         );

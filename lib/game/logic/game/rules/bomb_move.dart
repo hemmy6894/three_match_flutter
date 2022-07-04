@@ -35,13 +35,22 @@ class BombMove {
     if (block == CharacterType.bomb) {
       List<dynamic> bombs = bombMove(row, col, state);
       if (bombs.isNotEmpty) {
+        emit(
+          state.copyWith(
+            superBombBlast: PositionModel(
+              row: row,
+              col: col,
+            ),
+          ),
+        );
         firstMoves = [...firstMoves, ...bombs];
         matchCount = 3;
       }
     }
 
     if (block == CharacterType.superBomb) {
-      List<dynamic> superBombs = await superBombMove(row, col, emit, state, recheck: recheck);
+      List<dynamic> superBombs =
+          await superBombMove(row, col, emit, state, recheck: recheck);
       if (superBombs.isNotEmpty) {
         firstMoves = [...firstMoves, ...superBombs];
         matchCount = 3;
@@ -53,14 +62,13 @@ class BombMove {
     return {matchCount: firstMoves};
   }
 
-  static Future<List<PositionModel>> recheckMoves(Emitter<GameState> emit, GameState state,
-      List<PositionModel> firstMoves) async {
+  static Future<List<PositionModel>> recheckMoves(Emitter<GameState> emit,
+      GameState state, List<PositionModel> firstMoves) async {
     for (PositionModel fm in firstMoves) {
-      if (BreakCharacter.isBombCharacter(getCharacter(state,
-          row: fm.row, col: fm.col))) {
-        Map<int, List<PositionModel>> bo = await bombMoves(
-            emit, state, fm.row, fm.col,
-            recheck: true);
+      if (BreakCharacter.isBombCharacter(
+          getCharacter(state, row: fm.row, col: fm.col))) {
+        Map<int, List<PositionModel>> bo =
+            await bombMoves(emit, state, fm.row, fm.col, recheck: true);
         if (bo.isNotEmpty) {
           if (bo.entries.first.key > 1) {
             firstMoves = [...firstMoves, ...bo.entries.first.value];
@@ -140,9 +148,10 @@ class BombMove {
     return mvs;
   }
 
-  static Future<List<PositionModel>> breakSuperBombIfConnectedWithBombOrFoundOnBomb(Emitter<GameState> emit,
-      GameState state, CharacterType replace, List<PositionModel> mvs,
-      {bool recheck = false}) async {
+  static Future<List<PositionModel>>
+      breakSuperBombIfConnectedWithBombOrFoundOnBomb(Emitter<GameState> emit,
+          GameState state, CharacterType replace, List<PositionModel> mvs,
+          {bool recheck = false}) async {
     PositionModel randomCharacterToPutBomb =
         findRandomCharacterOnBoards(state, []);
     List<PositionModel> matches = findMatchedCharacter(
@@ -167,16 +176,19 @@ class BombMove {
     return mvs;
   }
 
-  static List<PositionModel> bombMove(int row, int col, GameState state, {bool manual = false}) {
+  static List<PositionModel> bombMove(int row, int col, GameState state,
+      {bool manual = false}) {
     PositionModel reserve = PositionModel.empty();
-    if (PositionModel(row: row,col: col)  == state.tempClicked) {
+    if (PositionModel(row: row, col: col) == state.tempClicked) {
       reserve = state.tempSecClicked;
-    } else if ( PositionModel(row: row,col: col)  == state.tempSecClicked) {
+    } else if (PositionModel(row: row, col: col) == state.tempSecClicked) {
       reserve = state.tempClicked;
-    }else{
-      if(getCharacter(state, row: state.tempClicked.row, col: state.tempClicked.row) == CharacterType.bomb){
+    } else {
+      if (getCharacter(state,
+              row: state.tempClicked.row, col: state.tempClicked.row) ==
+          CharacterType.bomb) {
         reserve = state.tempSecClicked;
-      }else{
+      } else {
         reserve = state.tempClicked;
       }
     }
@@ -184,34 +196,41 @@ class BombMove {
     if (reserve.isNotEmpty) {
       bomb = getCharacter(state, row: reserve.row, col: reserve.row);
     }
-    if(bomb == CharacterType.plane && !manual){
+    if (bomb == CharacterType.plane && !manual) {
       return [];
     }
-    if(bomb == CharacterType.bomb && !manual && (getCharacter(state, row: state.tempClicked.row, col: state.tempClicked.col) != getCharacter(state, row: state.tempSecClicked.row, col: state.tempSecClicked.col))){
+    if (bomb == CharacterType.bomb &&
+        !manual &&
+        (getCharacter(state,
+                row: state.tempClicked.row, col: state.tempClicked.col) !=
+            getCharacter(state,
+                row: state.tempSecClicked.row,
+                col: state.tempSecClicked.col))) {
       return [];
     }
     bool move = false;
     List<PositionModel> mvs = [];
 
-    if (bomb == CharacterType.verticalBullet || bomb == CharacterType.horizontalBullet) {
+    if (bomb == CharacterType.verticalBullet ||
+        bomb == CharacterType.horizontalBullet) {
       for (int v = state.col; v >= 1; v--) {
-        mvs.add(PositionModel(row: row-1, col: v));
+        mvs.add(PositionModel(row: row - 1, col: v));
         mvs.add(PositionModel(row: row, col: v));
-        mvs.add(PositionModel(row: row+1, col: v));
+        mvs.add(PositionModel(row: row + 1, col: v));
       }
       for (int h = state.row; h >= 1; h--) {
-        mvs.add(PositionModel(row: h, col: col+1));
+        mvs.add(PositionModel(row: h, col: col + 1));
         mvs.add(PositionModel(row: h, col: col));
-        mvs.add(PositionModel(row: h, col: col-1));
+        mvs.add(PositionModel(row: h, col: col - 1));
       }
-    }else if (bomb == CharacterType.bomb) {
+    } else if (bomb == CharacterType.bomb) {
       for (int h = (row + 2); h >= (row - 2); h--) {
         for (int v = (col + 2); v >= (col - 2); v--) {
           mvs.add(PositionModel(row: h, col: v));
           move = true;
         }
       }
-    }else{
+    } else {
       for (int h = (row + 1); h >= (row - 1); h--) {
         for (int v = (col + 1); v >= (col - 1); v--) {
           mvs.add(PositionModel(row: h, col: v));
@@ -228,14 +247,16 @@ class BombMove {
   static List<PositionModel> verticalMoves(int row, int col, GameState state,
       {bool manual = false}) {
     PositionModel reserve = PositionModel.empty();
-    if (PositionModel(row: row,col: col) == state.tempClicked) {
+    if (PositionModel(row: row, col: col) == state.tempClicked) {
       reserve = state.tempSecClicked;
-    } else if (PositionModel(row: row,col: col) == state.tempSecClicked) {
+    } else if (PositionModel(row: row, col: col) == state.tempSecClicked) {
       reserve = state.tempClicked;
-    }else{
-      if(getCharacter(state, row: state.tempClicked.row, col: state.tempClicked.col) == CharacterType.verticalBullet){
+    } else {
+      if (getCharacter(state,
+              row: state.tempClicked.row, col: state.tempClicked.col) ==
+          CharacterType.verticalBullet) {
         reserve = state.tempSecClicked;
-      }else{
+      } else {
         reserve = state.tempClicked;
       }
     }
@@ -243,10 +264,10 @@ class BombMove {
     if (reserve.isNotEmpty) {
       bomb = getCharacter(state, row: reserve.row, col: reserve.col);
     }
-    if(bomb == CharacterType.plane && !manual){
+    if (bomb == CharacterType.plane && !manual) {
       return [];
     }
-    if(bomb == CharacterType.bomb && !manual){
+    if (bomb == CharacterType.bomb && !manual) {
       return [];
     }
     bool move = false;
@@ -256,7 +277,7 @@ class BombMove {
       move = true;
     }
     //Same bomb
-    if(bomb == CharacterType.verticalBullet && !manual){
+    if (bomb == CharacterType.verticalBullet && !manual) {
       for (int h = state.col; h >= 1; h--) {
         mvs.add(PositionModel(row: reserve.row, col: h));
         move = true;
@@ -272,24 +293,26 @@ class BombMove {
       {bool manual = false}) {
     PositionModel reserve = PositionModel.empty();
     CharacterType bomb = CharacterType.hole;
-    if (PositionModel(row: row,col: col) == state.tempClicked) {
+    if (PositionModel(row: row, col: col) == state.tempClicked) {
       reserve = state.tempSecClicked;
-    } else if (PositionModel(row: row,col: col) == state.tempSecClicked) {
+    } else if (PositionModel(row: row, col: col) == state.tempSecClicked) {
       reserve = state.tempClicked;
-    }else{
-      if(getCharacter(state, row: state.tempClicked.row, col: state.tempClicked.row) == CharacterType.horizontalBullet){
+    } else {
+      if (getCharacter(state,
+              row: state.tempClicked.row, col: state.tempClicked.row) ==
+          CharacterType.horizontalBullet) {
         reserve = state.tempSecClicked;
-      }else{
+      } else {
         reserve = state.tempClicked;
       }
     }
     if (reserve.isNotEmpty) {
       bomb = getCharacter(state, row: reserve.row, col: reserve.col);
     }
-    if(bomb == CharacterType.plane && !manual){
+    if (bomb == CharacterType.plane && !manual) {
       return [];
     }
-    if(bomb == CharacterType.bomb && !manual){
+    if (bomb == CharacterType.bomb && !manual) {
       return [];
     }
     bool move = false;
@@ -299,7 +322,7 @@ class BombMove {
       move = true;
     }
     //Same bomb
-    if(bomb == CharacterType.horizontalBullet && !manual){
+    if (bomb == CharacterType.horizontalBullet && !manual) {
       for (int h = state.row; h >= 1; h--) {
         mvs.add(PositionModel(row: h, col: reserve.col));
         move = true;
@@ -311,51 +334,64 @@ class BombMove {
     return mvs;
   }
 
-  static List<PositionModel> planeMoves(int row, int col, GameState state, {bool manual = false}) {
+  static List<PositionModel> planeMoves(int row, int col, GameState state,
+      {bool manual = false}) {
     List<PositionModel> mvs = [];
     CharacterType firstCharacter = CharacterType.hole;
     firstCharacter = getCharacter(state, row: row, col: col);
     PositionModel reserve = PositionModel.empty();
     CharacterType bomb = CharacterType.hole;
-    if (PositionModel(row: row,col: col) == state.tempClicked) {
+    if (PositionModel(row: row, col: col) == state.tempClicked) {
       reserve = state.tempSecClicked;
-    } else if (PositionModel(row: row,col: col) == state.tempSecClicked) {
+    } else if (PositionModel(row: row, col: col) == state.tempSecClicked) {
       reserve = state.tempClicked;
-    }else{
-      if(getCharacter(state, row: state.tempClicked.row, col: state.tempClicked.col) == CharacterType.plane){
+    } else {
+      if (getCharacter(state,
+              row: state.tempClicked.row, col: state.tempClicked.col) ==
+          CharacterType.plane) {
         reserve = state.tempSecClicked;
-      }else{
+      } else {
         reserve = state.tempClicked;
       }
     }
     if (reserve.isNotEmpty) {
       bomb = getCharacter(state, row: reserve.row, col: reserve.col);
     }
-    if(bomb == CharacterType.plane && !manual && (getCharacter(state, row: state.tempClicked.row, col: state.tempClicked.col) != getCharacter(state, row: state.tempSecClicked.row, col: state.tempSecClicked.col))){
+    if (bomb == CharacterType.plane &&
+        !manual &&
+        (getCharacter(state,
+                row: state.tempClicked.row, col: state.tempClicked.col) !=
+            getCharacter(state,
+                row: state.tempSecClicked.row,
+                col: state.tempSecClicked.col))) {
       return [];
     }
     // TODO: This called twice due to bomb moves called twice so you must check if is already called before recall
     if (firstCharacter == CharacterType.plane) {
       mvs.add(PositionModel(row: row, col: col));
-      mvs.add(PositionModel(row: row, col: col+1));
-      mvs.add(PositionModel(row: row, col: col-1));
-      mvs.add(PositionModel(row: row+1, col: col));
-      mvs.add(PositionModel(row: row-1, col: col));
+      mvs.add(PositionModel(row: row, col: col + 1));
+      mvs.add(PositionModel(row: row, col: col - 1));
+      mvs.add(PositionModel(row: row + 1, col: col));
+      mvs.add(PositionModel(row: row - 1, col: col));
       if (BreakCharacter.isBombCharacter(bomb)) {
         PositionModel bombTargets = findTargetOnBoards(state, mvs);
         if (bombTargets.isNotEmpty) {
           List<PositionModel> bombMoves = [];
           if (bomb == CharacterType.bomb) {
-            bombMoves = bombMove(bombTargets.row, bombTargets.col, state, manual: true);
+            bombMoves =
+                bombMove(bombTargets.row, bombTargets.col, state, manual: true);
           }
           if (bomb == CharacterType.verticalBullet) {
-            bombMoves = verticalMoves(bombTargets.row, bombTargets.col, state, manual: true);
+            bombMoves = verticalMoves(bombTargets.row, bombTargets.col, state,
+                manual: true);
           }
           if (bomb == CharacterType.horizontalBullet) {
-            bombMoves = horizontalMoves(bombTargets.row, bombTargets.col, state, manual: true);
+            bombMoves = horizontalMoves(bombTargets.row, bombTargets.col, state,
+                manual: true);
           }
           if (bomb == CharacterType.plane) {
-            bombMoves = planeMoves(bombTargets.row, bombTargets.col, state, manual: true);
+            bombMoves = planeMoves(bombTargets.row, bombTargets.col, state,
+                manual: true);
           }
           for (PositionModel bmb in bombMoves) {
             mvs.add(bmb);

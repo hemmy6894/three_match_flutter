@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:test_game/common/requests/response.dart';
 
 class ApplicationBaseRequest {
@@ -171,6 +172,9 @@ class ApplicationBaseRequest {
         data!.forEach((key, value) async {
           if (value is String) {
             req.fields[key] = value;
+          }
+          if (value is DateTime) {
+            req.fields[key] = value.toString();
           }
           if (value is double || value is int) {
             req.fields[key] = value.toString();

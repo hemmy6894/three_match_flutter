@@ -8,14 +8,13 @@ class Assets {
   static const String _background = "assets/background/";
   static const String _materials = "assets/materials/";
 
-  static const String restart = _materials + "restart.png";
-
   static const String apple = _characters + "apple.png";
   static const String banana = _characters + "banana.png";
   static const String blueBerry = _characters + "blue_berry.png";
   static const String orange = _characters + "orange.png";
   static const String pear = _characters + "pear.png";
   static const String hole = _characters + "hole.png";
+  static const String coin = _characters + "coin.png";
   static const String bomb = _characters + "bomb.png";
   static const String plane = _characters + "plane.jpg";
   static const String hand = _characters + "hand.png";
@@ -24,6 +23,9 @@ class Assets {
   static const String bulletVertical = _characters + "vertical_bullet.png";
   static const String bulletHorizontal = _characters + "horizontal_bullet.png";
   static const String superBomb = _characters + "super_bomb.png";
+
+  static const String restart = _materials + "restart.png";
+  static const String superBombBlast = _materials + "super_bomb_blast.png";
 
   static const String boxOne = _characters + "box_one.png";
   static const String boxTwo = _characters + "box_two.png";
@@ -114,6 +116,9 @@ class Assets {
     if (characterType == CharacterType.restart) {
       return Assets.restart;
     }
+    if (characterType == CharacterType.coin) {
+      return Assets.coin;
+    }
     return Assets.hole;
   }
 
@@ -141,9 +146,9 @@ class Assets {
   static const Map<String,dynamic> level1 = {
     "row" : 9,
     "col" : 8,
-    "rewards" : [RewardModel(character: CharacterType.hummer, amount: 3), RewardModel(character: CharacterType.superBomb, amount: 2), RewardModel(character: CharacterType.bomb, amount: 2), RewardModel(character: CharacterType.verticalBullet, amount: 1),RewardModel(character: CharacterType.horizontalBullet, amount: 1), RewardModel(character: CharacterType.plane, amount: 2)],
-    "targets": [{CharacterType.pear : 10},{CharacterType.banana : 10},{CharacterType.apple : 10}],
-    "moves": 60,
+    "rewards" : [RewardModel(character: CharacterType.superBomb, amount: 2), RewardModel(character: CharacterType.hand, amount: 100), RewardModel(character: CharacterType.verticalBullet, amount: 1),RewardModel(character: CharacterType.horizontalBullet, amount: 1), RewardModel(character: CharacterType.plane, amount: 2)],
+    "targets": [{CharacterType.pear : 2500},{CharacterType.banana : 2500},{CharacterType.apple : 2500}],
+    "moves": 150,
     "board" : [
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
@@ -162,7 +167,7 @@ class Assets {
   static const Map<String,dynamic> level2 = {
     "row" : 7,
     "col" : 5,
-    "targets": [{CharacterType.pear : 100},{CharacterType.banana : 100},{CharacterType.apple : 100}],
+    "targets": [{CharacterType.pear : 5},{CharacterType.banana : 5},{CharacterType.apple : 5}],
     "moves": 30,
     "rewards" : [RewardModel(character: CharacterType.hand, amount: 5),RewardModel(character: CharacterType.hummer, amount: 3), RewardModel(character: CharacterType.orange, amount: 4)],
     "board" : [
@@ -181,7 +186,7 @@ class Assets {
     "row" : 10,
     "col" : 8,
     "rewards" : [RewardModel(character: CharacterType.hand, amount: 5),RewardModel(character: CharacterType.hummer, amount: 3), RewardModel(character: CharacterType.orange, amount: 4)],
-    "targets": [{CharacterType.boxOne : 12},{CharacterType.boxTwo: 6},{CharacterType.boxThree: 3}],
+    "targets": [{CharacterType.boxOne : 5},{CharacterType.boxTwo: 5},{CharacterType.boxThree: 5}],
     "moves": 60,
     "board" : [
       [CharacterType.boxOne,CharacterType.boxTwo,CharacterType.boxThree,CharacterType.boxOne,CharacterType.boxOne,CharacterType.boxTwo,CharacterType.boxThree,CharacterType.boxOne,],

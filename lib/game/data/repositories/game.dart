@@ -124,8 +124,7 @@ class GameRepository {
 
   static Future<Either<SimpleResponse, ErrorMap>> assignTask(
       {payload, token = ""}) async {
-    Response response =
-        await GameProvider.assignTasks(payload: payload, token: token);
+    Response response = await GameProvider.assignTasks(payload: payload, token: token);
     if (response.status ~/ 100 == 2) {
       return Left(SimpleResponse.fromMap(response.data));
     } else {

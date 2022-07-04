@@ -32,6 +32,7 @@ class GameState extends Equatable {
   final String? assignedId;
   final List<Map<CharacterType, int>> startWith;
   final bool checkHasNextMove;
+  final PositionModel superBombBlast;
 
   const GameState(
       {required this.gameBoards,
@@ -64,6 +65,7 @@ class GameState extends Equatable {
       required this.assignedId,
       required this.startWith,
       required this.clearSelectedBooster,
+      required this.superBombBlast,
       required this.secondClicked});
 
   factory GameState.empty() => GameState(
@@ -96,6 +98,7 @@ class GameState extends Equatable {
       bombTouched: true,
       clearSelectedBooster: true,
       assignedId: null,
+      superBombBlast: PositionModel.empty(),
       startWith: const [],
       dropDown: false);
 
@@ -131,6 +134,7 @@ class GameState extends Equatable {
     String? assignedId,
     CharacterType? selectedHelper,
     CharacterType? reduceHelperReward,
+    PositionModel? superBombBlast,
   }) {
     return GameState(
       gameBoards: gameBoards ?? this.gameBoards,
@@ -164,6 +168,7 @@ class GameState extends Equatable {
       assignedId: assignedId ?? this.assignedId,
       selectedHelper: selectedHelper ?? this.selectedHelper,
       reduceHelperReward: reduceHelperReward ?? this.reduceHelperReward,
+      superBombBlast: superBombBlast ?? this.superBombBlast,
     );
   }
 
@@ -229,7 +234,8 @@ class GameState extends Equatable {
         targets,
         startWith,
         assignedId,
-        rewards
+        rewards,
+        superBombBlast,
       ];
 
   int? selectedBooster({required CharacterType booster}) {

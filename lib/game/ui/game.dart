@@ -7,6 +7,7 @@ import 'package:test_game/game/data/models/game/game_character.dart';
 import 'package:test_game/game/data/models/game/position.dart';
 import 'package:test_game/game/logic/game/game_bloc.dart';
 import 'package:test_game/game/logic/ui/ui_cubit.dart';
+import 'package:test_game/game/ui/game/blast_pop_up.dart';
 import 'package:test_game/game/ui/game/character.dart';
 import 'package:test_game/game/ui/layouts/app.dart';
 import 'package:test_game/game/ui/levels/widget/game_over.dart';
@@ -141,10 +142,13 @@ class _GameHomeState extends State<GameHome> {
                             child: Character(
                               characterType: board.value,
                               row: boards.key,
-                              active: clicked == PositionModel(row: boards.key, col: board.key),
+                              active: clicked ==
+                                  PositionModel(
+                                      row: boards.key, col: board.key),
                               col: board.key,
                               verticalUpdate: (d) => {},
-                              asCarpet: hasCarpet(row: boards.key, col: board.key),
+                              asCarpet:
+                                  hasCarpet(row: boards.key, col: board.key),
                               height: width / row,
                               width: width / row,
                             ),
@@ -194,12 +198,12 @@ class _GameHomeState extends State<GameHome> {
               ],
             ),
             // const GameRewardWidget(),
+            BlastPopUp(width: width),
           ],
         ),
       ),
     );
   }
-
 
   Map<int, double> topAnimation = {};
 
@@ -240,7 +244,9 @@ class _GameHomeState extends State<GameHome> {
           listenWhen: (p, c) => p.match != c.match,
           listener: (context, state) async {
             if (state.match) {
-              context.read<GameBlock>().add(GameMatchCharacterStateEvent(match: false));
+              context
+                  .read<GameBlock>()
+                  .add(GameMatchCharacterStateEvent(match: false));
               context.read<GameBlock>().add(GameMatchCharacterEvent());
             }
           },
@@ -249,7 +255,8 @@ class _GameHomeState extends State<GameHome> {
           listenWhen: (p, c) => p.reduceHelperReward != c.reduceHelperReward,
           listener: (context, state) {
             if (state.reduceHelperReward != null) {
-              context.read<UiCubit>().reduceReward(characterType: state.reduceHelperReward!, amount: 1);
+              context.read<UiCubit>().reduceReward(
+                  characterType: state.reduceHelperReward!, amount: 1);
               context.read<GameBlock>().add(GameClearHelperEvent());
             }
           },
@@ -271,12 +278,16 @@ class _GameHomeState extends State<GameHome> {
           },
         ),
         BlocListener<GameBlock, GameState>(
-          listenWhen: (p, c) => p.clearSelectedBooster != c.clearSelectedBooster,
+          listenWhen: (p, c) =>
+              p.clearSelectedBooster != c.clearSelectedBooster,
           listener: (context, state) async {
-            List<Map<CharacterType,int>> startWiths = context.read<GameBlock>().state.startWith;
+            List<Map<CharacterType, int>> startWiths =
+                context.read<GameBlock>().state.startWith;
             context.read<GameBlock>().add(GameClearBoosterClickedEvent());
-            for(Map<CharacterType,int> start in startWiths) {
-              context.read<UiCubit>().reduceReward(characterType: start.entries.first.key, amount: start.entries.first.value);
+            for (Map<CharacterType, int> start in startWiths) {
+              context.read<UiCubit>().reduceReward(
+                  characterType: start.entries.first.key,
+                  amount: start.entries.first.value);
               await Future.delayed(const Duration(seconds: 1));
             }
           },
@@ -314,7 +325,8 @@ class _GameHomeState extends State<GameHome> {
           },
         ),
         BlocListener<GameBlock, GameState>(
-          listenWhen: (previous, current) => previous.firstClicked != current.firstClicked,
+          listenWhen: (previous, current) =>
+              previous.firstClicked != current.firstClicked,
           listener: (context, state) {
             if (state.firstClicked.isNotEmpty) {
               context.read<GameBlock>().add(GameIsCapturedEvent());

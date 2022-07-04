@@ -250,4 +250,18 @@ class BreakCharacter {
     }
     return isChar;
   }
+
+  static List<CharacterType> characterInRewards() {
+    List<CharacterType> chars = [
+      CharacterType.bomb,
+      CharacterType.superBomb,
+      CharacterType.verticalBullet,
+      CharacterType.horizontalBullet,
+      CharacterType.plane,
+      CharacterType.coin,
+      CharacterType.hand,
+      CharacterType.hummer,
+    ];
+    return chars;
+  }
 }

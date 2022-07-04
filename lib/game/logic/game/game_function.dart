@@ -180,8 +180,7 @@ checkConnected(Emitter<GameState> emit, GameState state) async {
   }
 }
 
-Map<int, List<PositionModel>> getConnectedCharacter(
-    GameState state, int row, int col, CharacterType type) {
+Map<int, List<PositionModel>> getConnectedCharacter(GameState state, int row, int col, CharacterType type, {int minus = 0}) { // minus only for checking purpose
   if (row > state.row || row <= 0 || col > state.col || col <= 0) {
     return {0: []};
   }
@@ -203,7 +202,7 @@ Map<int, List<PositionModel>> getConnectedCharacter(
   List<PositionModel> verticalMoves = [];
   List<PositionModel> horizontalMoves = [];
   //MOVED DOWN
-  block = getCharacter(state, row: row, col: col);
+  block = getCharacter(state, row: row - minus, col: col - minus);
   firstMoves.add(PositionModel(row: row, col: col));
 
   int colCount = 1;
@@ -250,23 +249,19 @@ Map<int, List<PositionModel>> getConnectedCharacter(
   if (colCount > 2 || rowCount > 2) {
     matchCount = 3;
     firstMoves = [...firstMoves, ...horizontalMoves, ...verticalMoves];
-    List<dynamic> bulletH = SpecialCharacter.checkBulletHorizontal(
-        horizontalMoves, verticalMoves, {row: col});
+    List<dynamic> bulletH = SpecialCharacter.checkBulletHorizontal(horizontalMoves, verticalMoves, {row: col});
     if (bulletH.isNotEmpty) {
       bulletHorizontals.add(PositionModel(row: row, col: col));
     }
-    List<dynamic> bulletV = SpecialCharacter.checkBulletVertical(
-        horizontalMoves, verticalMoves, {row: col});
+    List<dynamic> bulletV = SpecialCharacter.checkBulletVertical(horizontalMoves, verticalMoves, {row: col});
     if (bulletV.isNotEmpty) {
       bulletVerticals.add(PositionModel(row: row, col: col));
     }
-    List<dynamic> bomb =
-        SpecialCharacter.checkBombs(horizontalMoves, verticalMoves, {row: col});
+    List<dynamic> bomb = SpecialCharacter.checkBombs(horizontalMoves, verticalMoves, {row: col});
     if (bomb.isNotEmpty) {
       bombs.add(PositionModel(row: row, col: col));
     }
-    List<dynamic> superBomb = SpecialCharacter.checkSuperBombs(
-        horizontalMoves, verticalMoves, {row: col});
+    List<dynamic> superBomb = SpecialCharacter.checkSuperBombs(horizontalMoves, verticalMoves, {row: col});
     if (superBomb.isNotEmpty) {
       superBombs.add(PositionModel(row: row, col: col));
     }
@@ -379,4 +374,9 @@ moveCharacter(Emitter<GameState> emit, GameState state) {
       }
     }
   }
+}
+
+
+clearBlast(Emitter<GameState> emit, GameState state,ClearBlastEvent event){
+  emit(state.copyWith(superBombBlast: event.superBombBlast ?? state.superBombBlast));
 }

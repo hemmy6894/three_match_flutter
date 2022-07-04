@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/logic/game/game_bloc.dart';
 import 'package:test_game/game/logic/ui/ui_cubit.dart';
+import 'package:test_game/game/ui/widgets/package.dart';
 
 enum CharacterType {
   banana,
@@ -26,7 +27,8 @@ enum CharacterType {
   diamondTwo,
   diamondThree,
   carpet,
-  restart
+  restart,
+  coin
 }
 
 class Character extends StatefulWidget {
@@ -37,8 +39,10 @@ class Character extends StatefulWidget {
   final double height;
   final bool active;
   final bool isObstacle;
+  final bool isCoin;
   final bool isHelper;
   final bool asCarpet;
+  final bool hasBackGround;
   final Function(double) verticalUpdate;
 
   const Character(
@@ -51,6 +55,8 @@ class Character extends StatefulWidget {
       this.isHelper = false,
       this.isObstacle = false,
       this.asCarpet = false,
+      this.isCoin = false,
+      this.hasBackGround = true,
       required this.verticalUpdate,
       required this.height})
       : super(key: key);
@@ -70,7 +76,7 @@ class _CharacterState extends State<Character> {
     spaceCharacter = BreakCharacter.spaceCharacter(widget.characterType);
     return Container(
       color:
-          !spaceCharacter ? const Color(Assets.boardColor) : Colors.transparent,
+          !spaceCharacter && widget.hasBackGround ? const Color(Assets.boardColor) : Colors.transparent,
       child: GestureDetector(
         onTap: () {},
         onDoubleTap: () {
@@ -90,7 +96,17 @@ class _CharacterState extends State<Character> {
                   GameClickCharacterEvent(row: widget.row, col: widget.col));
             }
           }
-          if (widget.isObstacle) {}
+          if (widget.isObstacle && !widget.isCoin) {}
+          if (widget.isCoin) {
+            Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (BuildContext context) =>
+                    const PackageWidget(),
+                fullscreenDialog: true,
+              ),
+            );
+          }
           if (widget.isHelper) {
             context.read<GameBlock>().add(
                   GameCatchHelperEvent(
@@ -154,7 +170,7 @@ class _CharacterState extends State<Character> {
           }
         },
         child: Container(
-          decoration: !spaceCharacter
+          decoration: !spaceCharacter && widget.hasBackGround
               ? BoxDecoration(
                   color: Colors.transparent,
                   borderRadius: const BorderRadius.all(Radius.circular(0)),
@@ -166,7 +182,7 @@ class _CharacterState extends State<Character> {
                 )
               : null,
           child: Container(
-            decoration: !spaceCharacter
+            decoration: !spaceCharacter && widget.hasBackGround
                 ? BoxDecoration(
                     color: widget.asCarpet
                         ? Colors.transparent
@@ -199,9 +215,9 @@ class _CharacterState extends State<Character> {
                       bottom: 2,
                       right: 2,
                       child: Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(
+                        decoration:  BoxDecoration(
+                          color: widget.hasBackGround  ? Colors.white : const Color(Assets.boardColor),
+                          borderRadius: const BorderRadius.all(
                             Radius.circular(6),
                           ),
                         ),

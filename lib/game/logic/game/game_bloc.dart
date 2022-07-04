@@ -73,15 +73,18 @@ class GameBlock extends Bloc<GameEvent, GameState> {
       event.boosterClear(emit, state);
     });
 
-    on<GameCheckIfHasNextMoveEvent>((event, emit)  {
-      event.checkHasNextMove(emit, state);
+    on<GameCheckIfHasNextMoveEvent>((event, emit)  async{
+      await event.checkHasNextMove(emit, state);
+    });
+
+    on<ClearBlastEvent>((event, emit)  async{
+      await clearBlast(emit, state, event);
     });
   }
 
 
   @override
   void onChange(Change<GameState> change) {
-    print(change.currentState.startWith);
     super.onChange(change);
   }
 }

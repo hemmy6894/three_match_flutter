@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:test_game/common/helpers/three.dart';
 import 'package:test_game/game/data/models/task.dart';
 import 'package:test_game/game/data/models/user_model.dart';
 
@@ -10,6 +11,8 @@ class AssignModel extends Equatable {
   final String description;
   final String url;
   final String type;
+  final DateTime startAt;
+  final DateTime endAt;
   final UserModel user;
   final TaskModel task;
 
@@ -23,6 +26,8 @@ class AssignModel extends Equatable {
     required this.type,
     required this.user,
     required this.task,
+    required this.startAt,
+    required this.endAt,
   });
 
   factory AssignModel.empty() {
@@ -34,6 +39,8 @@ class AssignModel extends Equatable {
       description: "",
       url: "",
       type: "user",
+      startAt: DateTime.now(),
+      endAt: DateTime.now(),
       user: UserModel.empty(),
       task: TaskModel.empty(),
     );
@@ -47,6 +54,8 @@ class AssignModel extends Equatable {
     String? description,
     String? url,
     String? type,
+    DateTime? startAt,
+    DateTime? endAt,
     UserModel? user,
     TaskModel? task,
   }) {
@@ -60,6 +69,8 @@ class AssignModel extends Equatable {
       type: type ?? this.type,
       user: user ?? this.user,
       task: task ?? this.task,
+      startAt: startAt ?? this.startAt,
+      endAt: endAt ?? this.endAt,
     );
   }
 
@@ -75,6 +86,8 @@ class AssignModel extends Equatable {
       description: json["description"] ?? "",
       url: json["url"] ?? "",
       type: json["type"] ?? "",
+      startAt: ThreeMatchHelper.convertDate(json["start_at"]),
+      endAt: ThreeMatchHelper.convertDate(json["end_at"]),
       user: UserModel.toJson(json["user"]),
       task: TaskModel.toJson(json["task"]),
     );
@@ -89,6 +102,8 @@ class AssignModel extends Equatable {
       "description": description,
       "url": url,
       "type": type,
+      "start_at": startAt.toString(),
+      "end_at": endAt.toString(),
       "user": user.toMap(),
       "task": task.toMap(),
     };

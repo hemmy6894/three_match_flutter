@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:test_game/animations/animate_position.dart';
 import 'package:test_game/game/data/models/assign.dart';
 import 'package:test_game/game/data/models/game/reward.dart';
 import 'package:test_game/game/logic/game/game_bloc.dart';
@@ -24,15 +27,57 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
   List<RewardModel> rewards = [];
   List<Map<CharacterType, int>> targets = [];
   bool startWith = false;
+  int startIn = 0;
+  int nowTime = 0;
+  String startInMessage = "";
+  late Timer timer;
+  bool canPlay = false;
+  @override
+  initState(){
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        nowTime = DateTime.now().millisecondsSinceEpoch;
+        startIn =  widget.title.startAt.millisecondsSinceEpoch - nowTime;
+        if(startIn < 0){
+          startIn =  widget.title.endAt.millisecondsSinceEpoch - nowTime;
+          if(startIn > 0){
+            canPlay = true;
+            startInMessage = "End At " + Helpers.getTimeInMinutes(startIn ~/ 1000);
+          }else{
+            startInMessage = "Ended";
+            canPlay = false;
+          }
+        }else{
+          canPlay = false;
+          startInMessage = "Start At " + Helpers.getTimeInMinutes(startIn ~/ 1000);
+        }
+      });
+    });
+    super.initState();
+  }
+
+  @override
+  dispose(){
+    timer.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     Size mySize = MediaQuery.of(context).size;
     return GestureDetector(
       onTap: () {
-        setState(() {
-          startWith = !startWith;
-        });
+        if(canPlay) {
+          setState(() {
+            startWith = !startWith;
+          });
+        }else{
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(startInMessage),
+            ),
+          );
+        }
       },
       child: Stack(
         alignment: Alignment.center,
@@ -64,11 +109,6 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
                             fontWeight: FontWeight.bold,
                             backgroundColor: Colors.white),
                       ),
-                      // Text(
-                      //   widget.title.description,
-                      //   style:
-                      //   const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      // )
                     ],
                   ),
                 ),
@@ -76,8 +116,16 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
                   listener: (context, state) {
                     setState(() {
                       targets = [];
-                      for (RewardModel reward in state.rewards) {
-                        if(BreakCharacter.isBombCharacter(reward.character)) {
+                      List<RewardModel> rws = [];
+                      if(state.rewards.isEmpty){
+                        for(CharacterType c in BreakCharacter.characterInRewards()){
+                          rws.add(RewardModel(character: c, amount: 0));
+                        }
+                      }else{
+                        rws = state.rewards;
+                      }
+                      for (RewardModel reward in rws) {
+                        if (BreakCharacter.isBombCharacter(reward.character)) {
                           targets.add({reward.character: reward.amount});
                         }
                       }
@@ -94,7 +142,17 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
             right: 10,
             child: allAction(),
           ),
-          //
+          Positioned(
+            top: 10,
+            left: 10,
+            child: Text(
+              startInMessage,
+              style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  backgroundColor: Colors.white),
+            ),
+          ),
           if (startWith) startByBooster(),
         ],
       ),
@@ -108,30 +166,43 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          GameOverWidget.displayTarget(targets, iconHeight: ((MediaQuery.of(context).size.width - 100) / 5), iconWidth: ((MediaQuery.of(context).size.width - 100) / 5), click: (clicked) {
+          GameOverWidget.displayTarget(targets,
+              iconHeight: ((MediaQuery.of(context).size.width - 100) / 5),
+              iconWidth: ((MediaQuery.of(context).size.width - 100) / 5),
+              click: (clicked) {
             if (clicked.isNotEmpty) {
-              context.read<GameBlock>().add(GameClickBoosterEvent(booster: clicked.entries.first.key, amount: 1));
+              if(clicked.entries.first.value > 0) {
+                context.read<GameBlock>().add(GameClickBoosterEvent(booster: clicked.entries.first.key, amount: 1));
+              }
             }
           }),
-          const SizedBox(height: 40,),
+          const SizedBox(
+            height: 40,
+          ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ButtonComponent(title: "Clear Selection", onPressed: () {
-                context.read<GameBlock>().add(GameClearBoosterClickedEvent());
-              }),
-              ButtonComponent(title: "Start Game", onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (BuildContext context) =>
-                        GameHome(levelName: widget.levelName, assignedId: widget.title.taskId,),
-                    fullscreenDialog: true,
-                  ),
-                );
-                startWith = false;
-              })
+              // ButtonComponent(
+              //     title: "Clear Selection",
+              //     onPressed: () {
+              //       context.read<GameBlock>().add(GameClearBoosterClickedEvent());
+              //     }),
+              ButtonComponent(
+                  title: "Start Game",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) => GameHome(
+                          levelName: widget.levelName,
+                          assignedId: widget.title.taskId,
+                        ),
+                        fullscreenDialog: true,
+                      ),
+                    );
+                    startWith = false;
+                  })
             ],
           ),
         ],
