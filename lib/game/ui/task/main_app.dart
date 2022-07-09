@@ -66,7 +66,7 @@ class _MainAppState extends State<MainApp> {
                   child: Stack(
                     children: [
                       _widgetOptions.elementAt(_selectedIndex),
-                      if (isOn && (_selectedIndex != 4 && _selectedIndex != 2))
+                      if (isOn && (_selectedIndex != 4 && _selectedIndex != 2 &&  _selectedIndex != 3))
                         Positioned(
                           top: 0,
                           right: 0,
@@ -100,7 +100,7 @@ class _MainAppState extends State<MainApp> {
                                     ),
                                   ],
                                 ),
-                                const Icon(Icons.search),
+                                // const Icon(Icons.search),
                               ],
                             ),
                           ),

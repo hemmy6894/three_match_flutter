@@ -8,21 +8,21 @@ class Assets {
   static const String _background = "assets/background/";
   static const String _materials = "assets/materials/";
 
-  static const String apple = _characters + "apple.png";
-  static const String banana = _characters + "banana.png";
-  static const String blueBerry = _characters + "blue_berry.png";
-  static const String orange = _characters + "orange.png";
-  static const String pear = _characters + "pear.png";
+  static const String apple = _characters + "red.png";// "apple.png";
+  static const String banana = _characters + "yellow.png";//"""banana.png";
+  static const String blueBerry = _characters + "blue.png";// "blue_berry.png";
+  static const String orange = _characters + "orange.png"; //"orange.png";
+  static const String pear = _characters + "green.png";//"""pear.png";
   static const String hole = _characters + "hole.png";
   static const String coin = _characters + "coin.png";
-  static const String bomb = _characters + "bomb.png";
-  static const String plane = _characters + "plane.jpg";
+  static const String bomb = _characters + "tnt.png";//"""bomb.png";
+  static const String plane = _characters + "rocket.png";// "plane.jpg";
   static const String hand = _characters + "hand.png";
   static const String carpet = _characters + "carpet.png";
   static const String hummer = _characters + "hummer.png";
   static const String bulletVertical = _characters + "vertical_bullet.png";
   static const String bulletHorizontal = _characters + "horizontal_bullet.png";
-  static const String superBomb = _characters + "super_bomb.png";
+  static const String superBomb = _characters + "fireball.png";//"""super_bomb.png";
 
   static const String restart = _materials + "restart.png";
   static const String superBombBlast = _materials + "super_bomb_blast.png";

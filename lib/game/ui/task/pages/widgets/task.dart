@@ -12,6 +12,7 @@ import 'package:test_game/game/ui/game.dart';
 import 'package:test_game/game/ui/game/character.dart';
 import 'package:test_game/game/ui/levels/widget/game_over.dart';
 import 'package:test_game/game/ui/widgets/forms/button_component.dart';
+import 'package:test_game/game/ui/widgets/package.dart';
 
 class TaskViewWidget extends StatefulWidget {
   final AssignModel title;
@@ -227,14 +228,7 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
                 gameTargets,
                 iconHeight: ((MediaQuery.of(context).size.width - 100) / 5),
                 iconWidth: ((MediaQuery.of(context).size.width - 100) / 5),
-                click: (clicked) {
-                  if (clicked.isNotEmpty) {
-                    if (clicked.entries.first.value > 0) {
-                      context.read<GameBlock>().add(GameClickBoosterEvent(
-                          booster: clicked.entries.first.key, amount: 1));
-                    }
-                  }
-                },
+                click: (clicked) {},
               ),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.033,
@@ -246,17 +240,29 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
               const SizedBox(
                 height: 7,
               ),
-              GameOverWidget.displayTarget(targets,
-                  iconHeight: ((MediaQuery.of(context).size.width - 100) / 5),
-                  iconWidth: ((MediaQuery.of(context).size.width - 100) / 5),
-                  click: (clicked) {
-                if (clicked.isNotEmpty) {
-                  if (clicked.entries.first.value > 0) {
-                    context.read<GameBlock>().add(GameClickBoosterEvent(
-                        booster: clicked.entries.first.key, amount: 1));
+              GameOverWidget.displayTarget(
+                targets,
+                iconHeight: ((MediaQuery.of(context).size.width - 100) / 5),
+                iconWidth: ((MediaQuery.of(context).size.width - 100) / 5),
+                click: (clicked) {
+                  if (clicked.isNotEmpty) {
+                    if (clicked.entries.first.value > 0) {
+                      context.read<GameBlock>().add(GameClickBoosterEvent(
+                          booster: clicked.entries.first.key, amount: 1));
+                    }
                   }
+                },
+                plusClicked: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext context) =>
+                      const PackageWidget(),
+                      fullscreenDialog: true,
+                    ),
+                  );
                 }
-              }),
+              ),
               const SizedBox(
                 height: 40,
               ),
@@ -284,6 +290,23 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
                   ),
                 ),
               ),
+            ),
+          ),
+        ),
+        Positioned(
+          top: 30,
+          right: 22,
+          child: Transform.rotate(
+            angle: 180,
+            child: IconButton(
+              icon: const Icon(
+                Icons.add,
+              ),
+              onPressed: () {
+                setState(() {
+                  startWith = !startWith;
+                });
+              },
             ),
           ),
         ),

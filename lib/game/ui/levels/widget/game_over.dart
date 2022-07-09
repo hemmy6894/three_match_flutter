@@ -22,6 +22,7 @@ class GameOverWidget extends StatefulWidget {
 
   static Widget displayTarget(List<Map<CharacterType, int>> targets,
       {Function(Map<CharacterType, int>)? click,
+      Function()? plusClicked,
       double iconWidth = 33,
       double iconHeight = 33}) {
     Map<CharacterType, bool> disableClick = {};
@@ -70,7 +71,14 @@ class GameOverWidget extends StatefulWidget {
                           ),
                         ),
                         child: target.entries.first.value < 1
-                            ? const Icon(Icons.plus_one)
+                            ? GestureDetector(
+                                  child: const Icon(Icons.add),
+                                  onTap: () {
+                                    if (plusClicked != null) {
+                                      plusClicked();
+                                    }
+                                  },
+                              )
                             : Text(
                                 target.entries.first.value.toString(),
                                 style: TextStyle(
@@ -95,7 +103,7 @@ class GameOverWidget extends StatefulWidget {
                         } else {
                           disableClick[target.entries.first.key] = false;
                         }
-                        if(boosted < 1){
+                        if (boosted < 1) {
                           return Container();
                         }
                         return Positioned(

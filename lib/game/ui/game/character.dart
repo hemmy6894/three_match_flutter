@@ -199,13 +199,13 @@ class _CharacterState extends State<Character> {
                   )
                 : null,
             child: Padding(
-              padding: const EdgeInsets.all(2),
+              padding: const EdgeInsets.all(0),
               child: Stack(
                 children: [
                   Image.asset(
                     Assets.getCharacter(characterType: widget.characterType),
-                    width: widget.width * 0.92,
-                    height: widget.height * 0.92,
+                    width: widget.width ,//* 0.92,
+                    height: widget.height,// * 0.92,
                   ),
                   if (widget.isHelper)
                     if (context
