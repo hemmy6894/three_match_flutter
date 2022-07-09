@@ -35,7 +35,7 @@ class Assets {
   static const String diamondTwo = _characters + "diamond_two.png";
   static const String diamondThree = _characters + "diamond_three.png";
 
-  static const String background = _background + "background.jpg";
+  static const String background = _background + "background.png";
   static const String gameOver = _background + "game_over.png";
 
   static const int characterColor = 0xFF94B8DB;
@@ -47,6 +47,11 @@ class Assets {
   static const int blackColor = 0xFFF000000;
   static const int thirdColor = 0xFF767577;
   static const int redColors = 0xFFFF0000;
+
+  static const int primaryGoldColor = 0xFFFFB828;
+  static const int primaryRedColor = 0xFFF9203D;
+  static const int primaryGreenColor = 0xFF3ED715;
+
   static const Color circularProgressColor = Color.fromARGB(255, 232, 226, 238);
 
   static String getCharacter({required CharacterType characterType}) {

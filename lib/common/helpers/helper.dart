@@ -23,14 +23,15 @@ class ThreeBottomNavigationBar {
   }
 
   BottomNavigationBarThemeData bottomNavigationBarTheme() => BottomNavigationBarThemeData(
-      selectedItemColor: const Color(Assets.secondaryColor),
-      selectedIconTheme: _buildIconThem(const Color(Assets.secondaryColor)),
-      selectedLabelStyle: _buildTextStyle(const Color(Assets.secondaryColor)),
+      selectedItemColor: Colors.white,//const Color(Assets.primaryGoldColor),
+      selectedIconTheme: _buildIconThem(Colors.white),
+      selectedLabelStyle: _buildTextStyle(Colors.white),
 
-      unselectedItemColor: const Color(Assets.primaryColor),
-      unselectedIconTheme: _buildIconThem(const Color(Assets.primaryColor)),
-      unselectedLabelStyle: _buildTextStyle(const Color(Assets.primaryColor)),
+      unselectedItemColor: Colors.black, //const Color(Assets.primaryColor),
+      unselectedIconTheme: _buildIconThem(Colors.black),
+      unselectedLabelStyle: _buildTextStyle(Colors.black),
 
-      backgroundColor: Colors.white
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: const Color(Assets.primaryGoldColor),
   );
 }

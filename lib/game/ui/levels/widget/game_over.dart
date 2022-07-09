@@ -47,11 +47,17 @@ class GameOverWidget extends StatefulWidget {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    Image.asset(
-                      Assets.getCharacter(
-                          characterType: target.entries.first.key),
-                      height: iconHeight,
-                      width: iconWidth,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(iconHeight),
+                      child: Container(
+                        color: Colors.blueGrey,
+                        child: Image.asset(
+                          Assets.getCharacter(
+                              characterType: target.entries.first.key),
+                          height: iconHeight,
+                          width: iconWidth,
+                        ),
+                      ),
                     ),
                     Positioned(
                       right: 0,

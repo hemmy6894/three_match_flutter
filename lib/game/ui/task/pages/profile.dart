@@ -41,7 +41,7 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-        child: display(),
+      child: display(),
     );
   }
 
@@ -90,60 +90,65 @@ class _ProfileState extends State<Profile> {
   String phoneNumber = "";
 
   Widget profile() {
+    context.read<ServerBloc>().add(
+          ServerPutPayload(
+            value: userModel.id,
+            key: "user_id",
+          ),
+        );
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          displayTap(key: "Name", value: userModel.name),
-          displayTap(key: "Email", value: userModel.email),
-          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Expanded(
-                flex: 8,
-                child: displayTapSelect(
-                  key: "Code",
-                  value: userModel.phone,
-                  values: phones,
-                  label: false,
-                  col: 2,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width * 0.4),
+                child: Image.asset(Assets.background, height: MediaQuery.of(context).size.width * 0.4, width: MediaQuery.of(context).size.width * 0.4, fit: BoxFit.cover,),
+              ),
+              displayTap(key: "Name", value: userModel.name),
+              displayTap(key: "Email", value: userModel.email),
+              displayTap(key: "Phone", value: userModel.phone, readOnly: true),
+              if (genders.isNotEmpty)
+                displayTapSelect(
+                    key: "Gender", value: userModel.genderId, values: genders),
+              if (countries.isNotEmpty)
+                displayTapSelect(
+                    key: "Country",
+                    value: userModel.countryId,
+                    values: countries),
+
+              const SizedBox( height: 15,),
+              serverListeners(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ButtonComponent(
+                        buttonSize: 40,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        isLoading: loading,
+                        title: "Update",
+                        onPressed: () {
+                          context.read<ServerBloc>().add(UpdateUserEvent());
+                        },
+                        transparent: false,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              Expanded(
-                flex: 4,
-                child: displayTap(
-                    key: "Phone", value: userModel.phone, label: false),
-              ),
+              )
             ],
           ),
-          if (genders.isNotEmpty)
-            displayTapSelect(
-                key: "Gender", value: userModel.genderId, values: genders),
-          if (countries.isNotEmpty)
-            displayTapSelect(
-                key: "Country", value: userModel.countryId, values: countries),
-          serverListeners(
-            child: Row(
-              children: [
-                Expanded(
-                  child: ButtonComponent(
-                    isLoading: loading,
-                    title: "Update",
-                    onPressed: () {
-                      context.read<ServerBloc>().add(UpdateUserEvent());
-                    },
-                    transparent: false,
-                  ),
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
     );
   }
 
-  Widget displayTap({required String key, required String value, bool label = true}) {
+  bool startChange = false;
+
+  Widget displayTap(
+      {required String key,
+      required String value,
+      bool label = true,
+      bool readOnly = false}) {
     if (value != "") {
       if (key.toLowerCase() == "phone") {
         if (phoneNumber != "") {
@@ -157,19 +162,32 @@ class _ProfileState extends State<Profile> {
         if (value.startsWith(codeNumber)) {
           value = value.replaceFirst(codeNumber, "");
         }
-        context.read<ServerBloc>().add(
-              ServerPutPayload(
-                value: value.startsWith(codeNumber) ? value : codeNumber + value,
-                key: key.toLowerCase(),
-              ),
-            );
+        if (!context
+            .read<ServerBloc>()
+            .state
+            .payload
+            .containsKey(key.toLowerCase())) {
+          context.read<ServerBloc>().add(
+                ServerPutPayload(
+                  value:
+                      value.startsWith(codeNumber) ? value : codeNumber + value,
+                  key: key.toLowerCase(),
+                ),
+              );
+        }
       } else {
-        context.read<ServerBloc>().add(
-              ServerPutPayload(
-                value: value,
-                key: key.toLowerCase(),
-              ),
-            );
+        if (!context
+            .read<ServerBloc>()
+            .state
+            .payload
+            .containsKey(key.toLowerCase())) {
+          context.read<ServerBloc>().add(
+                ServerPutPayload(
+                  value: value,
+                  key: key.toLowerCase(),
+                ),
+              );
+        }
       }
     }
     return Padding(
@@ -179,7 +197,7 @@ class _ProfileState extends State<Profile> {
           if (label)
             Expanded(
               child: Text(
-                key,
+                key + " :",
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
@@ -198,15 +216,12 @@ class _ProfileState extends State<Profile> {
                   if (!value.startsWith(codeNumber)) {
                     change = codeNumber + change;
                   }
-                  print(codeNumber);
-                  // setState((){
-                  //   phoneNumber = change;
-                  // });
                 }
-                context.read<ServerBloc>().add(
-                    ServerPutPayload(value: change, key: key.toLowerCase()));
+                startChange = true;
+                context.read<ServerBloc>().add(ServerPutPayload(value: change, key: key.toLowerCase()));
               },
-              initialValue: value,
+              initialValue: value.contains("threematch.co.tz") ? "" : value,
+              readOnly: readOnly,
             ),
           ),
         ],
@@ -222,12 +237,18 @@ class _ProfileState extends State<Profile> {
     int col = 4,
   }) {
     if (value != "") {
-      context.read<ServerBloc>().add(
-            ServerPutPayload(
-              value: value,
-              key: key.toLowerCase(),
-            ),
-          );
+      if (!context
+          .read<ServerBloc>()
+          .state
+          .payload
+          .containsKey(key.toLowerCase())) {
+        context.read<ServerBloc>().add(
+              ServerPutPayload(
+                value: value,
+                key: key.toLowerCase(),
+              ),
+            );
+      }
     }
 
     if (key.toLowerCase() == "code") {
@@ -252,7 +273,7 @@ class _ProfileState extends State<Profile> {
           Expanded(
             flex: label ? 1 : col,
             child: Text(
-              key,
+              key + " :",
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -264,6 +285,7 @@ class _ProfileState extends State<Profile> {
             child: SelectInputComponent(
               onSave: () {},
               onChange: (change) {
+                startChange = true;
                 setState(() {
                   codeNumber = change;
                 });
@@ -324,7 +346,8 @@ class _ProfileState extends State<Profile> {
                 ),
                 Expanded(
                   flex: 4,
-                  child: displayTap(key: "Phone", value: userModel.phone, label: false),
+                  child: displayTap(
+                      key: "Phone", value: userModel.phone, label: false),
                 ),
               ],
             ),
@@ -368,13 +391,29 @@ class _ProfileState extends State<Profile> {
                         ? "Verify Token"
                         : "Login",
                     onPressed: () {
-                      if(context.read<ServerBloc>().state.payload.containsKey("code") && context.read<ServerBloc>().state.payload.containsKey("phone")) {
+                      if (context
+                              .read<ServerBloc>()
+                              .state
+                              .payload
+                              .containsKey("code") &&
+                          context
+                              .read<ServerBloc>()
+                              .state
+                              .payload
+                              .containsKey("phone")) {
                         context.read<ServerBloc>().add(
-                          ServerPutPayload(
-                            value: context.read<ServerBloc>().state.payload["code"] + context.read<ServerBloc>().state.payload["phone"],
-                            key: "name",
-                          ),
-                        );
+                              ServerPutPayload(
+                                value: context
+                                        .read<ServerBloc>()
+                                        .state
+                                        .payload["code"] +
+                                    context
+                                        .read<ServerBloc>()
+                                        .state
+                                        .payload["phone"],
+                                key: "name",
+                              ),
+                            );
                       }
                       context.read<ServerBloc>().add(
                             RegisterUserEvent(),

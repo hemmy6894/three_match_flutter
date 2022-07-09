@@ -26,7 +26,7 @@ class SearchUser extends StatefulWidget {
 }
 
 class _SearchUserState extends State<SearchUser> {
-  double ratio = 0.1;
+  double ratio = 0.3;
   int i = 0;
   String search = "";
 
@@ -35,10 +35,22 @@ class _SearchUserState extends State<SearchUser> {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height * ratio,
-      color: Colors.grey,
+      color: Colors.transparent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox( height: MediaQuery.of(context).size.height * 0.05,),
+          Container(
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text("Select User", style: TextStyle(fontWeight: FontWeight.normal, fontSize: 30),)
+              ],
+            ),
+          ),
+          SizedBox( height: MediaQuery.of(context).size.height * 0.10,),
           InputComponent(
             hintText: "Search user",
             onSave: () {},
@@ -47,9 +59,9 @@ class _SearchUserState extends State<SearchUser> {
                 () {
                   search = v;
                   if (search != "") {
-                    ratio = 0.18;
+                    ratio = 0.38;
                   } else {
-                    ratio = 0.1;
+                    ratio = 0.3;
                   }
                 },
               );
@@ -81,7 +93,7 @@ class _SearchUserState extends State<SearchUser> {
       onTap: () {
         widget.clicked(friend);
         setState(() {
-          ratio = 0.1;
+          ratio = 0.3;
           search = "";
         });
       },

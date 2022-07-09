@@ -26,7 +26,7 @@ class SearchCountry extends StatefulWidget {
 }
 
 class _SearchCountryState extends State<SearchCountry> {
-  double ratio = 0.1;
+  double ratio = 0.3;
   int i = 0;
   String search = "";
 
@@ -35,10 +35,22 @@ class _SearchCountryState extends State<SearchCountry> {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height * ratio,
-      color: Colors.grey,
+      color: Colors.transparent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox( height: MediaQuery.of(context).size.height * 0.05,),
+          Container(
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text("Select Country", style: TextStyle(fontWeight: FontWeight.normal, fontSize: 30),)
+              ],
+            ),
+          ),
+          SizedBox( height: MediaQuery.of(context).size.height * 0.10,),
           InputComponent(
             hintText: "Search country",
             onSave: () {},
@@ -47,9 +59,9 @@ class _SearchCountryState extends State<SearchCountry> {
                 () {
                   search = v;
                   if (search != "") {
-                    ratio = 0.18;
+                    ratio = 0.38;
                   } else {
-                    ratio = 0.1;
+                    ratio = 0.3;
                   }
                 },
               );
@@ -81,7 +93,7 @@ class _SearchCountryState extends State<SearchCountry> {
       onTap: () {
         widget.clicked(country);
         setState(() {
-          ratio = 0.1;
+          ratio = 0.3;
           search = "";
         });
       },

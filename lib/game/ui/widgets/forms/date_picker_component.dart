@@ -80,7 +80,7 @@ class _DatePickerComponentState extends State<DatePickerComponent> {
             // initialValue: inTime,
             maxLines: widget.maxLines,
             obscureText: widget.obscureText,
-            style: const TextStyle(fontSize: 18.0, color: Colors.white),
+            style: const TextStyle(fontSize: 18.0, color: Colors.black),
             decoration: InputDecoration(
               suffixIcon: GestureDetector(
                 onTap: () async {
@@ -88,7 +88,7 @@ class _DatePickerComponentState extends State<DatePickerComponent> {
                       context: context,
                       initialDate: dateSelected,
                       firstDate:
-                          DateTime.now().add(const Duration(days: -(365 * 10))),
+                          DateTime.now().add(const Duration(days: -(365 * 0))),
                       lastDate:
                           DateTime.now().add(const Duration(days: (365 * 10))),
                       selectableDayPredicate: (DateTime date) {
@@ -99,7 +99,7 @@ class _DatePickerComponentState extends State<DatePickerComponent> {
                       selectedDateFromUser != dateSelected) {
                     setState(() {
                       dateSelected = selectedDateFromUser;
-                      inTime = ThreeMatchHelper.dateFormat(dateTime: dateSelected);;
+                      inTime = ThreeMatchHelper.dateFormat(dateTime: dateSelected, format: "yyyy-MM-dd");
                       controller = TextEditingController(text: inTime);
                     });
 

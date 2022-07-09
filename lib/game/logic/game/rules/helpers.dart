@@ -1,8 +1,9 @@
 part of '../game_bloc.dart';
 
 class Helpers {
-  static catchHelper(Emitter<GameState> emit, GameState state,  GameCatchHelperEvent event) async {
-    if(event.amount < 1){
+  static catchHelper(Emitter<GameState> emit, GameState state,
+      GameCatchHelperEvent event) async {
+    if (event.amount < 1) {
       return null;
     }
     CharacterType helper = event.helper;
@@ -51,21 +52,24 @@ class Helpers {
 
   static isHummerCaptured(Emitter<GameState> emit, GameState state) {
     Map<int, Map<int, CharacterType>> boards = state.gameBoards;
-    if (state.firstClicked.isNotEmpty &&
-        state.secondClicked.isEmpty &&
-        state.selectedHelper == CharacterType.hummer) {
+    if (state.firstClicked.isNotEmpty && state.secondClicked.isEmpty && state.selectedHelper == CharacterType.hummer) {
       int row = state.firstClicked.row;
       int col = state.firstClicked.col;
+      CharacterType targetCharacter = getBoardCharacter(boards, row: row, col: col);
       Map<int, CharacterType> myRow = boards[row] ?? {};
       myRow = {...myRow, col: CharacterType.hole};
       boards = {...boards, row: myRow};
-      emit(state.copyWith(
-        gameBoards: boards,
-        dropDown: true,
-        reduceHelperReward: CharacterType.hummer,
-        selectedHelper: CharacterType.hole,
-        firstClicked: state.firstClicked.clear,
-      ));
+      List<Map<CharacterType, int>> targets = BreakCharacter.reduceTarget(targetCharacter, state.targets);
+      emit(
+        state.copyWith(
+          gameBoards: boards,
+          dropDown: true,
+          reduceHelperReward: CharacterType.hummer,
+          selectedHelper: CharacterType.hole,
+          firstClicked: state.firstClicked.clear,
+          targets: targets,
+        ),
+      );
     }
   }
 

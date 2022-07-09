@@ -12,6 +12,7 @@ class InputComponent extends StatefulWidget {
   final String validate;
   final bool isLoading;
   final bool obscureText;
+  final bool readOnly;
   final int minLines;
   final int maxLines;
   final Widget? prefixIcon;
@@ -32,6 +33,7 @@ class InputComponent extends StatefulWidget {
       this.prefixIconColor,
       required this.onSave,
       this.onTap,
+      this.readOnly = false,
       required this.onChange,
       this.isLoading = false,
       this.validate = "",
@@ -49,9 +51,8 @@ class _InputComponentState extends State<InputComponent> {
   @override
   void initState() {
     _controller = TextEditingController(
-        text: widget.initialValue != null
-            ? widget.initialValue.toString()
-            : null);
+        text:
+            widget.initialValue != null ? widget.initialValue.toString() : "");
     if (widget.initialValue != null &&
         widget.initialValue != widget.stateValue) {
       widget.onChange(widget.initialValue);
@@ -84,8 +85,10 @@ class _InputComponentState extends State<InputComponent> {
             // initialValue: widget.initialVagit
             maxLines: widget.maxLines,
             obscureText: widget.obscureText,
+            readOnly: widget.readOnly,
             style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                  color: Colors.white.withAlpha(990),
+                  color: Colors.black.withAlpha(990),
+                  fontSize: 16,
                 ),
             decoration: InputDecoration(
               // prefixIcon: widget.prefixIcon,
@@ -99,8 +102,9 @@ class _InputComponentState extends State<InputComponent> {
               widget.onSave(value);
             },
             onTap: () {
-              if(widget.onTap != null)
+              if (widget.onTap != null) {
                 widget.onTap!();
+              }
             },
             onChanged: (dynamic value) {
               widget.onChange(value);

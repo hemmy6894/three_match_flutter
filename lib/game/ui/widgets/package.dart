@@ -101,9 +101,11 @@ class _PackageWidgetState extends State<PackageWidget> {
               ),
               Container(
                 decoration: BoxDecoration(
-                    color: Colors.orange,
-                    borderRadius: BorderRadius.all(Radius.circular(
-                        MediaQuery.of(context).size.width * 0.02))),
+                  color: Colors.orange,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(MediaQuery.of(context).size.width * 0.02),
+                  ),
+                ),
                 width: MediaQuery.of(context).size.width * 0.91,
                 height: MediaQuery.of(context).size.height * 0.25,
                 child: Column(
@@ -163,14 +165,16 @@ class _PackageWidgetState extends State<PackageWidget> {
                                 Row(
                                   children: [
                                     showCharacterView(
-                                        picture: Assets.bulletHorizontal,
-                                        times: "x 12"),
+                                      picture: Assets.bulletHorizontal,
+                                      times: "x 12",
+                                    ),
                                     const SizedBox(
                                       width: 2,
                                     ),
                                     showCharacterView(
-                                        picture: Assets.superBomb,
-                                        times: "x 12"),
+                                      picture: Assets.superBomb,
+                                      times: "x 12",
+                                    ),
                                   ],
                                 ),
                               ],

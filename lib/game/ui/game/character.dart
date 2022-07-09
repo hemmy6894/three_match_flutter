@@ -198,39 +198,42 @@ class _CharacterState extends State<Character> {
                         : null,
                   )
                 : null,
-            child: Stack(
-              children: [
-                Image.asset(
-                  Assets.getCharacter(characterType: widget.characterType),
-                  width: widget.width,
-                  height: widget.height,
-                ),
-                if (widget.isHelper)
-                  if (context
-                          .read<UiCubit>()
-                          .state
-                          .getRewardCount(widget.characterType) >
-                      0)
-                    Positioned(
-                      bottom: 2,
-                      right: 2,
-                      child: Container(
-                        decoration:  BoxDecoration(
-                          color: widget.hasBackGround  ? Colors.white : const Color(Assets.boardColor),
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(6),
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: Stack(
+                children: [
+                  Image.asset(
+                    Assets.getCharacter(characterType: widget.characterType),
+                    width: widget.width * 0.92,
+                    height: widget.height * 0.92,
+                  ),
+                  if (widget.isHelper)
+                    if (context
+                            .read<UiCubit>()
+                            .state
+                            .getRewardCount(widget.characterType) >
+                        0)
+                      Positioned(
+                        bottom: 2,
+                        right: 2,
+                        child: Container(
+                          decoration:  BoxDecoration(
+                            color: widget.hasBackGround  ? Colors.white : const Color(Assets.boardColor),
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(6),
+                            ),
+                          ),
+                          child: Text(
+                            context
+                                .read<UiCubit>()
+                                .state
+                                .getRewardCount(widget.characterType)
+                                .toString(),
                           ),
                         ),
-                        child: Text(
-                          context
-                              .read<UiCubit>()
-                              .state
-                              .getRewardCount(widget.characterType)
-                              .toString(),
-                        ),
                       ),
-                    ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

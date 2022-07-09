@@ -9,8 +9,11 @@ class ButtonComponent extends StatelessWidget {
   final int backgroundColor;
   final bool isLoading;
   final bool disabled;
+  final double buttonSizeHeight;
   final IconData? buttonIcon;
   final MainAxisAlignment mainAxisAlignment;
+  final TextStyle? style;
+
   const ButtonComponent(
       {Key? key,
       required this.title,
@@ -19,8 +22,10 @@ class ButtonComponent extends StatelessWidget {
       this.transparent = false,
       this.isLoading = false,
       this.buttonSize = 10.0,
-        this.mainAxisAlignment = MainAxisAlignment.start,
-      this.backgroundColor = Assets.primaryColor,
+      this.buttonSizeHeight = 30,
+      this.style,
+      this.mainAxisAlignment = MainAxisAlignment.start,
+      this.backgroundColor = Assets.primaryGreenColor,
       this.buttonIcon})
       : super(key: key);
 
@@ -66,14 +71,19 @@ class ButtonComponent extends StatelessWidget {
                             color: Assets.circularProgressColor),
                       )
                     : Container(),
-            !isLoading ? Text(title) : Container()
+            !isLoading
+                ? Text(
+                    title,
+                    style: style,
+                  )
+                : Container()
           ],
         ),
         style: ElevatedButton.styleFrom(
           onPrimary:
               transparent ? const Color(Assets.primaryColor) : Colors.white,
           primary: transparent ? Colors.transparent : Color(backgroundColor),
-          minimumSize: Size(buttonSize, 30),
+          minimumSize: Size(buttonSize, buttonSizeHeight),
           padding: const EdgeInsets.symmetric(horizontal: 16),
           side: !transparent
               ? const BorderSide(

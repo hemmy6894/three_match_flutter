@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/data/models/phone.dart';
@@ -9,26 +11,42 @@ class SearchTask extends StatefulWidget {
   final List<TaskModel> tasks;
   final Function(TaskModel) clicked;
 
-
   const SearchTask({Key? key, required this.tasks, required this.clicked})
       : super(key: key);
 
-  static Widget selected({required TaskModel task}){
-    Map<String,dynamic> level = Assets.levels[int.parse(task.label)];
-    int row = level["row"]??0;
-    int col = level["col"]??0;
-    int moves = level["moves"]??0;
+  static Widget selected({required TaskModel task, double width = 0}) {
+    Map<String, dynamic> level = Assets.levels[int.parse(task.label)];
+    int row = level["row"] ?? 0;
+    int col = level["col"] ?? 0;
+    int moves = level["moves"] ?? 0;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            task.name + " moves $moves",
-            style: const TextStyle(
-                color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
+          Row(
+            children: [
+              Text(
+                task.name + " Moves: $moves Targets:",
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 6,),
+              GameOverWidget.displayTarget(
+                level["targets"] ?? [],
+              )
+            ],
           ),
-          GameOverWidget.displayTarget(level["targets"]??[]),
+          const SizedBox(
+            height: 5,
+          ),
+          Container(
+            color: Colors.grey.withOpacity(0.3),
+            width: width,
+            height: 1,
+          ),
         ],
       ),
     );
@@ -39,7 +57,7 @@ class SearchTask extends StatefulWidget {
 }
 
 class _SearchTaskState extends State<SearchTask> {
-  double ratio = 0.1;
+  double ratio = 0.3;
   int i = 0;
   String search = "";
 
@@ -48,10 +66,29 @@ class _SearchTaskState extends State<SearchTask> {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height * ratio,
-      color: Colors.grey,
+      color: Colors.transparent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.05,
+          ),
+          Container(
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text(
+                  "Select Task",
+                  style: TextStyle(fontWeight: FontWeight.normal, fontSize: 30),
+                )
+              ],
+            ),
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.10,
+          ),
           InputComponent(
             hintText: "Search task",
             onSave: () {},
@@ -60,9 +97,9 @@ class _SearchTaskState extends State<SearchTask> {
                 () {
                   search = v;
                   if (search != "") {
-                    ratio = 0.3;
+                    ratio = 0.6;
                   } else {
-                    ratio = 0.1;
+                    ratio = 0.3;
                   }
                 },
               );
@@ -93,11 +130,12 @@ class _SearchTaskState extends State<SearchTask> {
       onTap: () {
         widget.clicked(task);
         setState(() {
-          ratio = 0.1;
+          ratio = 0.3;
           search = "";
         });
       },
-      child: SearchTask.selected(task: task),
+      child: SearchTask.selected(
+          task: task, width: MediaQuery.of(context).size.width),
     );
   }
 

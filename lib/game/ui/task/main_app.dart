@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/logic/server/server_bloc.dart';
 import 'package:test_game/game/logic/ui/ui_cubit.dart';
 import 'package:test_game/game/ui/game/character.dart';
@@ -18,14 +19,14 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  int _selectedIndex = 4;
+  int _selectedIndex = 0;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   List<Widget> _widgetOptions = [];
 
   void _onItemTapped(int index) {
     setState(() {
-      if(!isOn){
+      if (!isOn) {
         index = 4;
       }
       _selectedIndex = index;
@@ -59,41 +60,56 @@ class _MainAppState extends State<MainApp> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if(isOn)
-              Container(
-                padding: const EdgeInsets.all(3),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        const LiveCount(),
-                        BlocBuilder<UiCubit, UiState>(
-                          buildWhen: (previous, current) =>
-                              previous.rewards != current.rewards,
-                          builder: (context, state) {
-                            return Character(
-                              characterType: CharacterType.coin,
-                              row: 100,
-                              active: false,
-                              col: 100,
-                              verticalUpdate: (d) {},
-                              isHelper: true,
-                              isObstacle: true,
-                              isCoin: true,
-                              hasBackGround: false,
-                              height: 30,
-                              width: 30,
-                            );
-                          },
+              Expanded(
+                child: Container(
+                  color: Colors.white,
+                  child: Stack(
+                    children: [
+                      _widgetOptions.elementAt(_selectedIndex),
+                      if (isOn && (_selectedIndex != 4 && _selectedIndex != 2))
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          left: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const LiveCount(),
+                                    BlocBuilder<UiCubit, UiState>(
+                                      buildWhen: (previous, current) =>
+                                      previous.rewards != current.rewards,
+                                      builder: (context, state) {
+                                        return Character(
+                                          characterType: CharacterType.coin,
+                                          row: 100,
+                                          active: false,
+                                          col: 100,
+                                          verticalUpdate: (d) {},
+                                          isHelper: true,
+                                          isObstacle: true,
+                                          isCoin: true,
+                                          hasBackGround: false,
+                                          height: 30,
+                                          width: 30,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                const Icon(Icons.search),
+                              ],
+                            ),
+                          ),
                         ),
-                      ],
-                    ),
-                    const Icon(Icons.search),
-                  ],
+
+                    ],
+                  ),
                 ),
               ),
-              Expanded(child: _widgetOptions.elementAt(_selectedIndex)),
               MultiBlocListener(
                 listeners: [
                   BlocListener<ServerBloc, ServerState>(
@@ -110,9 +126,13 @@ class _MainAppState extends State<MainApp> {
                     },
                   ),
                   BlocListener<ServerBloc, ServerState>(
+                    // listenWhen: (previous,current) => previous.token != current.token,
                     listener: (context, state) {
                       setState(() {
                         isOn = state.token == "" ? false : true;
+                        if(!isOn && _selectedIndex != 4){
+                          _selectedIndex = 4;
+                        }
                       });
                     },
                   ),
@@ -123,33 +143,36 @@ class _MainAppState extends State<MainApp> {
           ),
         ),
       ),
-      bottomNavigationBar: !isOn ? null : BottomNavigationBar(
-        items: <BottomNavigationBarItem>[
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Signed',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.add),
-            label: 'Sign',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.people_alt),
-            label: 'Friends',
-          ),
-          BottomNavigationBarItem(
-            icon: profile,
-            label: profileLabel,
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        onTap: _onItemTapped,
-      ),
+      bottomNavigationBar: !isOn
+          ? null
+          : BottomNavigationBar(
+              items: <BottomNavigationBarItem>[
+                const BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'Home',
+                ),
+                const BottomNavigationBarItem(
+                  icon: Icon(Icons.book),
+                  label: 'Signed',
+                ),
+                const BottomNavigationBarItem(
+                  icon: Icon(Icons.add),
+                  label: 'Sign',
+                ),
+                const BottomNavigationBarItem(
+                  icon: Icon(Icons.people_alt),
+                  label: 'Friends',
+                ),
+                BottomNavigationBarItem(
+                  icon: profile,
+                  label: profileLabel,
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              // selectedItemColor: Colors.amber[800],
+              backgroundColor: const Color(Assets.primaryGoldColor),
+              onTap: _onItemTapped,
+            ),
     );
   }
 }

@@ -24,8 +24,7 @@ class BreakCharacter {
       }
       if (breaking) {
         targetBreaking.add(replace);
-        targets = reduceTarget(
-            getBoardCharacter(boards, row: rowCount, col: colCount), targets);
+        targets = reduceTarget(getBoardCharacter(boards, row: rowCount, col: colCount), targets);
       }
     }
 

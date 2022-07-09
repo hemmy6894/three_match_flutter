@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_game/game/data/models/country.dart';
@@ -57,55 +58,58 @@ class _AssignTaskState extends State<AssignTask> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<ServerBloc, ServerState>(
-            // listenWhen: (previous, current) => previous.genders != current.genders,
-            listener: (context, state) {
-              setState(() {
-                if (state.genders.isNotEmpty) {
-                  genders = state.genders;
-                  genders.insert(
-                    0,
-                    const GenderModel(
-                      name: "All gender",
-                      id: "",
-                    ),
-                  );
-                }
-                if (state.countries.isNotEmpty) {
-                  countries = state.countries;
-                  countries.insert(
-                    0,
-                    const CountryModel(
-                      name: "All country",
-                      id: "",
-                    ),
-                  );
-                }
-                if (state.tasks.isNotEmpty) {
-                  tasks = state.tasks;
-                }
-                if (state.friends.isNotEmpty) {
-                  friends = state.friends;
-                }
-              });
-            },
-          ),
-        ],
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (context.read<ServerBloc>().state.user.type == "company")
-              _genderWidget(),
-            if (context.read<ServerBloc>().state.user.type == "company")
-              _countryWidget(),
-            if (context.read<ServerBloc>().state.user.type != "company")
-              _selectUser(),
-            _selectTask(),
-            _enterPrize(),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SingleChildScrollView(
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<ServerBloc, ServerState>(
+              // listenWhen: (previous, current) => previous.genders != current.genders,
+              listener: (context, state) {
+                setState(() {
+                  if (state.genders.isNotEmpty) {
+                    genders = state.genders;
+                    genders.insert(
+                      0,
+                      const GenderModel(
+                        name: "All gender",
+                        id: "",
+                      ),
+                    );
+                  }
+                  if (state.countries.isNotEmpty) {
+                    countries = state.countries;
+                    countries.insert(
+                      0,
+                      const CountryModel(
+                        name: "All country",
+                        id: "",
+                      ),
+                    );
+                  }
+                  if (state.tasks.isNotEmpty) {
+                    tasks = state.tasks;
+                  }
+                  if (state.friends.isNotEmpty) {
+                    friends = state.friends;
+                  }
+                });
+              },
+            ),
           ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (context.read<ServerBloc>().state.user.type == "company")
+                _genderWidget(),
+              if (context.read<ServerBloc>().state.user.type == "company")
+                _countryWidget(),
+              if (context.read<ServerBloc>().state.user.type != "company")
+                _selectUser(),
+              _selectTask(),
+              _enterPrize(),
+            ],
+          ),
         ),
       ),
     );
@@ -122,9 +126,11 @@ class _AssignTaskState extends State<AssignTask> {
               context
                   .read<ServerBloc>()
                   .add(ServerPutPayload(value: phone.id, key: "user_id"));
-              setState(() {
-                selectedUser = phone;
-              });
+              setState(
+                () {
+                  selectedUser = phone;
+                },
+              );
             },
           ),
           if (selectedUser != PhoneModel.empty())
@@ -134,7 +140,11 @@ class _AssignTaskState extends State<AssignTask> {
                 SearchUser.selectedUser(friend: selectedUser),
               ],
             ),
-          nextButton()
+          Row(
+            children: [
+              nextButton()
+            ],
+          )
         ],
       );
     }
@@ -230,7 +240,6 @@ class _AssignTaskState extends State<AssignTask> {
           if (selectedTask != TaskModel.empty())
             Row(
               children: [
-                const Text("SELECTED: "),
                 SearchTask.selected(task: selectedTask),
               ],
             ),
@@ -246,12 +255,17 @@ class _AssignTaskState extends State<AssignTask> {
     return Container();
   }
 
+  PlatformFile? myFile;
   Widget _enterPrize() {
     if (_currentStep == prizeStep) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const GiftWidget(),
+          GiftWidget(getFilet: (file) {
+            setState((){
+              myFile = file;
+            });
+          },),
           Row(
             children: [
               backButton(),
@@ -265,16 +279,18 @@ class _AssignTaskState extends State<AssignTask> {
   }
 
   Widget nextButton() {
-    return ElevatedButton(
-      onPressed: () {
-        setState(
-          () {
-            _currentStep++;
-          },
-        );
-      },
-      child: const Text(
-        "Next",
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: () {
+          setState(
+            () {
+              _currentStep++;
+            },
+          );
+        },
+        child: const Text(
+          "Next",
+        ),
       ),
     );
   }
@@ -283,36 +299,39 @@ class _AssignTaskState extends State<AssignTask> {
   bool clicked = false;
 
   Widget saveButton() {
-    return ElevatedButton(
-      onPressed: () {
-        setState(
-          () {
-            context.read<ServerBloc>().add(AssignTaskEvent());
-            // clicked = true;
-          },
-        );
-      },
-      child: BlocListener<ServerBloc, ServerState>(
-        listenWhen: (previous, current) => previous.logging != current.logging,
-        listener: (context, state) {
-          if (!isLoading && clicked) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Assigned Success"),
-              ),
-            );
-            widget.taped(0);
-          }
-          setState(() {
-            isLoading = state.logging;
-          });
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: () {
+          setState(
+            () {
+              context.read<ServerBloc>().add(ServerPutPayload(value: myFile, key: "attachment"));
+              context.read<ServerBloc>().add(AssignTaskEvent());
+              // clicked = true;
+            },
+          );
         },
-        child: isLoading
-            ? const SizedBox(
-                width: 15, height: 15, child: CircularProgressIndicator())
-            : const Text(
-                "Save",
-              ),
+        child: BlocListener<ServerBloc, ServerState>(
+          listenWhen: (previous, current) => previous.logging != current.logging,
+          listener: (context, state) {
+            if (!isLoading && clicked) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Assigned Success"),
+                ),
+              );
+              widget.taped(0);
+            }
+            setState(() {
+              isLoading = state.logging;
+            });
+          },
+          child: isLoading
+              ? const SizedBox(
+                  width: 15, height: 15, child: CircularProgressIndicator())
+              : const Text(
+                  "Save",
+                ),
+        ),
       ),
     );
   }
