@@ -73,7 +73,20 @@ class ServerPutPayload extends ServerEvent {
   ServerPutPayload({required this.value, required this.key});
   putPayload(Emitter<ServerState> emit, ServerState state) {
     final Map<String, dynamic> payload = {...state.payload, key: value};
-    print(payload);
+    emit(state.copyWith(payload: payload));
+  }
+}
+
+class ServerRemovePayload extends ServerEvent {
+  final String key;
+  ServerRemovePayload({required this.key});
+  removePayload(Emitter<ServerState> emit, ServerState state) {
+    Map<String, dynamic> payload = {};
+    state.payload.entries.map((e) {
+      if(e.key != key) {
+        payload = { ...payload, e.key: e.value};
+      }
+    });
     emit(state.copyWith(payload: payload));
   }
 }

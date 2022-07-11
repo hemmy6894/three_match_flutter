@@ -24,6 +24,8 @@ class Assets {
   static const String bulletHorizontal = _characters + "horizontal_bullet.png";
   static const String superBomb = _characters + "fireball.png";//"""super_bomb.png";
 
+  static const String logo = _materials + "logo.png";
+  static const String finalLogo = _materials + "final_logo.png";
   static const String restart = _materials + "restart.png";
   static const String superBombBlast = _materials + "super_bomb_blast.png";
 
@@ -152,8 +154,8 @@ class Assets {
     "row" : 9,
     "col" : 8,
     "rewards" : [RewardModel(character: CharacterType.superBomb, amount: 2), RewardModel(character: CharacterType.hand, amount: 100), RewardModel(character: CharacterType.verticalBullet, amount: 1),RewardModel(character: CharacterType.horizontalBullet, amount: 1), RewardModel(character: CharacterType.plane, amount: 2)],
-    "targets": [{CharacterType.pear : 2500},{CharacterType.banana : 2500},{CharacterType.apple : 2500}],
-    "moves": 150,
+    "targets": [{CharacterType.pear : 50},{CharacterType.banana : 50},{CharacterType.apple : 50}],
+    "moves": 10,
     "board" : [
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole],
@@ -174,7 +176,7 @@ class Assets {
     "col" : 5,
     "targets": [{CharacterType.pear : 5},{CharacterType.banana : 5},{CharacterType.apple : 5}],
     "moves": 30,
-    "rewards" : [RewardModel(character: CharacterType.hand, amount: 5),RewardModel(character: CharacterType.hummer, amount: 3), RewardModel(character: CharacterType.orange, amount: 4)],
+    "rewards" : [RewardModel(character: CharacterType.hand, amount: 5),RewardModel(character: CharacterType.hummer, amount: 3), RewardModel(character: CharacterType.coin, amount: 5000)],
     "board" : [
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,],
       [CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,CharacterType.hole,],

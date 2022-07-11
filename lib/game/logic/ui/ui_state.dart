@@ -5,10 +5,9 @@ class UiState extends Equatable {
   final int lastLifeCount;
   final int lastUpdated;
   final int remainingTime;
+  final bool startCounting;
   final Map<CharacterType, int> received;
   final List<RewardModel> rewards;
-
-
 
   const UiState(
       {required this.fullLiveCount,
@@ -16,6 +15,7 @@ class UiState extends Equatable {
       required this.remainingTime,
       required this.rewards,
       required this.received,
+      required this.startCounting,
       required this.lastUpdated});
 
   UiState copyWith({
@@ -23,9 +23,9 @@ class UiState extends Equatable {
     int? lastLifeCount,
     int? lastUpdated,
     int? remainingTime,
+    bool? startCounting,
     Map<CharacterType, int>? received,
     List<RewardModel>? rewards,
-
   }) {
     return UiState(
       fullLiveCount: fullLiveCount ?? this.fullLiveCount,
@@ -33,6 +33,7 @@ class UiState extends Equatable {
       remainingTime: remainingTime ?? this.remainingTime,
       lastUpdated: lastUpdated ?? this.lastUpdated,
       rewards: rewards ?? this.rewards,
+      startCounting: startCounting ?? this.startCounting,
       received: received ?? this.received,
     );
   }
@@ -42,9 +43,9 @@ class UiState extends Equatable {
         fullLiveCount: 5,
         lastUpdated: DateTime.now().millisecondsSinceEpoch,
         remainingTime: 0,
-
         received: const {},
         rewards: const [],
+        startCounting: false,
         lastLifeCount: 1);
   }
 
@@ -58,7 +59,7 @@ class UiState extends Equatable {
       lastUpdated: json["last_updated"],
       rewards: RewardModel.getList(json["rewards"]),
       received: const {},
-
+      startCounting: true,
       remainingTime: json["remaining_time"],
     );
   }
@@ -89,7 +90,7 @@ class UiState extends Equatable {
         lastLifeCount,
         rewards,
         received,
-
         remainingTime,
+        startCounting,
       ];
 }

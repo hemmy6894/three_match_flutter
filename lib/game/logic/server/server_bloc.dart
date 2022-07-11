@@ -30,6 +30,10 @@ class ServerBloc extends Bloc<ServerEvent, ServerState> with HydratedMixin {
       await event.putPayload(emit, state);
     });
 
+    on<ServerRemovePayload>((event, emit) async {
+      await event.removePayload(emit, state);
+    });
+
     on<ServerDestroyPayload>((event, emit) async {
       await event.destroyPayload(emit, state);
     });

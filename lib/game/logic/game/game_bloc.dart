@@ -80,6 +80,10 @@ class GameBlock extends Bloc<GameEvent, GameState> {
     on<ClearBlastEvent>((event, emit)  async{
       await clearBlast(emit, state, event);
     });
+
+    on<GameIncrementMovesEvent>((event,emit){
+      emit(state.copyWith(moves: state.moves + event.moves));
+    });
   }
 
 

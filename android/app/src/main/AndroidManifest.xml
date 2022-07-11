@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
     <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="test_game"
+        android:label="GiveAway"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

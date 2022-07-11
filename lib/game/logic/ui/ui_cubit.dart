@@ -93,6 +93,10 @@ class UiCubit extends Cubit<UiState> with HydratedMixin {
     emit(state.copyWith(rewards: rds));
   }
 
+  initiateCount(){
+    emit(state.copyWith(startCounting: !state.startCounting));
+  }
+
   @override
   UiState? fromJson(Map<String, dynamic> json) {
     return UiState.fromJson(json);

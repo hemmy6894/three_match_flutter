@@ -4,10 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_game/game/logic/game/game_bloc.dart';
 import 'package:test_game/game/logic/server/server_bloc.dart';
+import 'package:test_game/game/logic/ui/ui_cubit.dart';
+import 'package:test_game/game/ui/levels/widget/game_over.dart';
 import 'package:test_game/game/ui/widgets/forms/button_component.dart';
 
 class GameRewardWidget extends StatefulWidget {
-  const GameRewardWidget({Key? key}) : super(key: key);
+  final double width;
+
+  const GameRewardWidget({Key? key, this.width = 0}) : super(key: key);
 
   @override
   State<GameRewardWidget> createState() => _GameRewardWidgetState();
@@ -19,11 +23,10 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
   int timing = 0;
   bool showTimer = false;
 
-  late Timer timer;
 
   @override
   initState() {
-    timer = Timer(const Duration(days: 2), () { });
+    timer = Timer(const Duration(days: 2), () {});
     super.initState();
   }
 
@@ -35,6 +38,7 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
     super.dispose();
   }
 
+  late Timer timer;
   initiateTimer() {
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
@@ -51,14 +55,12 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<GameBlock, GameState>(
-      listenWhen: (p, c) => p.targets != c.targets,
+    return BlocListener<UiCubit, UiState>(
+      listenWhen: (p, c) => p.startCounting != c.startCounting,
       listener: (context, state) {
-        if (state.targetIsOver()) {
-          initiateTimer();
-        }
+        initiateTimer();
       },
-      child: displayWidget(),
+      child: timing > 15 ? Container() : displayWidget(),
     );
   }
 
@@ -102,7 +104,7 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
       return SingleChildScrollView(
         child: Container(
           alignment: Alignment.center,
-          color: Colors.transparent.withOpacity(0.8),
+          color: Colors.white,
           width: MediaQuery.of(context).size.width,
           child: Column(
             children: [
@@ -124,8 +126,21 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
                               .assignedId
                               .toString())!
                       .url,
-                  height: MediaQuery.of(context).size.height * (1 - 0.08),
+                  height: MediaQuery.of(context).size.height * (1 - 0.1),
                 ),
+              Container(
+                alignment: Alignment.centerLeft,
+                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                child: const Text(
+                  "Gift Description:",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    backgroundColor: Colors.white,
+                    fontSize: 18,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
               if (context.read<ServerBloc>().state.assigned(
                       id: context
                           .read<GameBlock>()
@@ -138,16 +153,15 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
                       const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                   child: Text(
                     context
-                            .read<ServerBloc>()
-                            .state
-                            .assigned(
-                                id: context
-                                    .read<GameBlock>()
-                                    .state
-                                    .assignedId
-                                    .toString())!
-                            .description +
-                        "Bojan Walden nark asides Esdras designs unused asides saunas ideas standard's ideas dissident's dead astound asides ",
+                        .read<ServerBloc>()
+                        .state
+                        .assigned(
+                            id: context
+                                .read<GameBlock>()
+                                .state
+                                .assignedId
+                                .toString())!
+                        .description,
                     style: const TextStyle(
                       backgroundColor: Colors.white,
                       fontSize: 18,

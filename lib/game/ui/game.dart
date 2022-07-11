@@ -39,7 +39,6 @@ class _GameHomeState extends State<GameHome> {
 
   @override
   void initState() {
-    // TODO: implement initState
     context.read<GameBlock>().add(
           GameStartEvent(
             levelName: widget.levelName,
@@ -74,7 +73,7 @@ class _GameHomeState extends State<GameHome> {
           image: DecorationImage(
             image: AssetImage(Assets.background),
             fit: BoxFit.cover,
-            opacity: 0.65,
+            opacity: 0.4,
           ),
         ),
         child: Stack(
@@ -94,7 +93,7 @@ class _GameHomeState extends State<GameHome> {
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
-                            Image.asset(Assets.orange),
+                            Image.asset(Assets.logo),
                             const Text(
                               "Give Away",
                               style: TextStyle(
@@ -156,7 +155,7 @@ class _GameHomeState extends State<GameHome> {
                       GameOverWidget(
                           height: width,
                           width: width * (col / row),
-                          levelName: widget.levelName),
+                          levelName: widget.levelName)
                     ],
                   ),
                 ),

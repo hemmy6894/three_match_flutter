@@ -5,7 +5,6 @@ abstract class GameEvent {}
 class GameStartEvent extends GameEvent {
   final int levelName;
   final String? assignId;
-
   GameStartEvent({required this.levelName, this.assignId});
 }
 
@@ -35,8 +34,12 @@ class GameMatchCharacterStateEvent extends GameEvent {
 class GameCatchHelperEvent extends GameEvent {
   final CharacterType helper;
   final int amount;
-
   GameCatchHelperEvent({required this.helper, required this.amount});
+}
+
+class GameIncrementMovesEvent extends GameEvent{
+  final int moves;
+  GameIncrementMovesEvent({required this.moves});
 }
 
 class GameClickBoosterEvent extends GameEvent {

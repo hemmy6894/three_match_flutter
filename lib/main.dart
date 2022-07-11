@@ -9,9 +9,11 @@ import 'package:test_game/game/logic/server/server_bloc.dart';
 import 'package:test_game/game/logic/ui/ui_cubit.dart';
 import 'package:test_game/game/ui/levels/home.dart';
 import 'package:test_game/game/ui/task/main_app.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding =  WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   final storage = await HydratedStorage.build(
       storageDirectory: kIsWeb ? HydratedStorage.webStorageDirectory : await getApplicationDocumentsDirectory(),
   );
@@ -50,6 +52,11 @@ class GameProvider extends StatefulWidget {
 }
 
 class _GameProviderState extends State<GameProvider> {
+  @override
+  void initState() {
+    FlutterNativeSplash.remove();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(providers: [

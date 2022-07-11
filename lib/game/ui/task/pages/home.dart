@@ -33,7 +33,7 @@ class _GameHomePageState extends State<GameHomePage> {
         });
       },
       child: Container(
-          color: Colors.blueGrey,
+          color: Colors.white,
           child: CarouselSlider(
               items: widgets,
               options: CarouselOptions(

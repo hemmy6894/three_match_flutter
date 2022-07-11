@@ -6,6 +6,7 @@ import 'package:test_game/game/data/models/country.dart';
 import 'package:test_game/game/data/models/gender.dart';
 import 'package:test_game/game/data/models/user_model.dart';
 import 'package:test_game/game/logic/server/server_bloc.dart';
+import 'package:test_game/game/ui/task/pages/widgets/select_country.dart';
 import 'package:test_game/game/ui/widgets/forms/button_component.dart';
 import 'package:test_game/game/ui/widgets/forms/input_component.dart';
 import 'package:test_game/game/ui/widgets/forms/select_input_component.dart';
@@ -99,46 +100,54 @@ class _ProfileState extends State<Profile> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width * 0.4),
-                child: Image.asset(Assets.background, height: MediaQuery.of(context).size.width * 0.4, width: MediaQuery.of(context).size.width * 0.4, fit: BoxFit.cover,),
-              ),
-              displayTap(key: "Name", value: userModel.name),
-              displayTap(key: "Email", value: userModel.email),
-              displayTap(key: "Phone", value: userModel.phone, readOnly: true),
-              if (genders.isNotEmpty)
-                displayTapSelect(
-                    key: "Gender", value: userModel.genderId, values: genders),
-              if (countries.isNotEmpty)
-                displayTapSelect(
-                    key: "Country",
-                    value: userModel.countryId,
-                    values: countries),
-
-              const SizedBox( height: 15,),
-              serverListeners(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ButtonComponent(
-                        buttonSize: 40,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        isLoading: loading,
-                        title: "Update",
-                        onPressed: () {
-                          context.read<ServerBloc>().add(UpdateUserEvent());
-                        },
-                        transparent: false,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            ],
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ClipRRect(
+            borderRadius:
+                BorderRadius.circular(MediaQuery.of(context).size.width * 0.4),
+            child: Image.asset(
+              Assets.background,
+              height: MediaQuery.of(context).size.width * 0.4,
+              width: MediaQuery.of(context).size.width * 0.4,
+              fit: BoxFit.cover,
+            ),
           ),
+          displayTap(key: "Name", value: userModel.name),
+          displayTap(key: "Email", value: userModel.email),
+          displayTap(key: "Phone", value: userModel.phone, readOnly: true),
+          if (genders.isNotEmpty)
+            displayTapSelect(
+                key: "Gender", value: userModel.genderId, values: genders),
+          if (countries.isNotEmpty)
+            displayTapSelect(
+                key: "Country", value: userModel.countryId, values: countries),
+          const SizedBox(
+            height: 15,
+          ),
+          serverListeners(
+            child: Row(
+              children: [
+                Expanded(
+                  child: ButtonComponent(
+                    buttonSize: 40,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    isLoading: loading,
+                    title: "Update",
+                    onPressed: () {
+                      context.read<ServerBloc>().add(UpdateUserEvent());
+                    },
+                    transparent: false,
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 
@@ -218,7 +227,8 @@ class _ProfileState extends State<Profile> {
                   }
                 }
                 startChange = true;
-                context.read<ServerBloc>().add(ServerPutPayload(value: change, key: key.toLowerCase()));
+                context.read<ServerBloc>().add(
+                    ServerPutPayload(value: change, key: key.toLowerCase()));
               },
               initialValue: value.contains("threematch.co.tz") ? "" : value,
               readOnly: readOnly,
@@ -308,7 +318,7 @@ class _ProfileState extends State<Profile> {
 
   Widget register() {
     return Padding(
-      padding: const EdgeInsets.all(4.0),
+      padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.1),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -319,35 +329,63 @@ class _ProfileState extends State<Profile> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Image.asset(Assets.orange),
-                const Text(
-                  "Give Away",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Image.asset(Assets.logo),
               ],
             ),
           ),
           if (userModel == UserModel.empty())
+            BlocBuilder<ServerBloc, ServerState>(builder: (context, state) {
+              return InputComponent(
+                key: ObjectKey(DateTime.now()),
+                onSave: (save) {},
+                onChange: (value) {},
+                readOnly: true,
+                initialValue: (state.payload["country"] ?? "Select Country"),
+                stateValue: state.payload["country"],
+                prefixIcon: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) =>
+                        const SelectCountryWidget(),
+                        fullscreenDialog: true,
+                      ),
+                    );
+                  },
+                  child: const Icon(Icons.arrow_downward),
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext context) =>
+                      const SelectCountryWidget(),
+                      fullscreenDialog: true,
+                    ),
+                  );
+                },
+              );
+            }),
+          if (userModel == UserModel.empty())
             Row(
               children: [
                 Expanded(
-                  flex: 8,
-                  child: displayTapSelect(
-                    key: "Code",
-                    value: userModel.phone,
-                    values: phones,
-                    label: false,
-                    col: 2,
-                  ),
+                  flex: 2,
+                  child: BlocBuilder<ServerBloc, ServerState>(builder: (context, state) {
+                    return InputComponent(
+                      key: ObjectKey(DateTime.now()),
+                      onSave: (save) {},
+                      onChange: (value) {},
+                      readOnly: true,
+                      initialValue: "+ " + (state.payload["code"] ?? ""),
+                      onTap: () {},
+                    );
+                  }),
                 ),
                 Expanded(
-                  flex: 4,
-                  child: displayTap(
-                      key: "Phone", value: userModel.phone, label: false),
+                  flex: 8,
+                  child: displayTap(key: "Phone", value: userModel.phone, label: false),
                 ),
               ],
             ),
@@ -371,8 +409,8 @@ class _ProfileState extends State<Profile> {
                     );
                 context.read<ServerBloc>().add(
                       ServerPutPayload(
-                        value: userModel.phone,
-                        key: "name",
+                        value: userModel.id,
+                        key: "user_id",
                       ),
                     );
               },
@@ -387,10 +425,17 @@ class _ProfileState extends State<Profile> {
                 Expanded(
                   child: ButtonComponent(
                     isLoading: loading,
+                    backgroundColor: Assets.primaryGoldColor,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     title: userModel != UserModel.empty()
                         ? "Verify Token"
-                        : "Login",
+                        : "NEXT",
                     onPressed: () {
+                      if (userModel == UserModel.empty()) {
+                        context
+                            .read<ServerBloc>()
+                            .add(ServerRemovePayload(key: "verify"));
+                      }
                       if (context
                               .read<ServerBloc>()
                               .state
@@ -412,6 +457,12 @@ class _ProfileState extends State<Profile> {
                                         .state
                                         .payload["phone"],
                                 key: "name",
+                              ),
+                            );
+                        context.read<ServerBloc>().add(
+                              ServerPutPayload(
+                                value: context.read<ServerBloc>().state.payload["code"] + context.read<ServerBloc>().state.payload["phone"],
+                                key: "phone",
                               ),
                             );
                       }

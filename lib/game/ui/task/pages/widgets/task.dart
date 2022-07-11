@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:test_game/animations/animate_position.dart';
 import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/data/models/assign.dart';
 import 'package:test_game/game/data/models/game/reward.dart';
@@ -151,8 +150,7 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,

@@ -49,7 +49,7 @@ class _AllSignedTaskState extends State<AllSignedTask> {
         });
       },
       child: Container(
-          color: Colors.blueGrey,
+          color: Colors.white,
           child: CarouselSlider(
               items: widgets,
               options: CarouselOptions(
