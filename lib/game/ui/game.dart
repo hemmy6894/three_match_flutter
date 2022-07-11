@@ -81,7 +81,7 @@ class _GameHomeState extends State<GameHome> {
             Column(
               children: [
                 Container(
-                  color: Colors.red.withOpacity(0.95),
+                  color: Colors.grey.withOpacity(0.7),
                   child: Row(
                     children: [
                       const Expanded(
@@ -93,15 +93,7 @@ class _GameHomeState extends State<GameHome> {
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
-                            Image.asset(Assets.logo),
-                            const Text(
-                              "Give Away",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            Image.asset(Assets.finalLogo, width: MediaQuery.of(context).size.width * 0.3, fit: BoxFit.cover,),
                           ],
                         ),
                       ),
