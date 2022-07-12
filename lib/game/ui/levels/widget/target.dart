@@ -29,7 +29,7 @@ class _TargetWidgetState extends State<TargetWidget> {
           Container(
             margin: const EdgeInsets.all(5.0),
             decoration: const BoxDecoration(
-              color: Colors.white,
+              color: Color(Assets.primaryTargetBackgroundColor),
               borderRadius: BorderRadius.all(Radius.circular(8)),
             ),
             width: MediaQuery.of(context).size.width,
@@ -37,21 +37,35 @@ class _TargetWidgetState extends State<TargetWidget> {
           ),
           Positioned(
             top: 5,
-            left: 5,
-            right: 5,
+            left: 0,
+            right: 0,
             child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(8), topRight: Radius.circular(8)),
-              ),
+              color: const Color(Assets.primaryBlueColor).withOpacity(0.95),
               alignment: Alignment.center,
-              child: const Text(
-                "Targets",
-                style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(
+                    height: 3,
+                  ),
+                  Container(
+                    height: 2,
+                    width: MediaQuery.of(context).size.width * 0.33,
+                    color: const Color(Assets.primaryGoldColor),
+                  ),
+                  const Text(
+                    "Targets",
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                  Container(
+                    height: 3,
+                    width: MediaQuery.of(context).size.width * 0.33,
+                    color: const Color(Assets.primaryGoldColor),
+                  ),
+                ],
               ),
             ),
           ),

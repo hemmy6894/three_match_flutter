@@ -2,13 +2,11 @@ import 'package:contacts_service/contacts_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:test_game/game/data/models/assign.dart';
-import 'package:test_game/game/data/models/assign_list.dart';
 import 'package:test_game/game/data/models/country.dart';
 import 'package:test_game/game/data/models/friend_model.dart';
 import 'package:test_game/game/data/models/gender.dart';
 import 'package:test_game/game/data/models/phone.dart';
 import 'package:test_game/game/data/models/task.dart';
-import 'package:test_game/game/data/models/task_list.dart';
 import 'package:test_game/game/data/models/user_model.dart';
 import 'package:test_game/game/data/repositories/game.dart';
 
@@ -52,6 +50,10 @@ class ServerBloc extends Bloc<ServerEvent, ServerState> with HydratedMixin {
 
     on<PullTaskEvent>((event, emit) async {
       await event.pullTask(emit,state);
+    });
+
+    on<WonTaskEvent>((event, emit) async {
+      await event.wonTask(emit,state);
     });
 
     on<AssignTaskEvent>((event, emit) async {
@@ -102,8 +104,8 @@ class ServerBloc extends Bloc<ServerEvent, ServerState> with HydratedMixin {
       emit(state.copyWith(phones: []));
       await Future.delayed(const Duration(seconds: 2));
       emit(state.copyWith(phones: myNumbers));
-      print(state.phones);
-      print(myNumbers);
+      // print(state.phones);
+      // print(myNumbers);
     } catch (e) {
       print(e);
     }

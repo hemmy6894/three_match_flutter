@@ -10,6 +10,7 @@ import 'package:test_game/game/logic/ui/ui_cubit.dart';
 import 'package:test_game/game/ui/game.dart';
 import 'package:test_game/game/ui/game/character.dart';
 import 'package:test_game/game/ui/levels/widget/game_over.dart';
+import 'package:test_game/game/ui/levels/widget/game_reward.dart';
 import 'package:test_game/game/ui/widgets/forms/button_component.dart';
 import 'package:test_game/game/ui/widgets/package.dart';
 
@@ -78,6 +79,10 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
     return GestureDetector(
       onTap: () {
         if (canPlay) {
+          if(widget.title.wonAt != null){
+            context.read<UiCubit>().initiateCount();
+            return;
+          }
           setState(() {
             startWith = !startWith;
           });
@@ -132,7 +137,7 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
                     });
                   },
                   child: const Text(""),
-                )
+                ),
               ],
             ),
             margin: const EdgeInsets.all(2),
@@ -196,6 +201,10 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
               color: Colors.black.withOpacity(0.7),
             ),
           if (startWith) startByBooster(),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.91,
+            child: GameRewardWidget(assignedId: widget.title.id,),
+          )
         ],
       ),
     );
@@ -333,7 +342,7 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
                         MaterialPageRoute<void>(
                           builder: (BuildContext context) => GameHome(
                             levelName: widget.levelName,
-                            assignedId: widget.title.taskId,
+                            assignedId: widget.title.id,
                           ),
                           fullscreenDialog: true,
                         ),

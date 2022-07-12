@@ -55,6 +55,17 @@ class GameProvider
         .request();
   }
 
+  static Future<Response> taskWon(String task,{payload, token}) async {
+    String url = ThreeMatchEndPoint.taskWon(task).toList()[0];
+    print(payload);
+    return await ApplicationBaseRequest.post(
+        baseUrl,
+        url,
+        payload,
+        token: token)
+        .request();
+  }
+
   static Future<Response> pullAssigns({payload, token}) async {
     return await ApplicationBaseRequest.get(
         baseUrl, ThreeMatchEndPoint.assignLists, params: payload,

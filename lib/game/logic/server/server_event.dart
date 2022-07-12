@@ -15,7 +15,11 @@ class RegisterUserEvent extends ServerEvent {
         if (value.left.success == true) {
           UserModel user = value.left.data.user;
           String token = value.left.data.token;
-          state = state.copyWith(user: user,logging: false, token: token,);
+          state = state.copyWith(
+            user: user,
+            logging: false,
+            token: token,
+          );
           emit(state);
           print(state.toMap());
         }
@@ -29,13 +33,18 @@ class UpdateUserEvent extends ServerEvent {
   updateUser(Emitter<ServerState> emit, ServerState state, String token) async {
     state = state.copyWith(logging: true);
     emit(state);
-    await GameRepository.updateUser(payload: {...state.payload}, token: state.token)
+    await GameRepository.updateUser(
+            payload: {...state.payload}, token: state.token)
         .then((value) {
       if (value.isLeft) {
         if (value.left.success == true) {
           UserModel user = value.left.data.user;
           String token = value.left.data.token;
-          state = state.copyWith(user: user,logging: false, token: token,);
+          state = state.copyWith(
+            user: user,
+            logging: false,
+            token: token,
+          );
           emit(state);
         }
       }
@@ -65,12 +74,12 @@ class ServerUserTokenEvent extends ServerEvent {
   }
 }
 
-
 class ServerPutPayload extends ServerEvent {
   final dynamic value;
   final String key;
 
   ServerPutPayload({required this.value, required this.key});
+
   putPayload(Emitter<ServerState> emit, ServerState state) {
     final Map<String, dynamic> payload = {...state.payload, key: value};
     emit(state.copyWith(payload: payload));
@@ -79,12 +88,14 @@ class ServerPutPayload extends ServerEvent {
 
 class ServerRemovePayload extends ServerEvent {
   final String key;
+
   ServerRemovePayload({required this.key});
+
   removePayload(Emitter<ServerState> emit, ServerState state) {
     Map<String, dynamic> payload = {};
     state.payload.entries.map((e) {
-      if(e.key != key) {
-        payload = { ...payload, e.key: e.value};
+      if (e.key != key) {
+        payload = {...payload, e.key: e.value};
       }
     });
     emit(state.copyWith(payload: payload));
@@ -97,26 +108,66 @@ class ServerDestroyPayload extends ServerEvent {
   }
 }
 
-class FetchContactEvent extends ServerEvent{}
-class RequestFriendEvent extends ServerEvent{}
-class PullFriendEvent extends ServerEvent{}
-class PullTaskEvent extends ServerEvent{
-  pullTask(Emitter<ServerState> emit, ServerState state) async{
+class FetchContactEvent extends ServerEvent {}
+
+class RequestFriendEvent extends ServerEvent {}
+
+class PullFriendEvent extends ServerEvent {}
+
+class PullTaskEvent extends ServerEvent {
+  pullTask(Emitter<ServerState> emit, ServerState state) async {
     emit(state.copyWith(logging: true));
 
-    await GameRepository.tasks(payload: {"":""}, token: state.token).then((response){
-      response.either((left)  {
+    await GameRepository.tasks(payload: {"": ""}, token: state.token)
+        .then((response) {
+      response.either((left) {
         emit(state.copyWith(logging: false, tasks: left.data.tasks));
-      }, (right){
+      }, (right) {
         emit(state.copyWith(logging: false));
       });
     });
   }
 }
-class AssignTaskEvent extends ServerEvent{
+
+class WonTaskEvent extends ServerEvent {
+  final String taskId;
+  WonTaskEvent({required this.taskId});
+  wonTask(Emitter<ServerState> emit, ServerState state) async {
+    emit(state.copyWith(logging: true));
+    bool win = false;
+    await GameRepository.wonTask(taskId, payload: {"": ""}, token: state.token)
+        .then((response) {
+      response.either((left) async {
+        win = true;
+      }, (right) {
+        emit(state.copyWith(logging: false));
+      });
+    });
+    if(win){
+      await GameRepository.pullAssigns(
+          payload: {...state.payload}, token: state.token)
+          .then((value) {
+        value.either((left) {
+          emit(state.copyWith(
+            logging: false,
+            assigns: left.data.assigns,
+          ));
+        }, (right) {
+          emit(state.copyWith(
+            logging: false,
+          ));
+        });
+      });
+    }
+  }
+}
+
+class AssignTaskEvent extends ServerEvent {
   assignTask(Emitter<ServerState> emit, ServerState state) async {
     emit(state.copyWith(logging: true));
-    await GameRepository.assignTask(payload: {...state.payload}, token: state.token).then((value) {
+    await GameRepository.assignTask(
+            payload: {...state.payload}, token: state.token)
+        .then((value) {
       value.either((left) {
         emit(state.copyWith(
           logging: false,
@@ -130,10 +181,12 @@ class AssignTaskEvent extends ServerEvent{
   }
 }
 
-class PullAssignmentEvent extends ServerEvent{
+class PullAssignmentEvent extends ServerEvent {
   pullAssignment(Emitter<ServerState> emit, ServerState state) async {
     emit(state.copyWith(logging: true));
-    await GameRepository.pullAssigns(payload: {...state.payload}, token: state.token).then((value) {
+    await GameRepository.pullAssigns(
+            payload: {...state.payload}, token: state.token)
+        .then((value) {
       value.either((left) {
         emit(state.copyWith(
           logging: false,
@@ -148,10 +201,12 @@ class PullAssignmentEvent extends ServerEvent{
   }
 }
 
-class PullGenderEvent extends ServerEvent{
+class PullGenderEvent extends ServerEvent {
   pullGenders(Emitter<ServerState> emit, ServerState state) async {
     emit(state.copyWith(logging: true));
-    await GameRepository.getGenders(payload: {...state.payload}, token: state.token).then((value) {
+    await GameRepository.getGenders(
+            payload: {...state.payload}, token: state.token)
+        .then((value) {
       value.either((left) {
         emit(state.copyWith(
           logging: false,
@@ -166,10 +221,12 @@ class PullGenderEvent extends ServerEvent{
   }
 }
 
-class PullCountryEvent extends ServerEvent{
+class PullCountryEvent extends ServerEvent {
   pullCountries(Emitter<ServerState> emit, ServerState state) async {
     emit(state.copyWith(logging: true));
-    await GameRepository.getCountries(payload: {...state.payload}, token: state.token).then((value) {
+    await GameRepository.getCountries(
+            payload: {...state.payload}, token: state.token)
+        .then((value) {
       value.either((left) {
         emit(state.copyWith(
           logging: false,

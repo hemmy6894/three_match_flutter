@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/data/models/game/reward.dart';
 import 'package:test_game/game/logic/game/game_bloc.dart';
+import 'package:test_game/game/logic/server/server_bloc.dart';
 import 'package:test_game/game/logic/ui/ui_cubit.dart';
 import 'package:test_game/game/ui/game/character.dart';
 import 'package:test_game/game/ui/levels/widget/life_count.dart';
@@ -382,7 +383,7 @@ class _GameOverWidgetState extends State<GameOverWidget> {
                 height: widget.height * 0.6,
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.all(Radius.circular(8)),
-                  color: Colors.white,
+                  color: const Color(Assets.primaryTargetBackgroundColor),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey.withOpacity(0.75),
@@ -562,6 +563,9 @@ class _GameOverWidgetState extends State<GameOverWidget> {
   Widget displayRewards() {
     if (!isRewarded) {
       context.read<UiCubit>().receiveRewards(rewards: rewards);
+      if(context.read<GameBlock>().state.assignedId != null) {
+        context.read<ServerBloc>().add(WonTaskEvent(taskId: context.read<GameBlock>().state.assignedId!));
+      }
       setState(() {
         isRewarded = true;
       });

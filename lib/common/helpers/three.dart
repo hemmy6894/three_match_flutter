@@ -20,4 +20,12 @@ class ThreeMatchHelper {
       return DateTime.now();
     }
   }
+
+  static DateTime? convertDate2(dynamic date){
+    try {
+      return DateTime.parse(date);
+    }catch(e){
+      return null;
+    }
+  }
 }

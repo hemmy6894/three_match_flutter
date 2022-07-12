@@ -139,6 +139,23 @@ class GameRepository {
     }
   }
 
+  static Future<Either<SimpleResponse, ErrorMap>> wonTask(String task,
+      {payload, token = ""}) async {
+    Response response = await GameProvider.taskWon(task,payload: {"_method": "PUT","won":"won"}, token: token);
+    if (response.status ~/ 100 == 2) {
+      return Left(SimpleResponse.fromMap(response.data));
+    } else {
+      return Right(
+        ErrorMap(
+          body: response.body,
+          message: response.message,
+          errorMap: response.data,
+          status: response.status,
+        ),
+      );
+    }
+  }
+
   static Future<Either<AssignListResponse, ErrorMap>> pullAssigns(
       {payload, token = ""}) async {
     Response response =

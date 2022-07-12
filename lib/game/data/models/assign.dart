@@ -13,6 +13,7 @@ class AssignModel extends Equatable {
   final String type;
   final DateTime startAt;
   final DateTime endAt;
+  final DateTime? wonAt;
   final UserModel user;
   final TaskModel task;
 
@@ -27,6 +28,7 @@ class AssignModel extends Equatable {
     required this.user,
     required this.task,
     required this.startAt,
+    required this.wonAt,
     required this.endAt,
   });
 
@@ -41,6 +43,7 @@ class AssignModel extends Equatable {
       type: "user",
       startAt: DateTime.now(),
       endAt: DateTime.now(),
+      wonAt: DateTime.now(),
       user: UserModel.empty(),
       task: TaskModel.empty(),
     );
@@ -56,6 +59,7 @@ class AssignModel extends Equatable {
     String? type,
     DateTime? startAt,
     DateTime? endAt,
+    DateTime? wonAt,
     UserModel? user,
     TaskModel? task,
   }) {
@@ -71,6 +75,7 @@ class AssignModel extends Equatable {
       task: task ?? this.task,
       startAt: startAt ?? this.startAt,
       endAt: endAt ?? this.endAt,
+      wonAt: wonAt ?? this.wonAt,
     );
   }
 
@@ -88,6 +93,7 @@ class AssignModel extends Equatable {
       type: json["type"] ?? "",
       startAt: ThreeMatchHelper.convertDate(json["start_at"]),
       endAt: ThreeMatchHelper.convertDate(json["end_at"]),
+      wonAt: ThreeMatchHelper.convertDate2(json["won_at"]),
       user: UserModel.toJson(json["user"]),
       task: TaskModel.toJson(json["task"]),
     );
@@ -104,6 +110,7 @@ class AssignModel extends Equatable {
       "type": type,
       "start_at": startAt.toString(),
       "end_at": endAt.toString(),
+      "won_at": wonAt.toString(),
       "user": user.toMap(),
       "task": task.toMap(),
     };
@@ -122,5 +129,5 @@ class AssignModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id,taskId, userId,title,description,url,user.toMap(),task.toMap(),type];
+  List<Object?> get props => [id,taskId, userId,title,description,url,endAt,startAt,wonAt,user.toMap(),task.toMap(),type];
 }

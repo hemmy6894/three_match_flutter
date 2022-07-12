@@ -53,6 +53,8 @@ class Assets {
   static const int primaryGoldColor = 0xFFFFB828;
   static const int primaryRedColor = 0xFFF9203D;
   static const int primaryGreenColor = 0xFF3ED715;
+  static const int primaryBlueColor = 0xFF134383;
+  static const int primaryTargetBackgroundColor = 0xFFFBF1BC;
 
   static const Color circularProgressColor = Color.fromARGB(255, 232, 226, 238);
 

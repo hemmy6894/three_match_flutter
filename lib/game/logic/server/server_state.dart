@@ -46,7 +46,7 @@ class ServerState extends Equatable {
 
   AssignModel? assigned({required String id}){
     for(AssignModel assigned in assigns){
-      if(assigned.taskId == id){
+      if(assigned.id == id){
         return assigned;
       }
     }

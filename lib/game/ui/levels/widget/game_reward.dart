@@ -10,8 +10,8 @@ import 'package:test_game/game/ui/widgets/forms/button_component.dart';
 
 class GameRewardWidget extends StatefulWidget {
   final double width;
-
-  const GameRewardWidget({Key? key, this.width = 0}) : super(key: key);
+  final String? assignedId;
+  const GameRewardWidget({Key? key, this.width = 0, this.assignedId}) : super(key: key);
 
   @override
   State<GameRewardWidget> createState() => _GameRewardWidgetState();
@@ -109,7 +109,7 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
           child: Column(
             children: [
               if (context.read<ServerBloc>().state.assigned(
-                      id: context
+                      id: widget.assignedId ?? context
                           .read<GameBlock>()
                           .state
                           .assignedId
@@ -120,7 +120,7 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
                       .read<ServerBloc>()
                       .state
                       .assigned(
-                          id: context
+                          id: widget.assignedId ?? context
                               .read<GameBlock>()
                               .state
                               .assignedId
@@ -142,7 +142,7 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
                 ),
               ),
               if (context.read<ServerBloc>().state.assigned(
-                      id: context
+                      id: widget.assignedId ?? context
                           .read<GameBlock>()
                           .state
                           .assignedId
@@ -156,7 +156,7 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
                         .read<ServerBloc>()
                         .state
                         .assigned(
-                            id: context
+                            id: widget.assignedId ?? context
                                 .read<GameBlock>()
                                 .state
                                 .assignedId
@@ -172,7 +172,13 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
               ButtonComponent(
                 title: "Click to continue",
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  if(widget.assignedId != null){
+                    setState((){
+                      isOverTarget = false;
+                    });
+                  }else {
+                    Navigator.of(context).pop();
+                  }
                 },
                 buttonIcon: Icons.arrow_forward_rounded,
               )

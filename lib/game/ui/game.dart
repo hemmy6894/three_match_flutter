@@ -14,6 +14,8 @@ import 'package:test_game/game/ui/levels/widget/game_over.dart';
 import 'package:test_game/game/ui/levels/widget/game_reward.dart';
 import 'package:test_game/game/ui/levels/widget/move.dart';
 import 'package:test_game/game/ui/levels/widget/target.dart';
+import 'package:test_game/game/ui/widgets/back_drop_exist.dart';
+import 'package:test_game/game/ui/widgets/bottom_helper.dart';
 
 class GameHome extends StatefulWidget {
   final int levelName;
@@ -65,133 +67,127 @@ class _GameHomeState extends State<GameHome> {
       height = temp;
     }
     return AppLayout(
-      child: Container(
-        alignment: Alignment.center,
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(Assets.background),
-            fit: BoxFit.cover,
-            opacity: 0.4,
+      child: WillPopScope(
+        child: Container(
+          alignment: Alignment.center,
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(Assets.background),
+              fit: BoxFit.cover,
+              opacity: 0.7,
+            ),
           ),
-        ),
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                Container(
-                  color: Colors.grey.withOpacity(0.7),
-                  child: Row(
-                    children: [
-                      const Expanded(
-                        child: TargetWidget(),
-                      ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.3,
-                        height: 90,
-                        child: Stack(
-                          alignment: Alignment.center,
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  Container(
+                    color: const Color(Assets.primaryBlueColor),
+                    child: Column(
+                      children: [
+                        Row(
                           children: [
-                            Image.asset(Assets.finalLogo, width: MediaQuery.of(context).size.width * 0.3, fit: BoxFit.cover,),
+                            const Expanded(
+                              child: TargetWidget(),
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.3,
+                              height: 90,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Image.asset(
+                                    Assets.finalLogo,
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.3,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: MoveWidget(
+                                width: width,
+                                height: height,
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                      Expanded(
-                        child: MoveWidget(
-                          width: width,
-                          height: height,
-                        ),
-                      ),
-                    ],
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 5,
+                          color: const Color(Assets.primaryGoldColor),
+                        )
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                gameListeners(
-                  child: Stack(
-                    alignment: AlignmentDirectional.center,
-                    children: [
-                      SizedBox(
-                        width: width * (col / row),
-                        height: width,
-                      ),
-                      for (var boards in gBoards.entries)
-                        for (var board in boards.value.entries)
-                          MojaPositionAnimation(
-                            beginPosition: -2,
-                            endPosition: 1,
-                            position: Position(
-                              left: width / row * (board.key - 1),
-                              top: width /
-                                  row *
-                                  (boards.key - 1) *
-                                  getKeyTop(board.key * boards.key),
-                            ),
-                            duration: 3,
-                            child: Character(
-                              characterType: board.value,
-                              row: boards.key,
-                              active: clicked ==
-                                  PositionModel(
-                                      row: boards.key, col: board.key),
-                              col: board.key,
-                              verticalUpdate: (d) => {},
-                              asCarpet:
-                                  hasCarpet(row: boards.key, col: board.key),
-                              height: width / row,
-                              width: width / row,
-                            ),
-                          ),
-                      GameOverWidget(
-                          height: width,
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  gameListeners(
+                    child: Stack(
+                      alignment: AlignmentDirectional.center,
+                      children: [
+                        SizedBox(
                           width: width * (col / row),
-                          levelName: widget.levelName)
-                    ],
+                          height: width,
+                        ),
+                        for (var boards in gBoards.entries)
+                          for (var board in boards.value.entries)
+                            MojaPositionAnimation(
+                              beginPosition: -2,
+                              endPosition: 1,
+                              position: Position(
+                                left: width / row * (board.key - 1),
+                                top: width /
+                                    row *
+                                    (boards.key - 1) *
+                                    getKeyTop(board.key * boards.key),
+                              ),
+                              duration: 3,
+                              child: Character(
+                                characterType: board.value,
+                                row: boards.key,
+                                active: clicked ==
+                                    PositionModel(
+                                        row: boards.key, col: board.key),
+                                col: board.key,
+                                verticalUpdate: (d) => {},
+                                asCarpet:
+                                    hasCarpet(row: boards.key, col: board.key),
+                                height: width / row,
+                                width: width / row,
+                              ),
+                            ),
+                        GameOverWidget(
+                            height: width,
+                            width: width * (col / row),
+                            levelName: widget.levelName)
+                      ],
+                    ),
                   ),
+                ],
+              ),
+
+              // BlastPopUp(width: width),
+              BottomHelper(
+                exit: exitGame,
+              ),
+              if (exiting)
+                BackDropExit(
+                  cancel: (bo) {
+                    setState(() {
+                      exiting = bo;
+                    });
+                  },
                 ),
-                SizedBox(
-                  height: width * (0.3 / row),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Character(
-                      characterType: CharacterType.hummer,
-                      row: 100,
-                      active: CharacterType.hummer == selectedCharacter,
-                      col: 100,
-                      verticalUpdate: (d) {},
-                      isHelper: true,
-                      height: (width / row),
-                      width: (width / row),
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Character(
-                      characterType: CharacterType.hand,
-                      row: 100,
-                      verticalUpdate: (d) {},
-                      isHelper: true,
-                      active: CharacterType.hand == selectedCharacter,
-                      col: 100,
-                      height: (width / row),
-                      width: (width / row),
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const GameRewardWidget(),
-            // BlastPopUp(width: width),
-          ],
+              const GameRewardWidget(),
+            ],
+          ),
         ),
+        onWillPop: () async => exitGame(),
       ),
     );
   }
@@ -205,6 +201,14 @@ class _GameHomeState extends State<GameHome> {
         topAnimation = {...topAnimation, index: i / delay};
       });
     }
+  }
+
+  bool exiting = false;
+
+  exitGame() {
+    setState(() {
+      exiting = !exiting;
+    });
   }
 
   bool hasCarpet({required int row, required int col}) {
