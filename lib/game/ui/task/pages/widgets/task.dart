@@ -79,7 +79,7 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
     return GestureDetector(
       onTap: () {
         if (canPlay) {
-          if(widget.title.wonAt != null){
+          if (widget.title.wonAt != null) {
             context.read<UiCubit>().initiateCount();
             return;
           }
@@ -155,7 +155,8 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,13 +204,16 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
           if (startWith) startByBooster(),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.91,
-            child: GameRewardWidget(assignedId: widget.title.id,),
+            child: GameRewardWidget(
+              assignedId: widget.title.id,
+            ),
           )
         ],
       ),
     );
   }
 
+  bool retry = false;
   Widget startByBooster() {
     return Stack(
       alignment: Alignment.center,
@@ -247,29 +251,25 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
               const SizedBox(
                 height: 7,
               ),
-              GameOverWidget.displayTarget(
-                targets,
-                iconHeight: ((MediaQuery.of(context).size.width - 100) / 5),
-                iconWidth: ((MediaQuery.of(context).size.width - 100) / 5),
-                click: (clicked) {
-                  if (clicked.isNotEmpty) {
-                    if (clicked.entries.first.value > 0) {
-                      context.read<GameBlock>().add(GameClickBoosterEvent(
-                          booster: clicked.entries.first.key, amount: 1));
-                    }
+              GameOverWidget.displayTarget(targets,
+                  iconHeight: ((MediaQuery.of(context).size.width - 100) / 5),
+                  iconWidth: ((MediaQuery.of(context).size.width - 100) / 5),
+                  click: (clicked) {
+                if (clicked.isNotEmpty) {
+                  if (clicked.entries.first.value > 0) {
+                    context.read<GameBlock>().add(GameClickBoosterEvent(
+                        booster: clicked.entries.first.key, amount: 1));
                   }
-                },
-                plusClicked: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (BuildContext context) =>
-                      const PackageWidget(),
-                      fullscreenDialog: true,
-                    ),
-                  );
                 }
-              ),
+              }, plusClicked: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) => const PackageWidget(),
+                    fullscreenDialog: true,
+                  ),
+                );
+              }),
               const SizedBox(
                 height: 40,
               ),
@@ -329,17 +329,19 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
               children: [
                 Expanded(
                   child: ButtonComponent(
-                    title: "Play",
+                    title: retry ? "Retry" : "Play",
                     mainAxisAlignment: MainAxisAlignment.center,
                     buttonSizeHeight: MediaQuery.of(context).size.height * 0.06,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                         fontSize: MediaQuery.of(context).size.height * 0.033),
-                    onPressed: () {
-                      Navigator.push(
+                    onPressed: () async {
+                      startWith = false;
+                      retry = false;
+                      final result = await Navigator.push(
                         context,
-                        MaterialPageRoute<void>(
+                        MaterialPageRoute(
                           builder: (BuildContext context) => GameHome(
                             levelName: widget.levelName,
                             assignedId: widget.title.id,
@@ -347,7 +349,14 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
                           fullscreenDialog: true,
                         ),
                       );
-                      startWith = false;
+                      if (!mounted) return;
+                      if(result != null){
+                        startWith = true;
+                        retry = true;
+                      }else{
+                        startWith = false;
+                        retry = false;
+                      }
                     },
                   ),
                 )

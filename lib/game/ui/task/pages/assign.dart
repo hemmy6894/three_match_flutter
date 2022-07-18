@@ -306,7 +306,7 @@ class _AssignTaskState extends State<AssignTask> {
             () {
               context.read<ServerBloc>().add(ServerPutPayload(value: myFile, key: "attachment"));
               context.read<ServerBloc>().add(AssignTaskEvent());
-              // clicked = true;
+              clicked = true;
             },
           );
         },

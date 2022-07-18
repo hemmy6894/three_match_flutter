@@ -176,6 +176,7 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
                     setState((){
                       isOverTarget = false;
                     });
+                    dispose();
                   }else {
                     Navigator.of(context).pop();
                   }

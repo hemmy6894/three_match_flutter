@@ -3,6 +3,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_game/game/data/models/assign.dart';
+import 'package:test_game/game/data/models/task.dart';
 import 'package:test_game/game/logic/server/server_bloc.dart';
 import 'package:test_game/game/ui/task/pages/widgets/task.dart';
 import 'package:test_game/game/ui/task/widgets/task_page.dart';
@@ -35,37 +36,41 @@ class _AllSignedTaskState extends State<AllSignedTask> {
       listener: (context, state) {
         setState(() {
           for (AssignModel assign in state.assigns) {
-            if (assign.type != "company") {
-              widgets.add(
-                TaskViewWidget(
-                  title: assign,
-                  levelName: int.parse(
-                    assign.task.label,
+            if (assign.task != TaskModel.empty()) {
+              if (assign.type != "company") {
+                widgets.add(
+                  TaskViewWidget(
+                    title: assign,
+                    levelName: int.parse(
+                      assign.task.label.toString(),
+                    ),
                   ),
-                ),
-              );
+                );
+              }
             }
           }
         });
       },
       child: Container(
-          color: Colors.white,
-          child: CarouselSlider(
-              items: widgets,
-              options: CarouselOptions(
-                height: MediaQuery.of(context).size.height,
-                aspectRatio: 16 / 9,
-                viewportFraction: 1,
-                initialPage: 0,
-                enableInfiniteScroll: true,
-                reverse: false,
-                autoPlay: false,
-                autoPlayInterval: const Duration(seconds: 3),
-                autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                autoPlayCurve: Curves.easeIn,
-                enlargeCenterPage: true,
-                scrollDirection: Axis.vertical,
-              ))),
+        color: Colors.white,
+        child: CarouselSlider(
+          items: widgets,
+          options: CarouselOptions(
+            height: MediaQuery.of(context).size.height,
+            aspectRatio: 16 / 9,
+            viewportFraction: 1,
+            initialPage: 0,
+            enableInfiniteScroll: true,
+            reverse: false,
+            autoPlay: false,
+            autoPlayInterval: const Duration(seconds: 3),
+            autoPlayAnimationDuration: const Duration(milliseconds: 800),
+            autoPlayCurve: Curves.easeIn,
+            enlargeCenterPage: true,
+            scrollDirection: Axis.vertical,
+          ),
+        ),
+      ),
     );
   }
 }

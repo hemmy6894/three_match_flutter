@@ -7,6 +7,7 @@ class Assets {
   static const String _characters = "assets/characters/";
   static const String _background = "assets/background/";
   static const String _materials = "assets/materials/";
+  static const String _packages = "assets/packages/";
 
   static const String apple = _characters + "red.png";// "apple.png";
   static const String banana = _characters + "yellow.png";//"""banana.png";
@@ -26,8 +27,31 @@ class Assets {
 
   static const String logo = _materials + "logo.png";
   static const String finalLogo = _materials + "final_logo.png";
+  static const String shopWord = _materials + "shop.png";
+  static const String shopWhiteWord = _materials + "shop_white.png";
   static const String restart = _materials + "restart.png";
   static const String superBombBlast = _materials + "super_bomb_blast.png";
+
+  static const String chuiPackage = _packages + "chui_package.png";
+  static const String simbaPackage = _packages + "simba_package.png";
+  static const String swalaPackage = _packages + "swala_package.png";
+  static const String temboPackage = _packages + "tembo_package.png";
+  static const String twigaPackage = _packages + "twiga_package.png";
+
+  static const String timeOnePackage = _packages + "time_one.png";
+  static const String timeTwoPackage = _packages + "time_two.png";
+  static const String timeThreePackage = _packages + "time_three.png";
+  static const String timeFourPackage = _packages + "time_four.png";
+  static const String timeFivePackage = _packages + "time_five.png";
+  static const String timeTenPackage = _packages + "time_ten.png";
+  static const String timeFifteenPackage = _packages + "time_kumi_tano.png";
+
+  static const String coinBagPackage = _packages + "coin_bag.png";
+  static const String coinFiftyThousandPackage = _packages + "coin_fifty_thousand.png";
+  static const String coinFiveThousandPackage = _packages + "coin_five_thousand.png";
+  static const String coinTenThousandPackage = _packages + "coin_ten_thousand.png";
+  static const String coinTwentySevenThousandPackage = _packages + "coin_twenty_seven_thousand.png";
+  static const String coinTwoThousandPackage = _packages + "coin_two_thousand.png";
 
   static const String boxOne = _characters + "box_one.png";
   static const String boxTwo = _characters + "box_two.png";
@@ -55,6 +79,7 @@ class Assets {
   static const int primaryGreenColor = 0xFF3ED715;
   static const int primaryBlueColor = 0xFF134383;
   static const int primaryTargetBackgroundColor = 0xFFFBF1BC;
+  static const int primaryPackageBackgroundColor = 0xFFB60531;
 
   static const Color circularProgressColor = Color.fromARGB(255, 232, 226, 238);
 

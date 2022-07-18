@@ -5,9 +5,9 @@ abstract class ServerEvent {}
 class ServerPullUserEvent extends ServerEvent {}
 
 class RegisterUserEvent extends ServerEvent {
-  registerUser(
-      Emitter<ServerState> emit, ServerState state, String token) async {
+  registerUser(Emitter<ServerState> emit, ServerState state, String token) async {
     state = state.copyWith(logging: true);
+    print(state.payload);
     emit(state);
     await GameRepository.registerUser(payload: {...state.payload}, token: token)
         .then((value) {
@@ -21,7 +21,6 @@ class RegisterUserEvent extends ServerEvent {
             token: token,
           );
           emit(state);
-          print(state.toMap());
         }
       }
     });
@@ -93,11 +92,11 @@ class ServerRemovePayload extends ServerEvent {
 
   removePayload(Emitter<ServerState> emit, ServerState state) {
     Map<String, dynamic> payload = {};
-    state.payload.entries.map((e) {
-      if (e.key != key) {
-        payload = {...payload, e.key: e.value};
+    for (var e in state.payload.keys) {
+      if (e != key) {
+        payload = {...payload, e: state.payload[e]};
       }
-    });
+    }
     emit(state.copyWith(payload: payload));
   }
 }

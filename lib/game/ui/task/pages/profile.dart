@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
@@ -152,6 +153,7 @@ class _ProfileState extends State<Profile> {
   }
 
   bool startChange = false;
+  String? phoneError;
 
   Widget displayTap(
       {required String key,
@@ -214,6 +216,7 @@ class _ProfileState extends State<Profile> {
           Expanded(
             flex: 4,
             child: InputComponent(
+              errorText: key.toString() == "phone" ? phoneError : null,
               onSave: () {},
               onChange: (change) {
                 if (key.toLowerCase() == "phone") {
@@ -334,7 +337,9 @@ class _ProfileState extends State<Profile> {
             ),
           ),
           if (userModel == UserModel.empty())
-            BlocBuilder<ServerBloc, ServerState>(builder: (context, state) {
+            BlocBuilder<ServerBloc, ServerState>(
+                // buildWhen: (previous, current) => !mapEquals(previous.payload, current.payload) && current.payload["country"] != null,
+                builder: (context, state) {
               return InputComponent(
                 key: ObjectKey(DateTime.now()),
                 onSave: (save) {},
@@ -348,7 +353,7 @@ class _ProfileState extends State<Profile> {
                       context,
                       MaterialPageRoute<void>(
                         builder: (BuildContext context) =>
-                        const SelectCountryWidget(),
+                            const SelectCountryWidget(),
                         fullscreenDialog: true,
                       ),
                     );
@@ -360,7 +365,7 @@ class _ProfileState extends State<Profile> {
                     context,
                     MaterialPageRoute<void>(
                       builder: (BuildContext context) =>
-                      const SelectCountryWidget(),
+                          const SelectCountryWidget(),
                       fullscreenDialog: true,
                     ),
                   );
@@ -372,20 +377,24 @@ class _ProfileState extends State<Profile> {
               children: [
                 Expanded(
                   flex: 2,
-                  child: BlocBuilder<ServerBloc, ServerState>(builder: (context, state) {
-                    return InputComponent(
-                      key: ObjectKey(DateTime.now()),
-                      onSave: (save) {},
-                      onChange: (value) {},
-                      readOnly: true,
-                      initialValue: "+ " + (state.payload["code"] ?? ""),
-                      onTap: () {},
-                    );
-                  }),
+                  child: BlocBuilder<ServerBloc, ServerState>(
+                    // buildWhen: (previous, current) => !mapEquals(previous.payload, current.payload) && current.payload["code"] != null,
+                    builder: (context, state) {
+                      return InputComponent(
+                        key: ObjectKey(DateTime.now()),
+                        onSave: (save) {},
+                        onChange: (value) {},
+                        readOnly: true,
+                        initialValue: "+ " + (state.payload["code"] ?? ""),
+                        onTap: () {},
+                      );
+                    },
+                  ),
                 ),
                 Expanded(
                   flex: 8,
-                  child: displayTap(key: "Phone", value: userModel.phone, label: false),
+                  child: displayTap(
+                      key: "Phone", value: userModel.phone, label: false),
                 ),
               ],
             ),
@@ -435,6 +444,34 @@ class _ProfileState extends State<Profile> {
                         context
                             .read<ServerBloc>()
                             .add(ServerRemovePayload(key: "verify"));
+                        if (context.read<ServerBloc>().state.payload["phone"] ==
+                            null) {
+                          setState(() {
+                            phoneError = "Required";
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Phone number required"),
+                            ),
+                          );
+                          return;
+                        }
+                        if (context
+                                .read<ServerBloc>()
+                                .state
+                                .payload["phone"]
+                                .length <
+                            7) {
+                          setState(() {
+                            phoneError = "Minimum phone length is 7";
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Minimum phone length is 7"),
+                            ),
+                          );
+                          return;
+                        }
                       }
                       if (context
                               .read<ServerBloc>()
@@ -446,25 +483,46 @@ class _ProfileState extends State<Profile> {
                               .state
                               .payload
                               .containsKey("phone")) {
-                        context.read<ServerBloc>().add(
-                              ServerPutPayload(
-                                value: context
-                                        .read<ServerBloc>()
-                                        .state
-                                        .payload["code"] +
-                                    context
-                                        .read<ServerBloc>()
-                                        .state
-                                        .payload["phone"],
-                                key: "name",
-                              ),
-                            );
-                        context.read<ServerBloc>().add(
-                              ServerPutPayload(
-                                value: context.read<ServerBloc>().state.payload["code"] + context.read<ServerBloc>().state.payload["phone"],
-                                key: "phone",
-                              ),
-                            );
+                        if (!context
+                            .read<ServerBloc>()
+                            .state
+                            .payload["name"]
+                            .toString()
+                            .startsWith("255")) {
+                          context.read<ServerBloc>().add(
+                                ServerPutPayload(
+                                  value: context
+                                          .read<ServerBloc>()
+                                          .state
+                                          .payload["code"] +
+                                      context
+                                          .read<ServerBloc>()
+                                          .state
+                                          .payload["phone"],
+                                  key: "name",
+                                ),
+                              );
+                        }
+                        if (!context
+                            .read<ServerBloc>()
+                            .state
+                            .payload["phone"]
+                            .toString()
+                            .startsWith("255")) {
+                          context.read<ServerBloc>().add(
+                                ServerPutPayload(
+                                  value: context
+                                          .read<ServerBloc>()
+                                          .state
+                                          .payload["code"] +
+                                      context
+                                          .read<ServerBloc>()
+                                          .state
+                                          .payload["phone"],
+                                  key: "phone",
+                                ),
+                              );
+                        }
                       }
                       context.read<ServerBloc>().add(
                             RegisterUserEvent(),

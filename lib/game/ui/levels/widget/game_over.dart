@@ -18,18 +18,20 @@ class GameOverWidget extends StatefulWidget {
   final double width;
   final int levelName;
 
-  const GameOverWidget(
-      {Key? key,
-      required this.width,
-      required this.levelName,
-      required this.height})
-      : super(key: key);
+  const GameOverWidget({
+    Key? key,
+    required this.width,
+    required this.levelName,
+    required this.height,
+  }) : super(key: key);
 
-  static Widget displayTarget(List<Map<CharacterType, int>> targets,
-      {Function(Map<CharacterType, int>)? click,
-      Function()? plusClicked,
-      double iconWidth = 33,
-      double iconHeight = 33}) {
+  static Widget displayTarget(
+    List<Map<CharacterType, int>> targets, {
+    Function(Map<CharacterType, int>)? click,
+    Function()? plusClicked,
+    double iconWidth = 33,
+    double iconHeight = 33,
+  }) {
     Map<CharacterType, bool> disableClick = {};
     for (Map<CharacterType, int> target in targets) {
       disableClick[target.entries.first.key] = false;
@@ -193,6 +195,7 @@ class _GameOverWidgetState extends State<GameOverWidget> {
 
   @override
   Widget build(BuildContext context) {
+
     if (moves < 1 && gameOver) {
       return Container(
         color: Colors.grey.withOpacity(0.8),
@@ -274,7 +277,7 @@ class _GameOverWidgetState extends State<GameOverWidget> {
                         Icons.add,
                       ),
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.pop(context,context.read<GameBlock>().state.assignedId);
                       },
                     ),
                   ),
@@ -305,21 +308,27 @@ class _GameOverWidgetState extends State<GameOverWidget> {
                                   .read<UiCubit>()
                                   .state
                                   .getRewardCount(CharacterType.coin);
-                              if(count < 700) {
+                              if (count < 700) {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute<void>(
                                     builder: (BuildContext context) =>
-                                    const PackageWidget(),
+                                        const PackageWidget(),
                                     fullscreenDialog: true,
                                   ),
                                 );
-                              }else{
+                              } else {
                                 bool isOver = false;
                                 int numberMove = 5;
                                 context.read<UiCubit>().incrementLife();
-                                context.read<GameBlock>().add(GameIncrementMovesEvent(moves: numberMove));
-                                context.read<UiCubit>().receiveRewards(rewards: [const RewardModel(character: CharacterType.coin, amount: 0 - 700)]);
+                                context.read<GameBlock>().add(
+                                    GameIncrementMovesEvent(moves: numberMove));
+                                context.read<UiCubit>().receiveRewards(
+                                    rewards: [
+                                      const RewardModel(
+                                          character: CharacterType.coin,
+                                          amount: 0 - 700)
+                                    ]);
                                 setState(() {
                                   gameOver = isOver;
                                   moves = numberMove;
@@ -563,8 +572,9 @@ class _GameOverWidgetState extends State<GameOverWidget> {
   Widget displayRewards() {
     if (!isRewarded) {
       context.read<UiCubit>().receiveRewards(rewards: rewards);
-      if(context.read<GameBlock>().state.assignedId != null) {
-        context.read<ServerBloc>().add(WonTaskEvent(taskId: context.read<GameBlock>().state.assignedId!));
+      if (context.read<GameBlock>().state.assignedId != null) {
+        context.read<ServerBloc>().add(
+            WonTaskEvent(taskId: context.read<GameBlock>().state.assignedId!));
       }
       setState(() {
         isRewarded = true;
