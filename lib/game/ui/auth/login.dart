@@ -1,7 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/data/models/country.dart';
 import 'package:test_game/game/data/models/gender.dart';
@@ -14,16 +12,16 @@ import 'package:test_game/game/ui/widgets/forms/button_component.dart';
 import 'package:test_game/game/ui/widgets/forms/input_component.dart';
 import 'package:test_game/game/ui/widgets/forms/select_input_component.dart';
 
-class Profile extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   final bool closable;
 
-  const Profile({Key? key, this.closable = false}) : super(key: key);
+  const LoginPage({Key? key, this.closable = false}) : super(key: key);
 
   @override
-  State<Profile> createState() => _ProfileState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _ProfileState extends State<Profile> {
+class _LoginPageState extends State<LoginPage> {
   Map<String, dynamic> genders = {};
   Map<String, dynamic> countries = {};
 
@@ -31,10 +29,7 @@ class _ProfileState extends State<Profile> {
   void initState() {
     context.read<ServerBloc>().add(ServerDestroyPayload());
     context.read<ServerBloc>().add(PullGenderEvent());
-    if(!widget.closable) {
-      context.read<ServerBloc>().add(PullCountryEvent());
-      getContactList();
-    }
+    context.read<ServerBloc>().add(PullCountryEvent());
     if (context.read<ServerBloc>().state.genders.isNotEmpty) {
       genders = {};
       genders.addAll({"": "Select gender"});
@@ -50,12 +45,6 @@ class _ProfileState extends State<Profile> {
       }
     }
     super.initState();
-  }
-
-  getContactList() async {
-    if (await FlutterContacts.requestPermission()) {
-      context.read<ServerBloc>().add(FetchContactEvent());
-    }
   }
 
   bool loading = false;
@@ -80,7 +69,8 @@ class _ProfileState extends State<Profile> {
             setState(() {
               isOn = state.token == "" ? false : true;
               userModel = state.user;
-              if(userModel != UserModel.empty() && widget.closable){
+              if(userModel != UserModel.empty() && context.read<ServerBloc>().state.token != ""){
+                Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute<void>(
@@ -109,10 +99,10 @@ class _ProfileState extends State<Profile> {
         ),
         BlocListener<ServerBloc, ServerState>(
           listenWhen: (previous, current) =>
-              previous.genders != current.genders,
+          previous.genders != current.genders,
           listener: (context, state) {
             setState(
-              () {
+                  () {
                 if (state.genders.isNotEmpty) {
                   genders = {};
                   genders.addAll({"": "Select gender"});
@@ -125,99 +115,21 @@ class _ProfileState extends State<Profile> {
           },
         ),
       ],
-      child: isOn ? profile() : register(),
+      child: register(),
     );
   }
 
   String codeNumber = "";
   String phoneNumber = "";
 
-  Widget profile() {
-    context.read<ServerBloc>().add(
-          ServerPutPayload(
-            value: userModel.id,
-            key: "user_id",
-          ),
-        );
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: const [
-              CloseButton(),
-            ],
-          ),
-          ClipRRect(
-            borderRadius:
-                BorderRadius.circular(MediaQuery.of(context).size.width * 0.4),
-            child: Image.asset(
-              Assets.background,
-              height: MediaQuery.of(context).size.width * 0.4,
-              width: MediaQuery.of(context).size.width * 0.4,
-              fit: BoxFit.cover,
-            ),
-          ),
-          displayTap(key: "Name", value: userModel.name),
-          displayTap(key: "Email", value: userModel.email),
-          displayTap(
-            key: "Phone",
-            value: userModel.phone,
-            readOnly: true,
-          ),
-          if (genders.isNotEmpty)
-            displayTapSelect(
-              key: "Gender",
-              value: userModel.genderId,
-              values: genders,
-            ),
-          if (countries.isNotEmpty)
-            displayTapSelect(
-              key: "Country",
-              value: userModel.countryId,
-              values: countries,
-            ),
-          const SizedBox(
-            height: 15,
-          ),
-          serverListeners(
-            child: Row(
-              children: [
-                Expanded(
-                  child: ButtonComponent(
-                    buttonSize: 40,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    isLoading: loading,
-                    title: "Update",
-                    onPressed: () {
-                      context.read<ServerBloc>().add(UpdateUserEvent());
-                    },
-                    transparent: false,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
   bool startChange = false;
   String? phoneError;
 
   Widget displayTap(
       {required String key,
-      required String value,
-      bool label = true,
-      bool readOnly = false}) {
+        required String value,
+        bool label = true,
+        bool readOnly = false}) {
     if (value != "") {
       if (key.toLowerCase() == "phone") {
         if (phoneNumber != "") {
@@ -237,12 +149,12 @@ class _ProfileState extends State<Profile> {
             .payload
             .containsKey(key.toLowerCase())) {
           context.read<ServerBloc>().add(
-                ServerPutPayload(
-                  value:
-                      value.startsWith(codeNumber) ? value : codeNumber + value,
-                  key: key.toLowerCase(),
-                ),
-              );
+            ServerPutPayload(
+              value:
+              value.startsWith(codeNumber) ? value : codeNumber + value,
+              key: key.toLowerCase(),
+            ),
+          );
         }
       } else {
         if (!context
@@ -251,11 +163,11 @@ class _ProfileState extends State<Profile> {
             .payload
             .containsKey(key.toLowerCase())) {
           context.read<ServerBloc>().add(
-                ServerPutPayload(
-                  value: value,
-                  key: key.toLowerCase(),
-                ),
-              );
+            ServerPutPayload(
+              value: value,
+              key: key.toLowerCase(),
+            ),
+          );
         }
       }
     }
@@ -268,7 +180,7 @@ class _ProfileState extends State<Profile> {
               child: Text(
                 key + " :",
                 style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           Expanded(
@@ -314,11 +226,11 @@ class _ProfileState extends State<Profile> {
           .payload
           .containsKey(key.toLowerCase())) {
         context.read<ServerBloc>().add(
-              ServerPutPayload(
-                value: value,
-                key: key.toLowerCase(),
-              ),
-            );
+          ServerPutPayload(
+            value: value,
+            key: key.toLowerCase(),
+          ),
+        );
       }
     }
 
@@ -361,11 +273,11 @@ class _ProfileState extends State<Profile> {
                   codeNumber = change;
                 });
                 context.read<ServerBloc>().add(
-                      ServerPutPayload(
-                        value: change,
-                        key: key.toLowerCase(),
-                      ),
-                    );
+                  ServerPutPayload(
+                    value: change,
+                    key: key.toLowerCase(),
+                  ),
+                );
               },
               items: values,
               hintText: "Select " + key,
@@ -396,40 +308,40 @@ class _ProfileState extends State<Profile> {
           ),
           if (userModel == UserModel.empty())
             BlocBuilder<ServerBloc, ServerState>(
-                // buildWhen: (previous, current) => !mapEquals(previous.payload, current.payload) && current.payload["country"] != null,
+              // buildWhen: (previous, current) => !mapEquals(previous.payload, current.payload) && current.payload["country"] != null,
                 builder: (context, state) {
-              return InputComponent(
-                key: ObjectKey(DateTime.now()),
-                onSave: (save) {},
-                onChange: (value) {},
-                readOnly: true,
-                initialValue: (state.payload["country"] ?? "Select Country"),
-                stateValue: state.payload["country"],
-                prefixIcon: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) =>
+                  return InputComponent(
+                    key: ObjectKey(DateTime.now()),
+                    onSave: (save) {},
+                    onChange: (value) {},
+                    readOnly: true,
+                    initialValue: (state.payload["country"] ?? "Select Country"),
+                    stateValue: state.payload["country"],
+                    prefixIcon: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (BuildContext context) =>
                             const SelectCountryWidget(),
-                        fullscreenDialog: true,
-                      ),
-                    );
-                  },
-                  child: const Icon(Icons.arrow_downward),
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (BuildContext context) =>
-                          const SelectCountryWidget(),
-                      fullscreenDialog: true,
+                            fullscreenDialog: true,
+                          ),
+                        );
+                      },
+                      child: const Icon(Icons.arrow_downward),
                     ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) =>
+                          const SelectCountryWidget(),
+                          fullscreenDialog: true,
+                        ),
+                      );
+                    },
                   );
-                },
-              );
-            }),
+                }),
           if (userModel == UserModel.empty())
             Row(
               children: [
@@ -463,23 +375,23 @@ class _ProfileState extends State<Profile> {
               onSave: (String? value) {},
               onChange: (value) {
                 context.read<ServerBloc>().add(
-                      ServerPutPayload(
-                        value: value,
-                        key: "token",
-                      ),
-                    );
+                  ServerPutPayload(
+                    value: value,
+                    key: "token",
+                  ),
+                );
                 context.read<ServerBloc>().add(
-                      ServerPutPayload(
-                        value: "",
-                        key: "verify",
-                      ),
-                    );
+                  ServerPutPayload(
+                    value: "",
+                    key: "verify",
+                  ),
+                );
                 context.read<ServerBloc>().add(
-                      ServerPutPayload(
-                        value: userModel.id,
-                        key: "user_id",
-                      ),
-                    );
+                  ServerPutPayload(
+                    value: userModel.id,
+                    key: "user_id",
+                  ),
+                );
               },
               validate: "string",
             ),
@@ -515,10 +427,10 @@ class _ProfileState extends State<Profile> {
                           return;
                         }
                         if (context
-                                .read<ServerBloc>()
-                                .state
-                                .payload["phone"]
-                                .length <
+                            .read<ServerBloc>()
+                            .state
+                            .payload["phone"]
+                            .length <
                             7) {
                           setState(() {
                             phoneError = "Minimum phone length is 7";
@@ -532,10 +444,10 @@ class _ProfileState extends State<Profile> {
                         }
                       }
                       if (context
-                              .read<ServerBloc>()
-                              .state
-                              .payload
-                              .containsKey("code") &&
+                          .read<ServerBloc>()
+                          .state
+                          .payload
+                          .containsKey("code") &&
                           context
                               .read<ServerBloc>()
                               .state
@@ -548,18 +460,18 @@ class _ProfileState extends State<Profile> {
                             .toString()
                             .startsWith("255")) {
                           context.read<ServerBloc>().add(
-                                ServerPutPayload(
-                                  value: context
-                                          .read<ServerBloc>()
-                                          .state
-                                          .payload["code"] +
-                                      context
-                                          .read<ServerBloc>()
-                                          .state
-                                          .payload["phone"],
-                                  key: "name",
-                                ),
-                              );
+                            ServerPutPayload(
+                              value: context
+                                  .read<ServerBloc>()
+                                  .state
+                                  .payload["code"] +
+                                  context
+                                      .read<ServerBloc>()
+                                      .state
+                                      .payload["phone"],
+                              key: "name",
+                            ),
+                          );
                         }
                         if (!context
                             .read<ServerBloc>()
@@ -568,23 +480,23 @@ class _ProfileState extends State<Profile> {
                             .toString()
                             .startsWith("255")) {
                           context.read<ServerBloc>().add(
-                                ServerPutPayload(
-                                  value: context
-                                          .read<ServerBloc>()
-                                          .state
-                                          .payload["code"] +
-                                      context
-                                          .read<ServerBloc>()
-                                          .state
-                                          .payload["phone"],
-                                  key: "phone",
-                                ),
-                              );
+                            ServerPutPayload(
+                              value: context
+                                  .read<ServerBloc>()
+                                  .state
+                                  .payload["code"] +
+                                  context
+                                      .read<ServerBloc>()
+                                      .state
+                                      .payload["phone"],
+                              key: "phone",
+                            ),
+                          );
                         }
                       }
                       context.read<ServerBloc>().add(
-                            RegisterUserEvent(),
-                          );
+                        RegisterUserEvent(),
+                      );
                     },
                     transparent: false,
                   ),
@@ -602,10 +514,10 @@ class _ProfileState extends State<Profile> {
       listeners: [
         BlocListener<ServerBloc, ServerState>(
           listenWhen: (previous, current) =>
-              previous.logging != current.logging,
+          previous.logging != current.logging,
           listener: (context, state) {
             setState(
-              () {
+                  () {
                 loading = state.logging;
               },
             );
@@ -616,8 +528,8 @@ class _ProfileState extends State<Profile> {
           listener: (context, state) {
             if (state.phones.isNotEmpty) {
               context.read<ServerBloc>().add(
-                    RequestFriendEvent(),
-                  );
+                RequestFriendEvent(),
+              );
             }
           },
         ),

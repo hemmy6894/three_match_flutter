@@ -8,6 +8,8 @@ class AssignModel extends Equatable {
   final String taskId;
   final String userId;
   final String title;
+  final String wallpaper;
+  final int rank;
   final String description;
   final String url;
   final String type;
@@ -15,6 +17,7 @@ class AssignModel extends Equatable {
   final DateTime endAt;
   final DateTime? wonAt;
   final UserModel user;
+  final UserModel assigner;
   final TaskModel task;
 
   const AssignModel({
@@ -26,10 +29,13 @@ class AssignModel extends Equatable {
     required this.url,
     required this.type,
     required this.user,
+    required this.assigner,
     required this.task,
     required this.startAt,
     required this.wonAt,
     required this.endAt,
+    required this.wallpaper,
+    required this.rank,
   });
 
   factory AssignModel.empty() {
@@ -41,10 +47,13 @@ class AssignModel extends Equatable {
       description: "",
       url: "",
       type: "user",
+      wallpaper: "",
+      rank: 0,
       startAt: DateTime.now(),
       endAt: DateTime.now(),
       wonAt: DateTime.now(),
       user: UserModel.empty(),
+      assigner: UserModel.empty(),
       task: TaskModel.empty(),
     );
   }
@@ -57,10 +66,13 @@ class AssignModel extends Equatable {
     String? description,
     String? url,
     String? type,
+    String? wallpaper,
+    int? rank,
     DateTime? startAt,
     DateTime? endAt,
     DateTime? wonAt,
     UserModel? user,
+    UserModel? assigner,
     TaskModel? task,
   }) {
     return AssignModel(
@@ -72,10 +84,13 @@ class AssignModel extends Equatable {
       url: url ?? this.url,
       type: type ?? this.type,
       user: user ?? this.user,
+      assigner: assigner ?? this.assigner,
       task: task ?? this.task,
       startAt: startAt ?? this.startAt,
       endAt: endAt ?? this.endAt,
       wonAt: wonAt ?? this.wonAt,
+      wallpaper: wallpaper ?? this.wallpaper,
+      rank: rank ?? this.rank,
     );
   }
 
@@ -91,10 +106,13 @@ class AssignModel extends Equatable {
       description: json["description"] ?? "",
       url: json["url"] ?? "",
       type: json["type"] ?? "",
+      wallpaper: json["wallpaper_url"] ?? "",
+      rank: json["rank"] ?? "",
       startAt: ThreeMatchHelper.convertDate(json["start_at"]),
       endAt: ThreeMatchHelper.convertDate(json["end_at"]),
       wonAt: ThreeMatchHelper.convertDate2(json["won_at"]),
       user: UserModel.toJson(json["user"]),
+      assigner: UserModel.toJson(json["assigner"]),
       task: TaskModel.toJson(json["task"]),
     );
   }
@@ -108,10 +126,13 @@ class AssignModel extends Equatable {
       "description": description,
       "url": url,
       "type": type,
+      "wallpaper_url": wallpaper,
+      "rank": rank,
       "start_at": startAt.toString(),
       "end_at": endAt.toString(),
       "won_at": wonAt.toString(),
       "user": user.toMap(),
+      "assigner": assigner.toMap(),
       "task": task.toMap(),
     };
   }
@@ -129,5 +150,5 @@ class AssignModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id,taskId, userId,title,description,url,endAt,startAt,wonAt,user.toMap(),task.toMap(),type];
+  List<Object?> get props => [id,taskId, userId,title,description,url,endAt,startAt,wonAt,user.toMap(),task.toMap(),type, wallpaper,rank];
 }

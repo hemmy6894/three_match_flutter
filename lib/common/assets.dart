@@ -8,6 +8,7 @@ class Assets {
   static const String _background = "assets/background/";
   static const String _materials = "assets/materials/";
   static const String _packages = "assets/packages/";
+  static const String _gif = "assets/gif/";
 
   static const String apple = _characters + "red.png";// "apple.png";
   static const String banana = _characters + "yellow.png";//"""banana.png";
@@ -16,11 +17,13 @@ class Assets {
   static const String pear = _characters + "green.png";//"""pear.png";
   static const String hole = _characters + "hole.png";
   static const String coin = _characters + "coin.png";
-  static const String bomb = _characters + "tnt.png";//"""bomb.png";
+  static const String bomb = _characters + "bomb.png";
   static const String plane = _characters + "rocket.png";// "plane.jpg";
   static const String hand = _characters + "hand.png";
   static const String carpet = _characters + "carpet.png";
   static const String hummer = _characters + "hummer.png";
+  static const String heart = _characters + "heart.png";
+  static const String heartBroken = _characters + "heart_broken.png";
   static const String bulletVertical = _characters + "vertical_bullet.png";
   static const String bulletHorizontal = _characters + "horizontal_bullet.png";
   static const String superBomb = _characters + "fireball.png";//"""super_bomb.png";
@@ -53,6 +56,8 @@ class Assets {
   static const String coinTwentySevenThousandPackage = _packages + "coin_twenty_seven_thousand.png";
   static const String coinTwoThousandPackage = _packages + "coin_two_thousand.png";
 
+  static const String logoGif = _gif + "logo.gif";
+
   static const String boxOne = _characters + "box_one.png";
   static const String boxTwo = _characters + "box_two.png";
   static const String boxThree = _characters + "box_three.png";
@@ -61,7 +66,7 @@ class Assets {
   static const String diamondTwo = _characters + "diamond_two.png";
   static const String diamondThree = _characters + "diamond_three.png";
 
-  static const String background = _background + "background.png";
+  static const String background = _background + "background4.jpg";
   static const String gameOver = _background + "game_over.png";
 
   static const int characterColor = 0xFF94B8DB;

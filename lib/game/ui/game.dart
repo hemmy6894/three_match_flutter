@@ -303,8 +303,7 @@ class _GameHomeState extends State<GameHome> {
           },
         ),
         BlocListener<GameBlock, GameState>(
-          listenWhen: (previous, current) =>
-              previous.toBreak != current.toBreak,
+          listenWhen: (previous, current) => previous.toBreak != current.toBreak,
           listener: (context, state) {
             if (state.toBreak.isNotEmpty) {
               context.read<GameBlock>().add(GameBreakMatchEvent());

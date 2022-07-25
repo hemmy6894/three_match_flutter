@@ -7,10 +7,13 @@ import 'package:test_game/game/data/models/phone.dart';
 import 'package:test_game/game/data/models/task.dart';
 import 'package:test_game/game/logic/server/server_bloc.dart';
 import 'package:test_game/game/ui/task/pages/widgets/gift.dart';
+import 'package:test_game/game/ui/task/pages/widgets/rank.dart';
 import 'package:test_game/game/ui/task/pages/widgets/search.dart';
 import 'package:test_game/game/ui/task/pages/widgets/search_country.dart';
 import 'package:test_game/game/ui/task/pages/widgets/search_gender.dart';
 import 'package:test_game/game/ui/task/pages/widgets/search_task.dart';
+import 'package:test_game/game/ui/task/pages/widgets/wallpaper.dart';
+import 'package:test_game/game/ui/widgets/forms/button_component.dart';
 
 class AssignTask extends StatefulWidget {
   final Function(int) taped;
@@ -47,8 +50,10 @@ class _AssignTaskState extends State<AssignTask> {
     genders = context.read<ServerBloc>().state.genders;
     countries = context.read<ServerBloc>().state.countries;
     if (context.read<ServerBloc>().state.user.type == "company") {
-      taskStep = 2;
-      prizeStep = 3;
+      rankStep = 2;
+      taskStep = 3;
+      wallpaperStep = 4;
+      prizeStep = 5;
     } else {
       taskStep = 1;
       prizeStep = 2;
@@ -104,6 +109,10 @@ class _AssignTaskState extends State<AssignTask> {
                 _genderWidget(),
               if (context.read<ServerBloc>().state.user.type == "company")
                 _countryWidget(),
+              if (context.read<ServerBloc>().state.user.type == "company")
+                _enterRank(),
+              if (context.read<ServerBloc>().state.user.type == "company")
+                _enterWallpaper(),
               if (context.read<ServerBloc>().state.user.type != "company")
                 _selectUser(),
               _selectTask(),
@@ -141,9 +150,7 @@ class _AssignTaskState extends State<AssignTask> {
               ],
             ),
           Row(
-            children: [
-              nextButton()
-            ],
+            children: [nextButton()],
           )
         ],
       );
@@ -261,11 +268,13 @@ class _AssignTaskState extends State<AssignTask> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GiftWidget(getFilet: (file) {
-            setState((){
-              myFile = file;
-            });
-          },),
+          GiftWidget(
+            getFilet: (file) {
+              setState(() {
+                myFile = file;
+              });
+            },
+          ),
           Row(
             children: [
               backButton(),
@@ -278,9 +287,54 @@ class _AssignTaskState extends State<AssignTask> {
     return Container();
   }
 
+  PlatformFile? wallPaper;
+  int wallpaperStep = 0;
+  Widget _enterWallpaper() {
+    if (_currentStep == wallpaperStep) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          WallpaperWidget(
+            getFilet: (file) {
+              setState(() {
+                wallPaper = file;
+              });
+            },
+          ),
+          Row(
+            children: [
+              nextButton(),
+              backButton(),
+            ],
+          ),
+        ],
+      );
+    }
+    return Container();
+  }
+
+  int rankStep = 0;
+  Widget _enterRank() {
+    if (_currentStep == rankStep) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const RankWidget(),
+          Row(
+            children: [
+              nextButton(),
+              backButton(),
+            ],
+          ),
+        ],
+      );
+    }
+    return Container();
+  }
+
   Widget nextButton() {
     return Expanded(
-      child: ElevatedButton(
+      child: ButtonComponent(
         onPressed: () {
           setState(
             () {
@@ -288,9 +342,8 @@ class _AssignTaskState extends State<AssignTask> {
             },
           );
         },
-        child: const Text(
-          "Next",
-        ),
+        title: "Next",
+        mainAxisAlignment: MainAxisAlignment.center,
       ),
     );
   }
@@ -304,14 +357,20 @@ class _AssignTaskState extends State<AssignTask> {
         onPressed: () {
           setState(
             () {
-              context.read<ServerBloc>().add(ServerPutPayload(value: myFile, key: "attachment"));
+              context
+                  .read<ServerBloc>()
+                  .add(ServerPutPayload(value: myFile, key: "attachment"));
+              context
+                  .read<ServerBloc>()
+                  .add(ServerPutPayload(value: wallPaper, key: "wallpaper"));
               context.read<ServerBloc>().add(AssignTaskEvent());
               clicked = true;
             },
           );
         },
         child: BlocListener<ServerBloc, ServerState>(
-          listenWhen: (previous, current) => previous.logging != current.logging,
+          listenWhen: (previous, current) =>
+              previous.logging != current.logging,
           listener: (context, state) {
             if (!isLoading && clicked) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -327,7 +386,10 @@ class _AssignTaskState extends State<AssignTask> {
           },
           child: isLoading
               ? const SizedBox(
-                  width: 15, height: 15, child: CircularProgressIndicator())
+                  width: 15,
+                  height: 15,
+                  child: CircularProgressIndicator(),
+                )
               : const Text(
                   "Save",
                 ),

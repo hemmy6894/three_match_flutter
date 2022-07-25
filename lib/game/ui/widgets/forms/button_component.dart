@@ -80,9 +80,8 @@ class ButtonComponent extends StatelessWidget {
           ],
         ),
         style: ElevatedButton.styleFrom(
-          onPrimary:
-              transparent ? const Color(Assets.primaryColor) : Colors.white,
-          primary: transparent ? Colors.transparent : Color(backgroundColor),
+          onPrimary: transparent ? Color(backgroundColor) : Colors.white,
+          primary: transparent ? Colors.white : Color(backgroundColor),
           minimumSize: Size(buttonSize, buttonSizeHeight),
           padding: const EdgeInsets.symmetric(horizontal: 16),
           side: !transparent
@@ -90,9 +89,9 @@ class ButtonComponent extends StatelessWidget {
                   width: 0.0,
                   color: Color(Assets.primaryColor),
                 )
-              : const BorderSide(
+              : BorderSide(
                   width: 2.0,
-                  color: Color(Assets.primaryColor),
+                  color: Color(backgroundColor),
                 ),
         ),
       ),

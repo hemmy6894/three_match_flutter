@@ -8,6 +8,7 @@ import 'package:test_game/common/helpers/helper.dart';
 import 'package:test_game/game/logic/game/game_bloc.dart';
 import 'package:test_game/game/logic/server/server_bloc.dart';
 import 'package:test_game/game/logic/ui/ui_cubit.dart';
+import 'package:test_game/game/ui/auth/login.dart';
 import 'package:test_game/game/ui/levels/home.dart';
 import 'package:test_game/game/ui/task/main_app.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -40,7 +41,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           bottomNavigationBarTheme: ThreeBottomNavigationBar().bottomNavigationBarTheme()
         ),
-        home: const MainApp(),
+        home: const LoginPage(),
       ),
     );
   }

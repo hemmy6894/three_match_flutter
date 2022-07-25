@@ -11,7 +11,7 @@ class DatePickerComponent extends StatefulWidget {
   final Function(DateTime?) onChange;
   final String validate;
   final bool isLoading;
-  final bool obscureText;
+  final bool withTime;
   final int minLines;
   final int maxLines;
   final Icon? prefixIcon;
@@ -32,7 +32,7 @@ class DatePickerComponent extends StatefulWidget {
       required this.onChange,
       this.isLoading = false,
       this.validate = "",
-      this.obscureText = false})
+      this.withTime = false})
       : super(key: key);
 
   @override
@@ -79,7 +79,6 @@ class _DatePickerComponentState extends State<DatePickerComponent> {
             readOnly: true,
             // initialValue: inTime,
             maxLines: widget.maxLines,
-            obscureText: widget.obscureText,
             style: const TextStyle(fontSize: 18.0, color: Colors.black),
             decoration: InputDecoration(
               suffixIcon: GestureDetector(
@@ -97,12 +96,24 @@ class _DatePickerComponentState extends State<DatePickerComponent> {
 
                   if (selectedDateFromUser != null &&
                       selectedDateFromUser != dateSelected) {
-                    setState(() {
-                      dateSelected = selectedDateFromUser;
-                      inTime = ThreeMatchHelper.dateFormat(dateTime: dateSelected, format: "yyyy-MM-dd");
-                      controller = TextEditingController(text: inTime);
-                    });
+                    final TimeOfDay? newTime = await showTimePicker(
+                      context: context,
+                      initialTime:  TimeOfDay(hour: DateTime.now().hour, minute: DateTime.now().minute),
+                    );
 
+                    if(newTime != null) {
+                      setState(() {
+                        String m = selectedDateFromUser.month<10 ? ("0"+selectedDateFromUser.month.toString()) : selectedDateFromUser.month.toString();
+                        String d = selectedDateFromUser.day<10 ? ("0"+selectedDateFromUser.day.toString()) : selectedDateFromUser.day.toString();
+                        String h = newTime.hour<10 ? ("0"+newTime.hour.toString()) : newTime.hour.toString();
+                        String min = newTime.minute<10 ? ("0"+newTime.minute.toString()) : newTime.minute.toString();
+                        String formDate = "${selectedDateFromUser.year}-$m-$d $h:$min:00";
+                        DateTime myViewTime = DateTime.parse(formDate);
+                        dateSelected = myViewTime;
+                        inTime = ThreeMatchHelper.dateFormat(dateTime: dateSelected, format: "yyyy-MM-dd HH:mm:00");
+                        controller = TextEditingController(text: inTime);
+                      });
+                    }
                     widget.onChange(dateSelected);
                   }
                 },

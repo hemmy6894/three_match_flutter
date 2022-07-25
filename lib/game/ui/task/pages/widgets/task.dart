@@ -13,12 +13,20 @@ import 'package:test_game/game/ui/levels/widget/game_over.dart';
 import 'package:test_game/game/ui/levels/widget/game_reward.dart';
 import 'package:test_game/game/ui/widgets/forms/button_component.dart';
 import 'package:test_game/game/ui/widgets/package.dart';
+import 'package:test_game/game/ui/widgets/text_more.dart';
 
 class TaskViewWidget extends StatefulWidget {
   final AssignModel title;
   final int levelName;
+  final bool won;
+  final bool assigns;
 
-  const TaskViewWidget({Key? key, required this.title, required this.levelName})
+  const TaskViewWidget(
+      {Key? key,
+      required this.title,
+      required this.levelName,
+      this.won = false,
+      this.assigns = false})
       : super(key: key);
 
   @override
@@ -78,6 +86,11 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
     Size mySize = MediaQuery.of(context).size;
     return GestureDetector(
       onTap: () {
+        if (widget.won ||
+            (widget.title.assigner.id != widget.title.user.id &&
+                widget.assigns)) {
+          return;
+        }
         if (canPlay) {
           if (widget.title.wonAt != null) {
             context.read<UiCubit>().initiateCount();
@@ -98,11 +111,32 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
         alignment: Alignment.center,
         children: [
           Container(
-            child: Image.asset(
-              Assets.background,
-              width: MediaQuery.of(context).size.width,
-              fit: BoxFit.cover,
-            ),
+            child: (widget.won || widget.assigns)
+                ? Image.network(
+                    widget.won ? widget.title.url : widget.title.wallpaper,
+                    // if assigns display wallpaper
+                    height: MediaQuery.of(context).size.height,
+                    fit: BoxFit.fitHeight,
+                    errorBuilder: (context, _, d) {
+                      return Image.asset(
+                        Assets.background,
+                        width: MediaQuery.of(context).size.width,
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  )
+                : Image.network(
+                    widget.title.wallpaper,
+                    width: MediaQuery.of(context).size.width,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, _, d) {
+                      return Image.asset(
+                        Assets.background,
+                        width: MediaQuery.of(context).size.width,
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  ),
           ),
           Container(
             width: mySize.width,
@@ -162,7 +196,7 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "@" + widget.title.user.name,
+                        "@" + widget.title.assigner.name,
                         style: const TextStyle(
                             // fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -175,14 +209,15 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
                             fontWeight: FontWeight.bold,
                             color: Colors.white),
                       ),
-                      Text(
-                        startInMessage,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          // fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      if (!widget.won || widget.assigns)
+                        Text(
+                          startInMessage,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            // fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
                       Text(
                         widget.title.title,
                         style: const TextStyle(
@@ -190,12 +225,38 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
                             // fontWeight: FontWeight.bold,
                             color: Colors.white),
                       ),
+                      if (widget.won || widget.assigns)
+                        Container(
+                          alignment: Alignment.topLeft,
+                          width: MediaQuery.of(context).size.width * 0.75,
+                          child: TextWithMore(
+                            text: widget.title.description,
+                            displayTextCount: 90,
+                            style: const TextStyle(color: Colors.white),
+                            moreStyle: const TextStyle(
+                                fontStyle: FontStyle.italic,
+                                color: Colors.grey),
+                          ),
+                        ),
                     ],
                   ),
                 ),
               ],
             ),
           ),
+          if (widget.won)
+            Positioned(
+              top: 15,
+              left: 10,
+              child: Text(
+                "WON AT: ${widget.title.wonAt!.toString()}",
+                style: const TextStyle(
+                  // fontSize: 10,
+                  // fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
           if (startWith)
             Container(
               height: MediaQuery.of(context).size.height,
@@ -214,6 +275,7 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
   }
 
   bool retry = false;
+
   Widget startByBooster() {
     return Stack(
       alignment: Alignment.center,
@@ -350,10 +412,10 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
                         ),
                       );
                       if (!mounted) return;
-                      if(result != null){
+                      if (result != null) {
                         startWith = true;
                         retry = true;
-                      }else{
+                      } else {
                         startWith = false;
                         retry = false;
                       }

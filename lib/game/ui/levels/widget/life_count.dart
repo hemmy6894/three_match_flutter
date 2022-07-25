@@ -27,8 +27,7 @@ class _LiveCountState extends State<LiveCount> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<UiCubit, UiState>(
-      listenWhen: (previous, current) =>
-          previous.remainingTime != current.remainingTime,
+      listenWhen: (previous, current) => previous.remainingTime != current.remainingTime,
       listener: (context, state) {
         setState(() {
           liveCount = state.lastLifeCount;
@@ -51,9 +50,9 @@ class _LiveCountState extends State<LiveCount> {
               alignment: Alignment.center,
               children: [
                 Image.asset(
-                  Assets.orange,
+                  liveCount < 1 ? Assets.heartBroken : Assets.heart,
                 ),
-                Text(
+                liveCount < 1 ? const Text("") : Text(
                   liveCount.toString(),
                   style: const TextStyle(
                       color: Colors.white, fontWeight: FontWeight.bold),

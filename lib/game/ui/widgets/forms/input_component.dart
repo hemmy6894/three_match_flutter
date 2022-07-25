@@ -19,6 +19,7 @@ class InputComponent extends StatefulWidget {
   final String? label;
   final Color? prefixIconColor;
   final Color? labelColor;
+  final TextInputType? keyboardType;
 
   const InputComponent(
       {Key? key,
@@ -37,6 +38,7 @@ class InputComponent extends StatefulWidget {
       required this.onChange,
       this.isLoading = false,
       this.validate = "",
+      this.keyboardType,
       this.labelColor = Colors.white,
       this.obscureText = false})
       : super(key: key);
@@ -79,6 +81,7 @@ class _InputComponentState extends State<InputComponent> {
         Container(
           margin: const EdgeInsets.all(2),
           child: TextFormField(
+            keyboardType: widget.keyboardType,
             controller: _controller,
             minLines: widget.minLines,
             // ignore: prefer_null_aware_operators

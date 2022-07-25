@@ -172,6 +172,8 @@ class _GameRewardWidgetState extends State<GameRewardWidget> {
               ButtonComponent(
                 title: "Click to continue",
                 onPressed: () {
+                  context.read<ServerBloc>().add(ServerDestroyPayload());
+                  context.read<ServerBloc>().add(PullAssignmentEvent());
                   if(widget.assignedId != null){
                     setState((){
                       isOverTarget = false;

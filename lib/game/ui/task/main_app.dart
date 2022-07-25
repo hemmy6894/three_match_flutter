@@ -4,12 +4,14 @@ import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/logic/server/server_bloc.dart';
 import 'package:test_game/game/logic/ui/ui_cubit.dart';
 import 'package:test_game/game/ui/game/character.dart';
+import 'package:test_game/game/ui/layouts/app.dart';
 import 'package:test_game/game/ui/levels/widget/life_count.dart';
 import 'package:test_game/game/ui/task/pages/all_task.dart';
 import 'package:test_game/game/ui/task/pages/assign.dart';
 import 'package:test_game/game/ui/task/pages/friend.dart';
 import 'package:test_game/game/ui/task/pages/home.dart';
 import 'package:test_game/game/ui/task/pages/profile.dart';
+import 'package:test_game/game/ui/task/pages/user_profile.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({Key? key}) : super(key: key);
@@ -42,17 +44,25 @@ class _MainAppState extends State<MainApp> {
     _widgetOptions = [
       const GameHomePage(),
       const AllSignedTask(),
-      AssignTask(taped: (num) {
-        _onItemTapped(num);
+      AssignTask(taped: (numb) {
+        _onItemTapped(numb);
       }),
       const FriendPage(),
-      const Profile(),
+      const UserProfilePage(),
     ];
+    isOn = context.read<ServerBloc>().state.token == "" ? false : true;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!isOn) {
+      return const AppLayout(
+        child: Profile(
+          closable: true,
+        ),
+      );
+    }
     return Scaffold(
       body: SafeArea(
         child: Container(
@@ -66,7 +76,10 @@ class _MainAppState extends State<MainApp> {
                   child: Stack(
                     children: [
                       _widgetOptions.elementAt(_selectedIndex),
-                      if (isOn && (_selectedIndex != 4 && _selectedIndex != 2 &&  _selectedIndex != 3))
+                      if (isOn &&
+                          (_selectedIndex != 4 &&
+                              _selectedIndex != 2 &&
+                              _selectedIndex != 3))
                         Positioned(
                           top: 0,
                           right: 0,
@@ -81,7 +94,7 @@ class _MainAppState extends State<MainApp> {
                                     const LiveCount(),
                                     BlocBuilder<UiCubit, UiState>(
                                       buildWhen: (previous, current) =>
-                                      previous.rewards != current.rewards,
+                                          previous.rewards != current.rewards,
                                       builder: (context, state) {
                                         return Character(
                                           characterType: CharacterType.coin,
@@ -105,7 +118,6 @@ class _MainAppState extends State<MainApp> {
                             ),
                           ),
                         ),
-
                     ],
                   ),
                 ),
@@ -130,7 +142,7 @@ class _MainAppState extends State<MainApp> {
                     listener: (context, state) {
                       setState(() {
                         isOn = state.token == "" ? false : true;
-                        if(!isOn && _selectedIndex != 4){
+                        if (!isOn && _selectedIndex != 4) {
                           _selectedIndex = 4;
                         }
                       });
