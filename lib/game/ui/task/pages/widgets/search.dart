@@ -46,13 +46,13 @@ class _SearchUserState extends State<SearchUser> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
-                Text("Select User", style: TextStyle(fontWeight: FontWeight.normal, fontSize: 30),)
+                Text("Select Friend", style: TextStyle(fontWeight: FontWeight.normal, fontSize: 30),)
               ],
             ),
           ),
           SizedBox( height: MediaQuery.of(context).size.height * 0.10,),
           InputComponent(
-            hintText: "Search user",
+            hintText: "Search friend",
             onSave: () {},
             onChange: (v) {
               setState(

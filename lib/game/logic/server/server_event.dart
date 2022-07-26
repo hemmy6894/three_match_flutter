@@ -187,6 +187,7 @@ class PullAssignmentEvent extends ServerEvent {
             payload: {...state.payload}, token: state.token)
         .then((value) {
       value.either((left) {
+        emit(state.copyWith(assigns: []));
         emit(state.copyWith(
           logging: false,
           assigns: left.data.assigns,

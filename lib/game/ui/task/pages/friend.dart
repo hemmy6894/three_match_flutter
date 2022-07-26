@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:test_game/game/data/models/phone.dart';
 import 'package:test_game/game/logic/server/server_bloc.dart';
 
@@ -15,13 +16,33 @@ class _FriendPageState extends State<FriendPage> {
 
   @override
   initState() {
-    context.read<ServerBloc>().add(PullFriendEvent());
+    requestPermissionContact();
     friends = context.read<ServerBloc>().state.friends;
     super.initState();
   }
 
+  bool canPull = false;
+  requestPermissionContact() async {
+    if(canPull = await FlutterContacts.requestPermission()) {
+      context.read<ServerBloc>().add(PullFriendEvent());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if(!canPull){
+      return GestureDetector(
+        onTap: () {
+          // requestPermissionContact();
+        },
+        child: Container(
+          color: Colors.white,
+          child: const Center(
+            child: Text("Please allow contact permission", textAlign: TextAlign.center, style: TextStyle(color: Colors.black,fontSize: 25),),
+          ),
+        ),
+      );
+    }
     return BlocListener<ServerBloc, ServerState>(
       listenWhen: (previous, current) => previous.friends != current.friends,
       listener: (context, state) {

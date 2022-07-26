@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/data/models/assign.dart';
 import 'package:test_game/game/data/models/task.dart';
@@ -34,13 +35,22 @@ class _AllSignedTaskState extends State<AllSignedTask> {
           .read<ServerBloc>()
           .add(ServerPutPayload(value: "1", key: widget.getType!));
     }
-    if (context.read<ServerBloc>().state.assigns.isNotEmpty) {
-      loading = false;
-    }
+    ifAssignmentExists();
     context.read<ServerBloc>().add(PullAssignmentEvent());
+    requestPermissionContact();
     super.initState();
   }
 
+  requestPermissionContact() async {
+    await FlutterContacts.requestPermission();
+  }
+
+  ifAssignmentExists() async{
+    if (context.read<ServerBloc>().state.assigns.isNotEmpty) {
+      await Future.delayed(const Duration(seconds: 1));
+      loading = false;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return BlocListener<ServerBloc, ServerState>(
@@ -50,7 +60,7 @@ class _AllSignedTaskState extends State<AllSignedTask> {
           loading = false;
           for (AssignModel assign in state.assigns) {
             if (assign.task != TaskModel.empty()) {
-              if (assign.type != "company") {
+              if (assign.type != "company" || widget.getType != null) {
                 widgets.add(
                   TaskViewWidget(
                     title: assign,

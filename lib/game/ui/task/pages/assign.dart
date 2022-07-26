@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:test_game/game/data/models/country.dart';
 import 'package:test_game/game/data/models/gender.dart';
 import 'package:test_game/game/data/models/phone.dart';
@@ -41,7 +42,6 @@ class _AssignTaskState extends State<AssignTask> {
     selectedTask = TaskModel.empty();
     selectedGender = GenderModel.empty();
     selectedCountry = CountryModel.empty();
-    context.read<ServerBloc>().add(PullFriendEvent());
     context.read<ServerBloc>().add(PullTaskEvent());
     context.read<ServerBloc>().add(PullGenderEvent());
     context.read<ServerBloc>().add(PullCountryEvent());
@@ -58,11 +58,33 @@ class _AssignTaskState extends State<AssignTask> {
       taskStep = 1;
       prizeStep = 2;
     }
+    requestPermissionContact();
     super.initState();
+  }
+
+  bool canPull = false;
+  requestPermissionContact() async {
+    canPull = await FlutterContacts.requestPermission();
+    if(canPull) {
+      context.read<ServerBloc>().add(PullFriendEvent());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if(!canPull){
+      return GestureDetector(
+        onTap: () {
+          // requestPermissionContact();
+        },
+        child: Container(
+          color: Colors.white,
+          child: const Center(
+            child: Text("Please allow contact permission", textAlign: TextAlign.center, style: TextStyle(color: Colors.black,fontSize: 25),),
+          ),
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SingleChildScrollView(

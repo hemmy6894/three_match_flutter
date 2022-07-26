@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/data/models/assign.dart';
 import 'package:test_game/game/data/models/game/reward.dart';
@@ -127,13 +131,13 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
                   )
                 : Image.network(
                     widget.title.wallpaper,
-                    width: MediaQuery.of(context).size.width,
-                    fit: BoxFit.cover,
+                    height: MediaQuery.of(context).size.height,
+                    fit: BoxFit.fitHeight,
                     errorBuilder: (context, _, d) {
                       return Image.asset(
                         Assets.background,
-                        width: MediaQuery.of(context).size.width,
-                        fit: BoxFit.cover,
+                        height: MediaQuery.of(context).size.height,
+                        fit: BoxFit.fitHeight,
                       );
                     },
                   ),
@@ -189,8 +193,7 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,13 +252,63 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
               top: 15,
               left: 10,
               child: Text(
-                "WON AT: ${widget.title.wonAt!.toString()}",
+                "WON AT: ${widget.title.wonAt.toString()}",
                 style: const TextStyle(
                   // fontSize: 10,
                   // fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
+            ),
+          if (widget.assigns && widget.title.type == "company")
+            Positioned(
+              top: 15,
+              left: 10,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Rank : " + widget.title.rank.toString(),
+                    style: const TextStyle(
+                      // fontSize: 10,
+                      // fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                  Text(
+                    "Assigned : " + widget.title.assignCount.toString(),
+                    style: const TextStyle(
+                      // fontSize: 10,
+                      // fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                  Text(
+                    "Won : " + widget.title.assignWon.toString(),
+                    style: const TextStyle(
+                      // fontSize: 10,
+                      // fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                ],
+              )
+            ),
+          if (!widget.assigns && widget.title.type == "company" && widget.title.rank > 0)
+            Positioned(
+                top: 38,
+                left: 10,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Rank : #" + widget.title.rank.toString(),
+                      style: const TextStyle(
+                        // fontSize: 10,
+                        // fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
+                  ],
+                )
             ),
           if (startWith)
             Container(
@@ -437,7 +490,14 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
       children: [
         if (expand) actionButton(Icons.person),
         if (expand) actionButton(Icons.notification_important_rounded),
-        if (expand) actionButton(Icons.share),
+        if (expand) actionButton(Icons.share, click: () async {
+          final bytes = await rootBundle.load(Assets.background);
+          final list = bytes.buffer.asUint8List();
+          final tempDir = await getTemporaryDirectory();
+          final file = await File('${tempDir.path}/eng.jpg').create();
+          file.writeAsBytesSync(list);
+          Share.shareFiles([(file.path)],subject: "Give Away",text: 'check out my app https://mojabora.com');
+        }),
         GestureDetector(
           onTap: () {
             setState(() {
@@ -451,14 +511,21 @@ class _TaskViewWidgetState extends State<TaskViewWidget> {
     );
   }
 
-  Widget actionButton(IconData icon, {Color color = Colors.white}) {
-    return Container(
-      child: Icon(
-        icon,
-        color: color,
-        size: 35,
+  Widget actionButton(IconData icon, {Color color = Colors.white, Function()? click}) {
+    return GestureDetector(
+      onTap: () {
+        if(click != null){
+          click();
+        }
+      },
+      child: Container(
+        child: Icon(
+          icon,
+          color: color,
+          size: 35,
+        ),
+        padding: const EdgeInsets.all(5),
       ),
-      padding: const EdgeInsets.all(5),
     );
   }
 }

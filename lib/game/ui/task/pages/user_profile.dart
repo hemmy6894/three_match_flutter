@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/data/models/user_model.dart';
 import 'package:test_game/game/logic/server/server_bloc.dart';
@@ -23,7 +24,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
   @override
   void initState() {
     userModel = context.read<ServerBloc>().state.user;
+    requestPermissionContact();
     super.initState();
+  }
+
+  requestPermissionContact() async {
+    await FlutterContacts.requestPermission();
   }
 
   @override

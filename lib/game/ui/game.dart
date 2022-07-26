@@ -1,13 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_game/animations/animate_position.dart';
 import 'package:test_game/common/assets.dart';
-import 'package:test_game/game/data/models/game/game_character.dart';
 import 'package:test_game/game/data/models/game/position.dart';
 import 'package:test_game/game/logic/game/game_bloc.dart';
 import 'package:test_game/game/logic/ui/ui_cubit.dart';
-import 'package:test_game/game/ui/game/blast_pop_up.dart';
 import 'package:test_game/game/ui/game/character.dart';
 import 'package:test_game/game/ui/layouts/app.dart';
 import 'package:test_game/game/ui/levels/widget/game_over.dart';

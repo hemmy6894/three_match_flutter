@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:test_game/common/assets.dart';
 import 'package:test_game/game/data/models/assign.dart';
 import 'package:test_game/game/data/models/task.dart';
@@ -23,7 +24,12 @@ class _GameHomePageState extends State<GameHomePage> {
   initState() {
     context.read<ServerBloc>().add(ServerDestroyPayload());
     context.read<ServerBloc>().add(PullAssignmentEvent());
+    requestPermissionContact();
     super.initState();
+  }
+
+  requestPermissionContact() async {
+    await FlutterContacts.requestPermission();
   }
 
   @override

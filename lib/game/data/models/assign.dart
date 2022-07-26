@@ -10,6 +10,8 @@ class AssignModel extends Equatable {
   final String title;
   final String wallpaper;
   final int rank;
+  final int assignCount;
+  final int assignWon;
   final String description;
   final String url;
   final String type;
@@ -28,6 +30,8 @@ class AssignModel extends Equatable {
     required this.description,
     required this.url,
     required this.type,
+    required this.assignCount,
+    required this.assignWon,
     required this.user,
     required this.assigner,
     required this.task,
@@ -49,6 +53,8 @@ class AssignModel extends Equatable {
       type: "user",
       wallpaper: "",
       rank: 0,
+      assignCount: 0,
+      assignWon: 0,
       startAt: DateTime.now(),
       endAt: DateTime.now(),
       wonAt: DateTime.now(),
@@ -68,6 +74,8 @@ class AssignModel extends Equatable {
     String? type,
     String? wallpaper,
     int? rank,
+    int? assignCount,
+    int? assignWon,
     DateTime? startAt,
     DateTime? endAt,
     DateTime? wonAt,
@@ -91,6 +99,8 @@ class AssignModel extends Equatable {
       wonAt: wonAt ?? this.wonAt,
       wallpaper: wallpaper ?? this.wallpaper,
       rank: rank ?? this.rank,
+      assignCount: assignCount ?? this.assignCount,
+      assignWon: assignWon ?? this.assignWon,
     );
   }
 
@@ -108,6 +118,8 @@ class AssignModel extends Equatable {
       type: json["type"] ?? "",
       wallpaper: json["wallpaper_url"] ?? "",
       rank: json["rank"] ?? "",
+      assignCount: json["assigns_count"] ?? 1,
+      assignWon: json["assigns_won"] ?? 0,
       startAt: ThreeMatchHelper.convertDate(json["start_at"]),
       endAt: ThreeMatchHelper.convertDate(json["end_at"]),
       wonAt: ThreeMatchHelper.convertDate2(json["won_at"]),
@@ -128,6 +140,8 @@ class AssignModel extends Equatable {
       "type": type,
       "wallpaper_url": wallpaper,
       "rank": rank,
+      "assigns_count": assignCount,
+      "assigns_won": assignWon,
       "start_at": startAt.toString(),
       "end_at": endAt.toString(),
       "won_at": wonAt.toString(),
@@ -145,10 +159,11 @@ class AssignModel extends Equatable {
       }
     } catch (e) {
       users = [];
+      print(e);
     }
     return users;
   }
 
   @override
-  List<Object?> get props => [id,taskId, userId,title,description,url,endAt,startAt,wonAt,user.toMap(),task.toMap(),type, wallpaper,rank];
+  List<Object?> get props => [id,taskId, userId,title,description,url,endAt,startAt,wonAt,user.toMap(),task.toMap(),type, wallpaper,rank,assignCount,assignWon];
 }
